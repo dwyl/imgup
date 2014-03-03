@@ -16,7 +16,7 @@ And the *trend* is not likely to decelerate any time soon.
 
 ## What?
 
-- Upload an image (to S3) quickly and easily
+- Upload an image (to S3) effortlessly
 - Automatically re-size the image for mobile devices
 - Return a link to the re-sized image.
 
@@ -25,16 +25,25 @@ And the *trend* is not likely to decelerate any time soon.
 
 ### Image-upload-as-a-Service Provider
 
-- Transloadit: https://transloadit.com/
+- Transloadit: https://transloadit.com/ (tried it meteor doesn't like it)
+Reached out to Transloadit team on twitter: 
+https://twitter.com/nelsonic/status/440509092281319424
+didn't get a reply. so moved on to next service.
+- 
+
 
 
 ### How are others solving the problem?
 
 - http://stackoverflow.com/questions/19570496/how-to-upload-files-to-amazon-s3-with-meteor
 - http://stackoverflow.com/questions/19620929/direct-browser-upload-to-s3-with-meteor-jquery-and-the-aws-sdk
-- 
+- http://stackoverflow.com/questions/10099202/how-would-one-handle-a-file-upload-with-meteor
+- https://gist.github.com/dariocravero/3922137 (out of date!)
+
 
 ### History
 
 I've *partially* "solved" this problem before: 
-https://github.com/nelsonic/node-cdn but we need to re-size the images to save storage/bandwidth.
+https://github.com/nelsonic/node-cdn 
+and https://github.com/nelsonic/imagemagic-test
+I need to re-visit these two and get something working.
