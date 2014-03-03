@@ -1,0 +1,69 @@
+<head>
+  <meta charset="UTF-8" />
+  <title>Transloadit Demo</title>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Transloadit Demo</h1>
+    <!-- This is your upload form -->
+    <form id="upload-form" action="?upload=complete" enctype="multipart/form-data" method="POST">
+      <input type="file" name="my_file" multiple="multiple" />
+    </form>
+  </div>
+
+  <!-- We need to include jQuery to make the Transloadit jQuery plugin work -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+
+  <!-- We include the Transloadit jQuery plugin here -->
+  <script src="//assets.transloadit.com/js/jquery.transloadit2-v2-latest.js"></script>
+
+  <!-- We initialize the Transloadit plugin here -->
+  <script type="text/javascript">
+    $(function() {
+      // We reference our html form here
+      $('#upload-form').transloadit({
+        // We want to wait for all encodings to finish before the form
+        // is submitted.
+        wait: true,
+        // The upload to Transloadit should start as soon as the user
+        // selects some files.
+        triggerUploadOnFileSelection: true,
+
+        params: {
+          auth: {
+            // This is your API key.
+            key: "8932dc80a2e111e3a342af7453"
+          },
+          // Our assembly instructions just contain two steps for now.
+          // You can name the steps how you like.
+          steps: {
+            // The first step resizes the uploaded image(s) to 125x125 pixels.
+            // The /image/resize robots ignores any files that are not images
+            // automatically.
+            resize_to_125: {
+              robot: "/image/resize",
+              use: ":original",
+              width: 125,
+              height: 125
+            },
+            // The second step resizes the results further to 75x75 pixels.
+            // Notice how we "use" the output files of the "resize_to_125"
+            // step as our input here. We could use all kinds of steps with
+            // various robots that "use" each other, making this perfect for
+            // any workflow.
+            resize_to_75: {
+              robot: "/image/resize",
+              use: "resize_to_125",
+              width: 75,
+              height: 75,
+              // We also add a sepia effect here just for fun.
+              // The /image/resize robot has a ton of available parameters.
+              sepia: 80
+            }
+          }
+        }
+      });
+   });
+  </script>
+</body>

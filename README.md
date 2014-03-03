@@ -25,7 +25,7 @@ And the *trend* is not likely to decelerate any time soon.
 
 ### Image-upload-as-a-Service Provider
 
-- 
+- Transloadit: https://transloadit.com/
 
 
 ### How are others solving the problem?
