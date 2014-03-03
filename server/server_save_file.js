@@ -9,21 +9,13 @@ Meteor.methods({
         crypto = Npm.require('crypto'),
         base = process.env.PWD, // base node process path
         path = base + "/public/",
-        // name = cleanName(name), 
-        encoding = 'binary',    // default encoding
-        // chroot = Meteor.chroot || '../../../../../public';
+        encoding = 'binary',        // default encoding
         ext = fileExtension(name),
         name = crypto.createHash('sha1').update(blob).digest('hex') +"."+ext;
         
         console.log(">>> Base ", base);
         console.log("File Name: ",name);
-        // console.log("Encoding : ",encoding);
-
-    // Clean up the path. Remove any initial and final '/' -we prefix them-,
-    // any sort of attempt to go to the parent directory '..' and any empty directories in
-    // between '/////' - which may happen after removing '..'
     
-    // TODO Add file existance checks, etc...
     fs.writeFile(path + name, blob, encoding, function(err) {
       console.log(path, name);
       if (err) {
