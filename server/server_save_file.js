@@ -5,8 +5,8 @@ var fs = Npm.require('fs'),                  // for writing local (temp) files
     tmp = Meteor.require('tmp'),             // creates temporary directory      
     im = Meteor.require('Imagemagick'),      // re-size images
     encoding = 'binary',                     // default encoding
-    resizeWidths = { "mobile":640, 
-                     "thumb":200   };        // dimensions for re-sized images
+    resizeWidths = { "mobile_":640, 
+                     "thumb_":150, "full_":1200};        // dimensions for re-sized images
 
 var AWS_ACCESS_KEY_ID='AKIAIK6S2HJHV664GW6Q',
 AWS_SECRET_ACCESS_KEY='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',
@@ -75,7 +75,7 @@ Meteor.methods({
             im.resize({
               srcPath: fd,
               dstPath: thumb,
-              width:   resizeWidths.thumb,
+              width:   resizeWidths.thumb_,
               quality: 0.6
             }, function(err, stdout, stderr){
               if (err) throw err;
@@ -99,7 +99,7 @@ Meteor.methods({
               im.resize({
                 srcPath: fd,
                 dstPath: mobile,
-                width:   resizeWidths.mobile,
+                width:   resizeWidths.mobile_,
                 quality: 0.6
               }, function(err, stdout, stderr){
                 if (err) throw err;

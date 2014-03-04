@@ -1,5 +1,7 @@
 <head>
   <title>image-uploads</title>
+  <link href="https://nelsonic.s3.amazonaws.com/enlarge-image/lib/enlarge.css" rel="stylesheet" type="text/css">
+  <script src="https://nelsonic.s3.amazonaws.com/enlarge-image/lib/enlarge.js"> </script>
 </head>
 
 <body>
@@ -8,5 +10,11 @@
 
 <template name="example">
 	<input type="file" id="imgupload" />
-	<img id="thumb" src="" />
+	<div id="thumbnails">
+	</div>
+
+    <div id="enlargeImageContainer">
+        <img src="https://nelsonic.s3.amazonaws.com/enlarge-image/img/close.png" alt="Close Enlarged Image" id="enlargeImageClose"/>
+        <img id="enlargeImage" alt="Caption Here" />
+    </div>
 </template>

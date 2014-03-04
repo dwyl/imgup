@@ -156,7 +156,7 @@ So does giving these hash.jpg on our system loose some valuable information...?
 - Unoffical Meteor FAQ: https://github.com/oortcloud/unofficial-meteor-faq
 - File extension in node: http://stackoverflow.com/questions/10865347/node-js-get-file-extension
 - Prevent non-image files from being uploaded: http://stackoverflow.com/questions/12303660/restricting-file-types-in-jquery-file-upload-demo
-
+- Clear file input after upload: http://stackoverflow.com/questions/829571/clearing-an-html-file-upload-field-via-js
 
 ### History
 

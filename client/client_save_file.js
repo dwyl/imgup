@@ -1,17 +1,17 @@
 Template.example.events({
   'change input': function(ev) {  
-    console.log("Changed ",ev)
+    // console.log("Changed ",ev)
     _.each(ev.srcElement.files, function(file) {
       Meteor.saveFile(file, file.name, function(error, result) {
         if(error) { console.log("ERROR: ", error); }
         images = JSON.parse(result);
-        console.dir(result);
-        console.log('File Saved '+images.thumb);
+        // console.dir(result);
+        // console.log('File Saved '+images.thumb);
         setTimeout(function(){
-          $("#thumb").attr("src",images.thumb);
+          $("#thumbnails").prepend('<img class="thumb" src="'+images.thumb +'" />');
           $("#imgupload").val('');
           
-        },500)
+        },1500)
       });
     });
   }
