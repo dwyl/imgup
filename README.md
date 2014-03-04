@@ -1,24 +1,57 @@
-An investigation into the best way to upload (and re-size) images in node.js (meteor).
+A solution to uploading photos in Meteor.js
 
 ## Why? 
 
-![Cave Painting](https://raw.github.com/ideaq/ideaq.github.io/master/img/cave-painting.png "Cave Painting")
-
-People have used images to communicate since *the beginning*. <br />
-http://en.wikipedia.org/wiki/A_picture_is_worth_a_thousand_words
-
-We want to let our smart-phone empowered friends exercise their urge <br />
-to ***communicate in pictures*** and thus make their lives richer.
-
+Letting people ***communicate in pictures*** and thus make their lives better.
 
 ## What?
 
-- Upload an image (to S3) effortlessly
-- Automatically re-size the image for mobile devices
-- Return a link to the re-sized image.
+At present there is no "right way" of uploading images in Meteor.js
+
+This example image uploader
+
+- Uploads images (to S3) effortlessly
+- Use **ImageMagic** to ***automatically re-size*** & *optimise* the image for mobile devices
+- Return a list of the images that were uploaded to S3 for use in other objects.
+- Displays the photo inline on **without refreshing*** the page
+- Shows a **Progress Bar** to improve **U**ser e**X**perience
+- Styled upload button gives "native-like" experience
+
+## Results
+
+![Read](https://raw.github.com/ideaq/ideaq.github.io/master/img/image-upload-ready-to-go.png)
+![Select Photo](https://raw.github.com/ideaq/ideaq.github.io/master/img/image-upload-select-a-kitten.png)
+![Show Progresss](https://raw.github.com/ideaq/ideaq.github.io/master/img/image-upload-showing-progress-bar.png)
+![Display Thumbnail](https://raw.github.com/ideaq/ideaq.github.io/master/img/image-upload-showing-result.png)
 
 
-## How?
+## Try it!
+
+On your local machine, clone this repository
+
+```
+git clone git@github.com:ideaq/image-uploads.git
+```
+
+If you do not already have node.js or meteor installed,
+you will need to install:
+
+- Node.js: http://nodejs.org/download/
+- Meteor: https://www.meteor.com/
+- Meteorite: http://oortcloud.github.io/meteorite/
+- ImageMagick (see below)
+
+Once all of those are installed, you will need to:
+
+1. 
+2. 
+3.  
+
+
+
+## How? (implementation details)
+
+I've included 
 
 ### Using NPM Modules in Meteor
 
