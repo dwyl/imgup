@@ -56,11 +56,9 @@ Meteor.methods({
             uploadToS3(fd, "full_"+filename);        // upload full-size to S3
             resizeAndUpload(fd, filename, 'thumb_'); // create thumbnail and upload
 
-            // if its already too small for mobile, don't bother
-            if(oi.width > resizeWidths.mobile_ ) {
+            if(oi.width > resizeWidths.mobile_ ) {   // check if upload is too small
               resizeAndUpload(fd, filename, 'mobile_');
-            } else { 
-              // the original image width was too small
+            } else { // the original image width was too small 
               uploadToS3(fd, "mobile_"+filename); // upload full size as mobile version
             }
           }); // im.identify

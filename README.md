@@ -19,10 +19,7 @@ This example image uploader
 
 ## Results
 
-![Read](https://raw.github.com/ideaq/ideaq.github.io/master/img/image-upload-ready-to-go.png)
-![Select Photo](https://raw.github.com/ideaq/ideaq.github.io/master/img/image-upload-select-a-kitten.png)
-![Show Progresss](https://raw.github.com/ideaq/ideaq.github.io/master/img/image-upload-showing-progress-bar.png)
-![Display Thumbnail](https://raw.github.com/ideaq/ideaq.github.io/master/img/image-upload-showing-result.png)
+![Image Uplaod](http://i.imgur.com/ZFrotWs.png)
 
 
 ## Try it!
@@ -43,10 +40,17 @@ you will need to install:
 
 Once all of those are installed, you will need to:
 
-1. 
-2. 
-3.  
+1. Run meteorite to download the two dependencies `$ mrt`
+2. Update update the Amazon Web Services credentials in config.json
+3. Run the app!
 
+```sh
+$ meteor
+```
+
+Visit: http://localhost:3000/
+
+And start uploading!
 
 
 ## How? (implementation details)

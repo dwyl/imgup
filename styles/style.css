@@ -1,7 +1,15 @@
 /* CSS declarations go here */
 body {
 	max-width: 100%;
-	font-size: 1em;
+	font-size: 2em;
+	padding: 2em;
+}
+.intro {
+	width: 70%;
+	float: right;
+	font-size: 1.2em;
+	margin-top: -0.1em;
+	padding-left: .5em;
 }
 
 #imgupload {
