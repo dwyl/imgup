@@ -22,7 +22,7 @@ to ***communicate in pictures*** and thus make their lives richer.
 
 ### Using NPM Modules in Meteor
 
-Instead of using an untested meteor (wrapper) module
+Instead of using an *untested* meteor (*wrapper*) module
 I'm using https://github.com/arunoda/meteor-npm which
 allows us to use the actual npm module inside meteor.
 
@@ -44,7 +44,7 @@ Install dependencies:
 mrt
 ```
 
-
+Read more: http://meteorhacks.com/complete-npm-integration-for-meteor.html
 
 ### Uploading to S3 using AWS SDK
 

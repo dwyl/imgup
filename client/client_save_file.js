@@ -2,7 +2,10 @@ Template.example.events({
   'change input': function(ev) {  
     console.log("Changed ",ev)
     _.each(ev.srcElement.files, function(file) {
-      Meteor.saveFile(file, file.name);
+      Meteor.saveFile(file, file.name, function(error, result) {
+        if(error) { console.log("ERROR: ", error); }
+        console.log('File Saved '+result);
+      });
     });
   }
 });
@@ -19,13 +22,9 @@ Template.example.events({
 Meteor.saveFile = function(blob, name, callback) {
   var fileReader = new FileReader(),
     method   = 'readAsBinaryString';
- 
+    
   fileReader.onload = function(file) {
     Meteor.call('saveFile', file.srcElement.result, name, callback);
   }
   fileReader[method](blob);
-  
-  // if(typeof callback !== "undefined") {
-  //   callback(); 
-  // }
 }
