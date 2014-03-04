@@ -3,19 +3,35 @@
     "imagemagick": {
       "version": "0.1.3"
     },
-    "aws-sdk": {
-      "version": "2.0.0-rc10",
+    "knox": {
+      "version": "0.8.9",
       "dependencies": {
+        "mime": {
+          "version": "1.2.11"
+        },
         "xml2js": {
-          "version": "0.2.4",
+          "version": "0.2.8",
           "dependencies": {
             "sax": {
-              "version": "0.6.0"
+              "version": "0.5.8"
             }
           }
         },
-        "xmlbuilder": {
-          "version": "0.4.2"
+        "debug": {
+          "version": "0.7.4"
+        },
+        "stream-counter": {
+          "version": "0.1.0",
+          "dependencies": {
+            "readable-stream": {
+              "version": "1.0.26-2",
+              "dependencies": {
+                "string_decoder": {
+                  "version": "0.10.25-1"
+                }
+              }
+            }
+          }
         }
       }
     },

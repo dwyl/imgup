@@ -51,8 +51,17 @@ Read more: http://meteorhacks.com/complete-npm-integration-for-meteor.html
 Before Amazon decided to support Node.js the go-to module for S3 was
 Knox: https://github.com/LearnBoost/knox 
 
+Meteor example: https://gist.github.com/dnprock/6689567
+Learn from the tests: 
+https://github.com/LearnBoost/knox/blob/master/test/createClient.test.js
+
+Latest version: https://www.npmjs.org/package/knox (for your package**s**.json)
+
 The (*Official*) Amazon Web Services (AWS) SDK 
 https://github.com/aws/aws-sdk-js 
+
+>  ***Utterly Useless***!! :-(
+> http://stackoverflow.com/questions/14502143/cant-upload-images-in-nodejs-using-asw-sdk
 
 For the latest version check: https://www.npmjs.org/package/aws-sdk
 
@@ -146,7 +155,7 @@ So does giving these hash.jpg on our system loose some valuable information...?
 - Build a Meteor "Smart Package": http://stackoverflow.com/questions/10114526/how-to-build-a-meteor-smart-package
 - Unoffical Meteor FAQ: https://github.com/oortcloud/unofficial-meteor-faq
 - File extension in node: http://stackoverflow.com/questions/10865347/node-js-get-file-extension
-
+- Prevent non-image files from being uploaded: http://stackoverflow.com/questions/12303660/restricting-file-types-in-jquery-file-upload-demo
 
 
 ### History
@@ -167,3 +176,7 @@ The more successful image apps on the web/mobile:
 - Imgur: http://www.businessinsider.com/imgur-and-yahoo-acquisition-talks-2013-12
 - **Instagram** (Facebook): http://techcrunch.com/2012/09/06/facebook-closes-instagram-acquisition-instagram-announces-5-billion-photos-shared/
 - **SnapChat** (Which Sucker?): http://mashable.com/2014/01/06/snapchat-facebook-acquisition-2
+
+## Next
+
+> Try: https://github.com/aheckmann/gm (instead of node-imagemagick)
