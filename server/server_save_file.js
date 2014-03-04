@@ -1,23 +1,26 @@
-var fs = Npm.require('fs'),                  // for writing local (temp) files
-    knox = Meteor.require('knox'),            // uploading to S3
-    crypto = Npm.require('crypto'),          // used to create hash of image 
-    path = Npm.require('path'),              // used for getting file extension
-    tmp = Meteor.require('tmp'),             // creates temporary directory      
-    im = Meteor.require('Imagemagick'),      // re-size images
-    encoding = 'binary',                     // default encoding
-    resizeWidths = { "mobile_":640, 
-                     "thumb_":150, "full_":1200};        // dimensions for re-sized images
-
-var AWS_ACCESS_KEY_ID='AKIAIK6S2HJHV664GW6Q',
+var 
+fs           = Npm.require('fs'),             // for writing local (temp) files
+knox         = Meteor.require('knox'),        // uploading to S3
+client,                                       // used by knox
+crypto       = Npm.require('crypto'),         // used to create hash of image 
+path         = Npm.require('path'),           // used for getting file extension
+tmp          = Meteor.require('tmp'),         // creates temporary directory      
+im           = Meteor.require('Imagemagick'), // re-size images
+encoding     = 'binary',                      // default encoding
+oi           = {},                            // original image
+resizeWidths = { "mobile_":480, 
+                 "thumb_":200,                // dimensions for re-sized images
+                 "full_":1200 },
+AWS_ACCESS_KEY_ID='AKIAIK6S2HJHV664GW6Q',
 AWS_SECRET_ACCESS_KEY='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',
 s3baseurl = 'https://p360tilr.s3.amazonaws.com/',
 acl = { 'x-amz-acl': 'public-read' };
 
-var client = knox.createClient({
-      key: AWS_ACCESS_KEY_ID,
-      secret: AWS_SECRET_ACCESS_KEY,
-      bucket: 'p360tilr',
-      region: 'eu-west-1'
+client = knox.createClient({
+  key: AWS_ACCESS_KEY_ID,
+  secret: AWS_SECRET_ACCESS_KEY,
+  bucket: 'p360tilr',
+  region: 'eu-west-1'
 });
 
 /**
@@ -27,15 +30,10 @@ var client = knox.createClient({
 Meteor.methods({
   saveFile: function(blob, name) {
 
-    var ext = path.extname(name).toLowerCase(),  // http://stackoverflow.com/questions/10865347
+    var ext = path.extname(name).toLowerCase(),  // file extension
       filename = crypto.createHash('sha1').update(blob).digest('hex') +ext,
-      images = { 
-        full:   s3baseurl+"full_"+filename,
-        mobile: s3baseurl+"mobile_"+filename,
-        thumb:  s3baseurl+"thumb_"+filename
-      }; // a hash containing all the links to images
-        
-
+      images = imagesObject(filename);
+      
     console.log(">> File Name: ",filename);
 
     // create temporary directory for our image uploads on local
@@ -90,7 +88,7 @@ Meteor.methods({
 
             // check if we need to re-size the image
             // if its already too small
-            if(oi.width > resizeWidths.mobile ) {
+            if(oi.width > resizeWidths.mobile_ ) {
 
               // console.log("Image Width:",oi.width);
 
@@ -103,7 +101,7 @@ Meteor.methods({
                 quality: 0.6
               }, function(err, stdout, stderr){
                 if (err) throw err;
-                console.log('resized '+mobile );
+                console.log('>> Mobile : '+mobile );
                 // upload mobile version to S3
                 client.putFile(mobile, "mobile_"+filename, acl, function(err, res){
                   if (err) { throw err;  } else {
@@ -127,3 +125,22 @@ Meteor.methods({
     return JSON.stringify(images);
   } // saveFile
 });
+
+function resizeAndUpload(oi, filename, prefix, width) {
+
+
+}
+
+// creates an object with various urls to be sent back to client
+function imagesObject(filename){
+  // a hash containing all the links to images
+  var images = { 
+    full:   s3baseurl+"full_"+filename,
+    mobile: s3baseurl+"mobile_"+filename,
+    thumb:  s3baseurl+"thumb_"+filename
+  };
+  return images;
+}
+
+// always clean up temporary files
+tmp.setGracefulCleanup();

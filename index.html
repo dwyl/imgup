@@ -1,5 +1,6 @@
 <head>
   <title>image-uploads</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 </head>
 
@@ -9,10 +10,14 @@
 
 <template name="example">
 	<input type="file" id="imgupload" />
-	<a id="imgupload" class="btn btn-success fa-camera"> </a>
+	<a id="imgupload-button" class="btn btn-success"><i class="fa fa-camera fa-2x"></i></a>
+
 	<div id="upload-progress-container">
-		<div class="btn btn-success" id="upload-progress"></div>
+		<div id="upload-progress-bar">
+			<div id="upload-progress-percent"><b>0</b>%</div>
+		</div>
 	</div>
+	
 	<div id="thumbnails">
 	</div>
 </template>

@@ -1,6 +1,38 @@
 /* CSS declarations go here */
+body {
+	max-width: 100%;
+	font-size: 1em;
+}
+
+#imgupload {
+	display: none;
+}
+#thumbnails {
+	margin-top: 0.5em;
+	max-width: 100%;
+}
+.thumb {
+	border-radius: 6px
+	max-width: 200px;
+}
+
 
 #upload-progress-container {
-	/*display: none;*/
+	margin-top: 0.3em;
+	height: 1.5em;
+	display: none;
 	width: 100%;
+	background-color: #bdc3c7;
+	font-size: 0.7em;
+	position: relative;
+}
+#upload-progress-bar{
+	min-height: 1.5em;
+	background-color: #5cb85c;
+	z-index: 1;
+}
+#upload-progress-percent {
+	position: absolute;
+	right: 1%;
+	z-index: 2;
 }
