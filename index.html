@@ -1,7 +1,6 @@
 <head>
   <title>image-uploads</title>
-  <link href="https://nelsonic.s3.amazonaws.com/enlarge-image/lib/enlarge.css" rel="stylesheet" type="text/css">
-  <script src="https://nelsonic.s3.amazonaws.com/enlarge-image/lib/enlarge.js"> </script>
+  <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 </head>
 
 <body>
@@ -10,11 +9,10 @@
 
 <template name="example">
 	<input type="file" id="imgupload" />
+	<a id="imgupload" class="btn btn-success fa-camera"> </a>
+	<div id="upload-progress-container">
+		<div class="btn btn-success" id="upload-progress"></div>
+	</div>
 	<div id="thumbnails">
 	</div>
-
-    <div id="enlargeImageContainer">
-        <img src="https://nelsonic.s3.amazonaws.com/enlarge-image/img/close.png" alt="Close Enlarged Image" id="enlargeImageClose"/>
-        <img id="enlargeImage" alt="Caption Here" />
-    </div>
 </template>

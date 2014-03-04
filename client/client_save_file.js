@@ -35,3 +35,7 @@ Meteor.saveFile = function(blob, name, callback) {
   }
   fileReader[method](blob);
 }
+
+function progressBar() {
+  $("#upload-progress").val('');
+}

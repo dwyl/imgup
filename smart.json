@@ -1,5 +1,6 @@
 {
   "packages": {
-    "npm": {}
+    "npm": {},
+    "fontawesome4": {}
   }
 }
