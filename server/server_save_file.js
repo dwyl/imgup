@@ -4,7 +4,8 @@ knox         = Meteor.require('knox'),        // uploading to S3
 client,                                       // used by knox
 crypto       = Npm.require('crypto'),         // used to create hash of image 
 path         = Npm.require('path'),           // used for getting file extension
-tmp          = Meteor.require('tmp'),         // creates temporary directory      
+tmp          = Meteor.require('tmp'),         // creates temporary directory 
+tmpath,     
 im           = Meteor.require('Imagemagick'), // re-size images
 encoding     = 'binary',                      // default encoding
 oi           = {},                            // original image
@@ -33,90 +34,34 @@ Meteor.methods({
     var ext = path.extname(name).toLowerCase(),  // file extension
       filename = crypto.createHash('sha1').update(blob).digest('hex') +ext,
       images = imagesObject(filename);
-      
-    console.log(">> File Name: ",filename);
 
     // create temporary directory for our image uploads on local
     // this tmp.dir will be deleted on process exit 
-    // details: https://github.com/raszi/node-tmp
-    tmp.dir(function _tempDirCreated(err, tmpath) {
+    tmp.dir(function _tempDirCreated(err, tempPath) {
       if (err) throw err;
-
-      // console.log(">> TEMP Dir: ", tmpath);
-      var fd = tmpath +'/' +filename;
+      tmpath = tempPath;
+      var fd = tmpath +'/' +filename;  // original file descriptor
 
       // save the original file (temporarily) so we can use it in re-sizing
       fs.writeFile(fd, blob, encoding, function(err) {
-
         if (err) {
           throw (new Meteor.Error(500, 'Failed to save file. ', err));
         } else {
-          console.log('The file saved to ' + fd);
 
-          // get the dimensions of the original file
-          im.identify(fd, function(err, oi){
+          im.identify(fd, function(err, oi){ // get the dimensions of the original file
             if(err) { 
               throw (new Meteor.Error(500, 'Could not read image metadata. ', err));
             }
 
-            // upload full-size to S3
-            client.putFile(fd, "full_"+filename, acl, function(err, res){
-              if (err) { throw err;  } else {
-                // console.log(">>> S3 : "+s3baseurl+"full_"+filename);
-                res.resume();
-              }
-            });
+            uploadToS3(fd, "full_"+filename);        // upload full-size to S3
+            resizeAndUpload(fd, filename, 'thumb_'); // create thumbnail and upload
 
-
-            var thumb = tmpath+'/thumb_'+filename;
-
-            im.resize({
-              srcPath: fd,
-              dstPath: thumb,
-              width:   resizeWidths.thumb_,
-              quality: 0.6
-            }, function(err, stdout, stderr){
-              if (err) throw err;
-              // console.log('resized '+thumb );
-              // upload thumbnail version to S3
-              client.putFile(thumb, "thumb_"+filename, acl, function(err, res){
-                if (err) { throw err;  } else {
-                  res.resume();
-                }
-              });
-            });
-
-            // check if we need to re-size the image
-            // if its already too small
+            // if its already too small for mobile, don't bother
             if(oi.width > resizeWidths.mobile_ ) {
-
-              // console.log("Image Width:",oi.width);
-
-              var mobile = tmpath+'/mobile_'+filename;
-
-              im.resize({
-                srcPath: fd,
-                dstPath: mobile,
-                width:   resizeWidths.mobile_,
-                quality: 0.6
-              }, function(err, stdout, stderr){
-                if (err) throw err;
-                console.log('>> Mobile : '+mobile );
-                // upload mobile version to S3
-                client.putFile(mobile, "mobile_"+filename, acl, function(err, res){
-                  if (err) { throw err;  } else {
-                    // console.log(">>> S3 : "+s3baseurl+"full_"+filename);
-                    res.resume();
-                  }
-                });
-              });
-
+              resizeAndUpload(fd, filename, 'mobile_');
             } else { 
               // the original image width was too small
-              // so just add the default image to images object.
-              console.log("No need to re-size image with width ", oi.width)
-
-
+              uploadToS3(fd, "mobile_"+filename); // upload full size as mobile version
             }
           }); // im.identify
         } 
@@ -126,10 +71,29 @@ Meteor.methods({
   } // saveFile
 });
 
-function resizeAndUpload(oi, filename, prefix, width) {
+function resizeAndUpload(originalFile, filename, prefix) {
+    var resizedFile = tmpath+'/'+prefix+filename;
 
-
+    im.resize({
+      srcPath: originalFile,
+      dstPath: resizedFile,
+      width:   resizeWidths[prefix],
+      quality: 0.6
+    }, function(err, stdout, stderr){
+      if (err) throw err;
+      uploadToS3(resizedFile, prefix+filename); // upload mobile version to S3
+    });
 }
+
+function uploadToS3(localfile, remotefilename){
+  client.putFile(localfile, remotefilename, acl, function(err, res){
+    if (err) { throw err;  } else {
+    // console.log(">>> S3 : "+s3baseurl+"full_"+filename);
+      res.resume();
+    }
+  });
+}
+
 
 // creates an object with various urls to be sent back to client
 function imagesObject(filename){

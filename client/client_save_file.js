@@ -8,15 +8,12 @@ Template.example.events({
       // save the file
       Meteor.saveFile(file, file.name, function(error, result) {
         if(error) { console.log("ERROR: ", error); }
+        // result returned from server is a JSON object with 
+        // urls thumb, mobile and full versions of the image
         images = JSON.parse(result);
-        // console.dir(result);
-        // console.log('File Saved '+images.thumb);
+        // wait for the upload to finish before showing thumbnail
         setTimeout(function(){
           $("#thumbnails").prepend('<img class="thumb" src="'+images.thumb +'" />');
-          // var width = window.innerWidth;
-          // if(width < 650){
-          //   $(".thumb").css("width",width+"px");
-          // }
           $("#imgupload").val(''); 
           $('#imgupload-button i').removeClass("fa-spinner fa-spin").addClass("fa-camera");
         },2000)
@@ -44,8 +41,12 @@ Meteor.saveFile = function(blob, name, callback) {
   fileReader[method](blob);
 }
 
-// using a logarithm and a setInterval to simulate progress bar
+/**
+ * Creates a mock progress-bar for visual feedback for users
+ * @duration is the number of milliseconds
+ */
 function progressBar(duration) {
+  var duration = duration || 1000;
   $("#upload-progress-container").fadeIn(100);
   var w = 0, i = 0, freq = duration/20;
   interval = setInterval(function(){
@@ -62,9 +63,11 @@ function progressBar(duration) {
   },freq);
 }
 
+/**
+ * Event listeners let us use a camera button for image input
+ */
 $( function() {
-  progressBar(500);
-  console.log("event listner for fake upload button");
+  // progressBar(500);
   $("#imgupload-button").click(function(){
     $("#imgupload").click(); 
     return false;

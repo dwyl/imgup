@@ -62,14 +62,12 @@ Latest version: https://www.npmjs.org/package/knox (for your package**s**.json)
 The (*Official*) Amazon Web Services (AWS) SDK 
 https://github.com/aws/aws-sdk-js 
 
->  ***Utterly Useless***!! :-(
+>  ***Utterly Useless***!! :-( <br />
 > http://stackoverflow.com/questions/14502143/cant-upload-images-in-nodejs-using-asw-sdk
 
-For the latest version check: https://www.npmjs.org/package/aws-sdk
+**Latest version** check: https://www.npmjs.org/package/aws-sdk
 
-#### Notes
-
-- Usage Examples: http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-examples.html
+**Usage Examples**: http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-examples.html
 
 
 ### Image Re-Sizing using ImageMagic
@@ -90,7 +88,7 @@ Latest version: https://www.npmjs.org/package/imagemagick
 ### Temporary Folder / Files
 
 
-Usage: https://github.com/raszi/node-tmp
+Usage: https://github.com/raszi/node-tmp <br />
 Latest version: https://www.npmjs.org/package/tmp
 
 
