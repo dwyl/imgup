@@ -20,15 +20,41 @@ to ***communicate in pictures*** and thus make their lives richer.
 
 ## How?
 
+### Using NPM Modules in Meteor
+
+Instead of using an untested meteor (wrapper) module
+I'm using https://github.com/arunoda/meteor-npm which
+allows us to use the actual npm module inside meteor.
+
+```sh
+npm install -g meteor-npm
+```
+
+then create a package**s**.json file (note the **s** in package**s**)
+
+```javascript
+{
+  "imagemagick": "*"
+}
+```
+
+Install dependencies:
+
+```sh
+mrt
+```
+
+
+
 ### Uploading to S3 using AWS SDK
 
 Before Amazon decided to support Node.js the go-to module for S3 was
 Knox: https://github.com/LearnBoost/knox 
 
 The (*Official*) Amazon Web Services (AWS) SDK 
-https://github.com/aws/aws-sdk-js has a corresponding meteor package:
-https://github.com/peerlibrary/meteor-aws-sdk 
+https://github.com/aws/aws-sdk-js 
 
+For the latest version check: https://www.npmjs.org/package/aws-sdk
 
 #### Notes
 
@@ -44,6 +70,17 @@ On a Mac you will need [Homebrew](http://brew.sh/) to install ImageMagic
 brew install imagemagick
 ```
 
+Now **install node-imagemagick** (already done above the first time you ran `mrt`)
+
+Usage: https://github.com/rsms/node-imagemagick 
+Latest version: https://www.npmjs.org/package/imagemagick
+
+
+### Temporary Folder / Files
+
+
+Usage: https://github.com/raszi/node-tmp
+Latest version: https://www.npmjs.org/package/tmp
 
 
 
