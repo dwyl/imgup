@@ -14,7 +14,7 @@ This example image uploader
 - Use **ImageMagic** to ***automatically re-size*** & *optimise* the image for mobile devices
 - Return a list of the images that were uploaded to S3 for use in other objects.
 - Displays the photo inline on **without refreshing*** the page
-- Shows a **Progress Bar** to improve **U**ser e**X**perience
+- Shows a **Progress Bar** to improve **User Experience**
 - Styled upload button gives "native-like" experience
 
 ## Results
