@@ -2,7 +2,7 @@ A solution to uploading photos in Meteor.js
 
 ## Why? 
 
-Letting people ***communicate in pictures*** and thus make their lives better.
+Helping people ***communicate in pictures*** makes their lives better.
 
 ## What?
 
@@ -41,7 +41,7 @@ you will need to install:
 Once all of those are installed, you will need to:
 
 1. Run meteorite to download the two dependencies `$ mrt`
-2. Update update the Amazon Web Services credentials in config.json
+2. Update update the Amazon Web Services credentials in server_save_file.js
 3. Run the app!
 
 ```sh

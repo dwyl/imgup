@@ -12,16 +12,15 @@ oi           = {},                            // original image
 resizeWidths = { "mobile_":480, 
                  "thumb_":200,                // dimensions for re-sized images
                  "full_":1200 },
-AWS_ACCESS_KEY_ID='AKIAIK6S2HJHV664GW6Q',
-AWS_SECRET_ACCESS_KEY='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',
-s3baseurl = 'https://p360tilr.s3.amazonaws.com/',
-acl = { 'x-amz-acl': 'public-read' };
+config       = {},
+s3baseurl    = 'https://'+config.S3_BUCKET+'.s3.amazonaws.com/',
+acl          = { 'x-amz-acl': 'public-read' };
 
 client = knox.createClient({
-  key: AWS_ACCESS_KEY_ID,
-  secret: AWS_SECRET_ACCESS_KEY,
-  bucket: 'p360tilr',
-  region: 'eu-west-1'
+  key:    config.AWS_ACCESS_KEY_ID,
+  secret: config.AWS_SECRET_ACCESS_KEY,
+  bucket: config.S3_BUCKET,
+  region: config.AWS_REGION
 });
 
 /**
