@@ -96,6 +96,7 @@ https://github.com/LearnBoost/knox/blob/master/test/createClient.test.js
 
 Latest version: https://www.npmjs.org/package/knox (for your package**s**.json)
 
+<strike>
 The (*Official*) Amazon Web Services (AWS) SDK 
 https://github.com/aws/aws-sdk-js 
 
@@ -105,7 +106,7 @@ https://github.com/aws/aws-sdk-js
 **Latest version** check: https://www.npmjs.org/package/aws-sdk
 
 **Usage Examples**: http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-examples.html
-
+</strike>
 
 ### Image Re-Sizing using ImageMagic
 
