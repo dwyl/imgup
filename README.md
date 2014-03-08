@@ -136,7 +136,13 @@ However they uploaded images from their iDevices which were not in the correct o
 
 So we need to add rotation.
 
+I checked the source-code for node imagemagic:
 
+https://github.com/rsms/node-imagemagick/blob/master/imagemagick.js
+
+There is no mention of rotation. :-(
+
+Might have to go back to the drawing board...
 
 
 ### Temporary Folder / Files
