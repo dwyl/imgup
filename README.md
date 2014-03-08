@@ -147,7 +147,7 @@ Might have to go back to the drawing board...
 ##### Alternatives
 
 - http://code.google.com/p/jqueryrotate/
-
+- http://pixenate.com/
 
 
 ### Temporary Folder / Files
