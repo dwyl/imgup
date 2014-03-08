@@ -144,6 +144,11 @@ There is no mention of rotation. :-(
 
 Might have to go back to the drawing board...
 
+##### Alternatives
+
+- http://code.google.com/p/jqueryrotate/
+
+
 
 ### Temporary Folder / Files
 
