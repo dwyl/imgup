@@ -1,5 +1,8 @@
 A solution to uploading photos in Meteor.js
 
+> **Note**: I haven't finished the unit-tests for this yet but its usable in all HTML5 browsers (so 9<IE). This works great for mobile devices and desktop (Safri, Chrome and Firefox) but requires a Non-HTML5 Fallback for IE9 and below.
+> So if you need to support older browsers, either help me with the IE work or look for an alternative. thanks.
+
 ## Why? 
 
 Helping people ***communicate in pictures*** makes their lives better.
