@@ -123,7 +123,7 @@ Usage: https://github.com/rsms/node-imagemagick
 Latest version: https://www.npmjs.org/package/imagemagick
 
 
-#### Rotating
+### Rotating
 
 We started using this code in staging today and 
 users started uploading images imediately. 
@@ -135,6 +135,14 @@ Was a user comment that *delighted* us.
 However they uploaded images from their iDevices which were not in the correct orientation...
 
 So we need to add rotation.
+
+#### Assumptions
+
+Between 70-90% of people are right-handed
+
+![iphone landscape right-handed](http://i.imgur.com/3M4PiXa.jpg)
+
+#### Investigation
 
 I checked the source-code for node imagemagic:
 
@@ -148,6 +156,9 @@ Might have to go back to the drawing board...
 
 - http://code.google.com/p/jqueryrotate/
 - http://pixenate.com/
+
+
+
 
 
 ### Temporary Folder / Files

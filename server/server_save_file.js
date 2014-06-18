@@ -1,7 +1,6 @@
 var 
 fs           = Npm.require('fs'),             // for writing local (temp) files
 knox         = Meteor.require('knox'),        // uploading to S3
-client,                                       // used by knox
 crypto       = Npm.require('crypto'),         // used to create hash of image 
 path         = Npm.require('path'),           // used for getting file extension
 tmp          = Meteor.require('tmp'),         // creates temporary directory 
@@ -12,11 +11,15 @@ oi           = {},                            // original image
 resizeWidths = { "mobile_":480, 
                  "thumb_":200,                // dimensions for re-sized images
                  "full_":1200 },
-config       = {},
+config       = {
+  "AWS_ACCESS_KEY_ID"     :"AKIAIK6S2HJHV664GW6Q",
+  "AWS_SECRET_ACCESS_KEY" :"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",
+  "S3_BUCKET"             : "p360tilr",
+  "AWS_REGION"            : "eu-west-1"
+},
 s3baseurl    = 'https://'+config.S3_BUCKET+'.s3.amazonaws.com/',
-acl          = { 'x-amz-acl': 'public-read' };
-
-client = knox.createClient({
+acl          = { 'x-amz-acl': 'public-read' },
+client       = knox.createClient({
   key:    config.AWS_ACCESS_KEY_ID,
   secret: config.AWS_SECRET_ACCESS_KEY,
   bucket: config.S3_BUCKET,
