@@ -126,7 +126,7 @@ Usage: https://github.com/rsms/node-imagemagick
 Latest version: https://www.npmjs.org/package/imagemagick
 
 
-### Rotating
+### Image Rotation
 
 We started using this code in staging today and 
 users started uploading images imediately. 
@@ -141,9 +141,13 @@ So we need to add rotation.
 
 #### Assumptions
 
-Between 70-90% of people are right-handed
+Aproximately [90% of people](http://en.wikipedia.org/wiki/Handedness) are right-handed. 
 
 ![iphone landscape right-handed](http://i.imgur.com/3M4PiXa.jpg)
+
+Therefore we need to rotate images 90 degrees *clockwise*. 
+
+
 
 #### Investigation
 
