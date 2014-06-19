@@ -151,16 +151,27 @@ Therefore we need to rotate images 90 degrees *clockwise*.
 
 #### Investigation
 
-I checked the source-code for node imagemagic:
+ImageMagic has the ability to rotate images:
+
+- http://stackoverflow.com/questions/14751011/how-to-rotate-an-image-without-changing-its-size
+- http://stackoverflow.com/questions/13467252/rotate-png-by-imagemagick
+- http://www.imagemagick.org/Usage/distorts/#srt
+- Manual: http://www.imagemagick.org/script/command-line-options.php?#distort
+
+
+However the source-code for node imagemagic does not expose the *distort* method:
 
 https://github.com/rsms/node-imagemagick/blob/master/imagemagick.js
 
-There is no mention of rotation. :-(
+There is no mention of distortion/rotation. :-(
 
-Might have to go back to the drawing board...
+
+
 
 ##### Alternatives
 
+- http://www.graphicsmagick.org/ (forked from ImageMagic)
+- GM for Node.js https://github.com/aheckmann/gm
 - http://code.google.com/p/jqueryrotate/
 - http://pixenate.com/
 
