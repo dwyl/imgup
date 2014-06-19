@@ -3,6 +3,15 @@ A solution to uploading photos in Meteor.js
 > **Note**: I haven't finished the unit-tests for this yet but its usable in all HTML5 browsers (so 9<IE). This works great for mobile devices and desktop (Safri, Chrome and Firefox) but requires a Non-HTML5 Fallback for IE9 and below.
 > So if you need to support older browsers, either help me with the IE work or look for an alternative. thanks.
 
+## TODO
+
+- [ ] Add **config.js** File for S3 Credentials (so we aren't leaking info)
+- [ ] Switch from **imagemagick** to ***https://github.com/aheckmann/gm*** for rotation
+- [ ] Implement Rotation using gm
+- [ ] Write tests including rotation ...
+
+
+
 ## Why? 
 
 Helping people ***communicate in pictures*** makes their lives better.
@@ -168,15 +177,13 @@ There is no mention of distortion/rotation. :-(
 
 
 
-##### Alternatives
+##### Alternatives > GraphicsMagic
+
 
 - http://www.graphicsmagick.org/ (forked from ImageMagic)
 - GM for Node.js https://github.com/aheckmann/gm
 - http://code.google.com/p/jqueryrotate/
 - http://pixenate.com/
-
-
-
 
 
 ### Temporary Folder / Files
