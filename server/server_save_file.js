@@ -26,8 +26,9 @@ client       = knox.createClient({
   region: config.AWS_REGION
 });
 
-// var p = Meteor.require('../packages.json');
-// console.log(p);
+var myjson = {};
+myjson = JSON.parse(Assets.getText("config-example.json"));
+console.log(myjson.AWS_REGION);
 
 
 /**
