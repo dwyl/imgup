@@ -26,10 +26,17 @@ client       = knox.createClient({
   region: config.AWS_REGION
 });
 
+// var p = Meteor.require('../packages.json');
+// console.log(p);
+
+
 /**
  * Handles uploading images, resizing them and pushing them to S3
  * http://stackoverflow.com/questions/7329128/how-to-write-binary-data-to-a-file-using-node-js
  */
+
+console.log(process.env); 
+
 Meteor.methods({
   saveFile: function(blob, name) {
 

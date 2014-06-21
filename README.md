@@ -260,6 +260,7 @@ So does giving these hash.jpg on our system loose some valuable information...?
 - Clear file input after upload: http://stackoverflow.com/questions/829571/clearing-an-html-file-upload-field-via-js
 - Fontawesome intro video: http://youtu.be/BdyI6T-_7ts
 - Meteor Fontawesome4: https://github.com/chrismbeckett/meteor-fontawesome4 (*icons*)
+- 
 
 ### History
 
