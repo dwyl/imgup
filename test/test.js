@@ -1,5 +1,5 @@
 var fs = require('fs'), 
-    gm = require('gm');
+    gm = require('gm').subClass({ imageMagick: true });
 
 // console.log(gm);
 // resize and remove EXIF profile data
@@ -12,7 +12,15 @@ var fs = require('fs'),
 // });
 console.log(__dirname);
 
-gm(__dirname+'gym-log-landscape.jpg')
+var filename = 'gym-log-landscape.jpg';
+
+// fs.readFile(filename, function(err, data){
+// 	if(err) { console.log(err); }
+// 	else { console.log(data); }
+// })
+console.log(filename);
+gm(filename)
 .identify(function (err, data) {
-  if (!err) console.log(data)
+	if(err) { console.log(err);  }
+	else    { console.log(data); }
 });
