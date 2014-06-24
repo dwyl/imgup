@@ -5,7 +5,8 @@ A solution to uploading photos in Meteor.js
 
 ## TODO
 
-- [ ] Add **config.js** File for S3 Credentials (so we aren't leaking info)
+- [x] Add **config.js** File for S3 Credentials (so we aren't leaking info) 
+> Copy **private/config-example.json** to private/config.json and update your S3 details
 - [ ] Switch from **imagemagick** to ***https://github.com/aheckmann/gm*** for rotation
 - [ ] Implement Rotation using gm
 - [ ] Write tests including rotation ...

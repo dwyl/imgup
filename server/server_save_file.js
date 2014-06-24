@@ -6,17 +6,13 @@ path         = Npm.require('path'),           // used for getting file extension
 tmp          = Meteor.require('tmp'),         // creates temporary directory 
 tmpath,     
 im           = Meteor.require('Imagemagick'), // re-size images
+gm           = Meteor.require('gm'), // re-size images
 encoding     = 'binary',                      // default encoding
 oi           = {},                            // original image
 resizeWidths = { "mobile_":480, 
                  "thumb_":200,                // dimensions for re-sized images
                  "full_":1200 },
-config       = {
-  "AWS_ACCESS_KEY_ID"     :"AKIAIK6S2HJHV664GW6Q",
-  "AWS_SECRET_ACCESS_KEY" :"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",
-  "S3_BUCKET"             : "p360tilr",
-  "AWS_REGION"            : "eu-west-1"
-},
+config = JSON.parse(Assets.getText("config.json")),
 s3baseurl    = 'https://'+config.S3_BUCKET+'.s3.amazonaws.com/',
 acl          = { 'x-amz-acl': 'public-read' },
 client       = knox.createClient({
@@ -26,17 +22,13 @@ client       = knox.createClient({
   region: config.AWS_REGION
 });
 
-var myjson = {};
-myjson = JSON.parse(Assets.getText("config-example.json"));
-console.log(myjson.AWS_REGION);
+console.log(config.AWS_REGION);
 
 
 /**
  * Handles uploading images, resizing them and pushing them to S3
  * http://stackoverflow.com/questions/7329128/how-to-write-binary-data-to-a-file-using-node-js
  */
-
-console.log(process.env); 
 
 Meteor.methods({
   saveFile: function(blob, name) {
