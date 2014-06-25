@@ -6,26 +6,19 @@ var fs = require('fs'),
 var filename = 'example-photo-landscape-mode.jpg';
 
 console.log(filename);
-var rotation = 0;
-gm(filename)
-.identify(function (err, data) {
-	if(err) { console.log(err);  }
-	else    { console.log(data.size); }
-	console.log(data.Properties['exif:Orientation'])
-	var orient = parseInt(data.Properties['exif:Orientation'], 10);
 
-	if(orient === 3 || orient === 4){
-		rotation = 180;
+// get the metadata for the uploaded image using identify() method
+gm(filename).identify(function (err, data) {
+	if(err) { 
+		console.log(err);  
 	}
-	if(orient === 5 || orient === 6){
-		rotation = 270;
-	}
-	if(orient === 7 || orient === 8){
-		rotation = 90;
-	}
+	
+	console.log(data.size);
+	rotation = getRotationAngle(data);
+
 
 	gm(filename)
-	.rotate('black',rotation)
+	.rotate('black',rotation) // first arg has to be a color string.
 	.resize(480)
 	.quality(60)
 	.write('mobile_'+filename, function (err) {
@@ -42,5 +35,35 @@ gm(filename)
 		else    { console.log('thumb_ saved'); }
 	})
 
+	gm('thumb_'+filename)
+	.identify(function (err, data) {
+		if(err) { console.log(err);  }
+		else    { console.log(data.Properties['exif:Orientation']); }
+	})
+
 });
 
+/**
+ * get Orientation info from image file meta data
+ * use to determine the angle (in degrees) to rotate the image
+ * see: http://sylvana.net/jpegcrop/exif_orientation.html
+ */
+function getRotationAngle(data){
+	var rotation    = 0;
+	var orientation = 0;
+	if(data.Properties.hasOwnProperty('exif:Orientation')){
+		console.log('Orientation', data.Properties['exif:Orientation'])
+		var orientation = parseInt(data.Properties['exif:Orientation'], 10);
+
+		if(orientation === 3 || orientation === 4){
+			rotation = 180;
+		}
+		if(orientation === 5 || orientation === 6){
+			rotation = 270;
+		}
+		if(orientation === 7 || orientation === 8){
+			rotation = 90;
+		}
+	}
+	return rotation;
+}

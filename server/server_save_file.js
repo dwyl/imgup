@@ -6,7 +6,7 @@ path         = Npm.require('path'),           // used for getting file extension
 tmp          = Meteor.require('tmp'),         // creates temporary directory 
 tmpath,     
 im           = Meteor.require('Imagemagick'), // re-size images
-gm           = Meteor.require('gm'), // re-size images
+gm           = Meteor.require('gm').subClass({ imageMagick: true }), // graphics magic
 encoding     = 'binary',                      // default encoding
 oi           = {},                            // original image
 resizeWidths = { "mobile_":480, 

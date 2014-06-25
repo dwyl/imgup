@@ -266,14 +266,15 @@ So does giving these hash.jpg on our system loose some valuable information...?
 
 For convenience, here is what the letter F would look like if it were tagged correctly and displayed by a program that ignores the orientation tag (thus showing the stored image):
 ```
-  1        2       3      4         5            6           7          8
+  1          2         3        4         5                 6           7            8
 
-888888  888888      88  88      8888888888  88                  88  8888888888
-88          88      88  88      88  88      88  88          88  88      88  88
-8888      8888    8888  8888    88          8888888888  8888888888          88
-88          88      88  88
-88          88  888888  888888
+888888    888888        88    88        8888888888    88                   88   8888888888
+88            88        88    88        88  88        88  88           88  88       88  88
+8888        8888      8888    8888      88            8888888888   8888888888           88
+88            88        88    88 
+88            88    888888    888888
 ```
+
 - See: Jpeg Exif Orientation http://sylvana.net/jpegcrop/exif_orientation.html for more detail
 
 
