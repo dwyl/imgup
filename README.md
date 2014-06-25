@@ -261,7 +261,26 @@ So does giving these hash.jpg on our system loose some valuable information...?
 - Clear file input after upload: http://stackoverflow.com/questions/829571/clearing-an-html-file-upload-field-via-js
 - Fontawesome intro video: http://youtu.be/BdyI6T-_7ts
 - Meteor Fontawesome4: https://github.com/chrismbeckett/meteor-fontawesome4 (*icons*)
-- 
+
+#### Understanding JPEG Exif Orientation
+
+For convenience, here is what the letter F would look like if it were tagged correctly and displayed by a program that ignores the orientation tag (thus showing the stored image):
+
+  1        2       3      4         5            6           7          8
+
+888888  888888      88  88      8888888888  88                  88  8888888888
+88          88      88  88      88  88      88  88          88  88      88  88
+8888      8888    8888  8888    88          8888888888  8888888888          88
+88          88      88  88
+88          88  888888  888888
+
+- See: Jpeg Exif Orientation http://sylvana.net/jpegcrop/exif_orientation.html for more detail
+
+
+### Troubleshooting
+
+- If you get an **enoent error** while trying to run **gm** see: 
+http://stackoverflow.com/questions/16222116/error-spawn-enoent-while-using-gm-in-node
 
 ### History
 
