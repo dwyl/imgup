@@ -15,33 +15,34 @@ gm(filename).identify(function (err, data) {
 	
 	console.log(data.size);
 	rotation = getRotationAngle(data);
+	var rotated = 'rotated_'+filename; 
 
-
-	gm(filename)
-	.rotate('black',rotation) // first arg has to be a color string.
-	.resize(480)
-	.quality(60)
-	.write('mobile_'+filename, function (err) {
+	gm(filename).rotate('black',rotation) // first arg has to be a color string.
+	.write(rotated, function (err) {
 		if(err) { console.log(err);  }
-		else    { console.log('mobile_ saved'); }
+		else    { console.log(rotated+' saved'); }
+		gm(rotated)
+		.resize(480)
+		.quality(60)
+		.write('mobile_'+rotated, function (err) {
+			if(err) { console.log(err);  }
+			else    { console.log('mobile_ saved'); }
+		})
+			
+		gm(rotated)
+		.resize(200)
+		.quality(60)
+		.write('thumb_'+rotated, function (err) {
+			if(err) { console.log(err);  }
+			else    { console.log('thumb_ saved'); }
+			gm('thumb_'+rotated)
+			.identify(function (err, data) {
+				if(err) { console.log(err);  }
+				else    { console.log(data.Properties['exif:Orientation']); }
+			})
+		})
 	})
-		
-	gm(filename)
-	.rotate('black',rotation)
-	.resize(200)
-	.quality(60)
-	.write('thumb_'+filename, function (err) {
-		if(err) { console.log(err);  }
-		else    { console.log('thumb_ saved'); }
-	})
-
-	gm('thumb_'+filename)
-	.identify(function (err, data) {
-		if(err) { console.log(err);  }
-		else    { console.log(data.Properties['exif:Orientation']); }
-	})
-
-});
+})
 
 /**
  * get Orientation info from image file meta data
@@ -52,9 +53,9 @@ function getRotationAngle(data){
 	var rotation    = 0;
 	var orientation = 0;
 	if(data.Properties.hasOwnProperty('exif:Orientation')){
-		console.log('Orientation', data.Properties['exif:Orientation'])
-		var orientation = parseInt(data.Properties['exif:Orientation'], 10);
-
+		orientation = parseInt(data.Properties['exif:Orientation'], 10);
+		console.log('Orientation:', orientation);
+		
 		if(orientation === 3 || orientation === 4){
 			rotation = 180;
 		}
