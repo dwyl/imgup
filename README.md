@@ -1,14 +1,15 @@
 A solution to uploading photos in Meteor.js
 
-> **Note**: I haven't finished the unit-tests for this yet but its usable in all HTML5 browsers (so 9<IE). This works great for mobile devices and desktop (Safri, Chrome and Firefox) but requires a Non-HTML5 Fallback for IE9 and below.
-> So if you need to support older browsers, either help me with the IE work or look for an alternative. thanks.
+> ***Note***: I haven't finished the unit-tests for this yet :tired_face: <br />
+> but its *usable* in all **HTML5 browsers** (so 9<IE). This works great for mobile devices and desktop (Safri, Chrome and Firefox) but requires a Non-HTML5 Fallback for IE9 and below.
+> So if you need to support older browsers, either help me with the IE work (fork+send a **pull request**!) or look for an alternative. Thanks. :-)
 
-## TODO
+## Features
 
-- [x] Add **config.js** File for S3 Credentials (so we aren't leaking info) 
-> Copy **private/config-example.json** to private/config.json and update your S3 details
-- [ ] Switch from **imagemagick** to ***https://github.com/aheckmann/gm*** for rotation
-- [ ] Implement Rotation using gm
+- [x] Uses **config.js** file for S3 Credentials (so we aren't leaking info) 
+> You will need to cp **private/config-example.json** private/config.json and update your S3 details
+- [x] Switch from **imagemagick** to ***https://github.com/aheckmann/gm*** for rotation
+- [x] Implement (***Auto***) Rotation using gm
 - [ ] Write tests including rotation ...
 
 
@@ -168,7 +169,6 @@ ImageMagic has the ability to rotate images:
 - http://www.imagemagick.org/Usage/distorts/#srt
 - Manual: http://www.imagemagick.org/script/command-line-options.php?#distort
 
-
 However the source-code for node imagemagic does not expose the *distort* method:
 
 https://github.com/rsms/node-imagemagick/blob/master/imagemagick.js
@@ -182,9 +182,26 @@ There is no mention of distortion/rotation. :-(
 
 
 - http://www.graphicsmagick.org/ (forked from ImageMagic)
-- GM for Node.js https://github.com/aheckmann/gm
+- **GM** for Node.js https://github.com/aheckmann/gm
 - http://code.google.com/p/jqueryrotate/
 - http://pixenate.com/
+
+
+#### Understanding JPEG Exif Orientation
+
+For convenience, here is what the letter F would look like if it were tagged correctly and displayed by a program that ignores the orientation tag (thus showing the stored image):
+```
+  1          2         3        4         5                 6           7            8
+
+888888    888888        88    88        8888888888    88                   88   8888888888
+88            88        88    88        88  88        88  88           88  88       88  88
+8888        8888      8888    8888      88            8888888888   8888888888           88
+88            88        88    88 
+88            88    888888    888888
+```
+
+- See: Jpeg Exif Orientation http://sylvana.net/jpegcrop/exif_orientation.html for more detail
+
 
 
 ### Temporary Folder / Files
@@ -261,21 +278,6 @@ So does giving these hash.jpg on our system loose some valuable information...?
 - Clear file input after upload: http://stackoverflow.com/questions/829571/clearing-an-html-file-upload-field-via-js
 - Fontawesome intro video: http://youtu.be/BdyI6T-_7ts
 - Meteor Fontawesome4: https://github.com/chrismbeckett/meteor-fontawesome4 (*icons*)
-
-#### Understanding JPEG Exif Orientation
-
-For convenience, here is what the letter F would look like if it were tagged correctly and displayed by a program that ignores the orientation tag (thus showing the stored image):
-```
-  1          2         3        4         5                 6           7            8
-
-888888    888888        88    88        8888888888    88                   88   8888888888
-88            88        88    88        88  88        88  88           88  88       88  88
-8888        8888      8888    8888      88            8888888888   8888888888           88
-88            88        88    88 
-88            88    888888    888888
-```
-
-- See: Jpeg Exif Orientation http://sylvana.net/jpegcrop/exif_orientation.html for more detail
 
 
 ### Troubleshooting
