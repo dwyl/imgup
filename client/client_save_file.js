@@ -1,7 +1,10 @@
 Template.example.events({
   'change input': function(ev) {  
     // console.log("Changed ",ev)
-    _.each(ev.srcElement.files, function(file) {
+
+    var target = event.target || event.srcElement;
+
+    _.each(ev.target.files, function(file) {
       // progress bar
       progressBar(2000);
       $('#imgupload-button i').removeClass("fa-camera").addClass("fa-spinner fa-spin");
