@@ -6,15 +6,17 @@ A solution to uploading photos in Meteor.js
 
 ## Features
 
-- [x] Uses **config.js** file for S3 Credentials (so we aren't leaking info) 
+- [x] Uses **config.js** file for S3 Credentials (so we aren't leaking info)
 > You will need to cp **private/config-example.json** private/config.json and update your S3 details
 - [x] Switch from **imagemagick** to ***https://github.com/aheckmann/gm*** for rotation
 - [x] Implement (***Auto***) Rotation using gm
 - [ ] Write tests including rotation ...
 
+>> **Update**: I've abstracted the upload part of this to ***Stream*** the File to S3 (*much faster*) <br />
+>> that has a separate module: https://github.com/nelsonic/stream-to-s3 (fully tested / **100% coverage**) <br />
+>> Only a couple more steps to get this all wired up! :-)
 
-
-## Why? 
+## Why?
 
 Helping people ***communicate in pictures*** makes their lives better.
 
@@ -69,7 +71,7 @@ And start uploading!
 
 ## How? (implementation details)
 
-I've included 
+I've included
 
 ### Using NPM Modules in Meteor
 
@@ -102,17 +104,17 @@ Read more: http://meteorhacks.com/complete-npm-integration-for-meteor.html
 ### Uploading to S3 using AWS SDK
 
 Before Amazon decided to support Node.js the go-to module for S3 was
-Knox: https://github.com/LearnBoost/knox 
+Knox: https://github.com/LearnBoost/knox
 
 Meteor example: https://gist.github.com/dnprock/6689567
-Learn from the tests: 
+Learn from the tests:
 https://github.com/LearnBoost/knox/blob/master/test/createClient.test.js
 
 Latest version: https://www.npmjs.org/package/knox (for your package**s**.json)
 
 <strike>
-The (*Official*) Amazon Web Services (AWS) SDK 
-https://github.com/aws/aws-sdk-js 
+The (*Official*) Amazon Web Services (AWS) SDK
+https://github.com/aws/aws-sdk-js
 
 >  ***Utterly Useless***!! :-( <br />
 > http://stackoverflow.com/questions/14502143/cant-upload-images-in-nodejs-using-asw-sdk
@@ -133,18 +135,18 @@ brew install imagemagick
 
 Now **install node-imagemagick** (already done above the first time you ran `mrt`)
 
-Usage: https://github.com/rsms/node-imagemagick 
+Usage: https://github.com/rsms/node-imagemagick
 Latest version: https://www.npmjs.org/package/imagemagick
 
 
 ### Image Rotation
 
-We started using this code in staging today and 
-users started uploading images imediately. 
+We started using this code in staging today and
+users started uploading images imediately.
 
 > "Its faster than Instagram!" ~ A User
 
-Was a user comment that *delighted* us. 
+Was a user comment that *delighted* us.
 
 However they uploaded images from their iDevices which were not in the correct orientation...
 
@@ -152,11 +154,11 @@ So we need to add rotation.
 
 #### Assumptions
 
-Aproximately [90% of people](http://en.wikipedia.org/wiki/Handedness) are right-handed. 
+Aproximately [90% of people](http://en.wikipedia.org/wiki/Handedness) are right-handed.
 
 ![iphone landscape right-handed](http://i.imgur.com/3M4PiXa.jpg)
 
-Therefore we need to rotate images 90 degrees *clockwise*. 
+Therefore we need to rotate images 90 degrees *clockwise*.
 
 
 
@@ -196,7 +198,7 @@ For convenience, here is what the letter F would look like if it were tagged cor
 888888    888888        88    88        8888888888    88                   88   8888888888
 88            88        88    88        88  88        88  88           88  88       88  88
 8888        8888      8888    8888      88            8888888888   8888888888           88
-88            88        88    88 
+88            88        88    88
 88            88    888888    888888
 ```
 
@@ -217,10 +219,10 @@ Latest version: https://www.npmjs.org/package/tmp
 ### Image-upload-as-a-Service Provider
 
 - Transloadit: https://transloadit.com/ (tried it meteor doesn't like it)
-Reached out to Transloadit team on twitter: 
+Reached out to Transloadit team on twitter:
 https://twitter.com/nelsonic/status/440509092281319424
 didn't get a reply. so moved on to next service.
-- Filepicker.io: http://filepicker.io 
+- Filepicker.io: http://filepicker.io
 - http://www.imgix.com
 - http://cloudinary.com
 - http://www.blitline.com
@@ -240,16 +242,16 @@ didn't get a reply. so moved on to next service.
 - Direct S3 Upload (no server-side): http://aws.amazon.com/articles/1434
 - AWS Node SDK: https://aws.amazon.com/sdkfornodejs/
 
-There was a suggestion to use Meteor CollectionFS: https://github.com/CollectionFS/Meteor-CollectionFS to upload/store images. 
+There was a suggestion to use Meteor CollectionFS: https://github.com/CollectionFS/Meteor-CollectionFS to upload/store images.
 This is a *terrible* idea because the file gets stored in MongoDB!
-Not only is MongoDB storage *considerably* more expensive, its also 
+Not only is MongoDB storage *considerably* more expensive, its also
 *slower* than a CDN!! (If you know why this is a good idea, please tell me!)
 
 
 #### Avoid Filename Collisions with Hashes
 
-All the big players are storing files with generated names (instead of using 
-the files' original name such as "photo1.jpg" thus avoiding name collisions) 
+All the big players are storing files with generated names (instead of using
+the files' original name such as "photo1.jpg" thus avoiding name collisions)
 e.g:
 - Twitter: https://pbs.twimg.com/media/Bht5EatIEAAuiuP.jpg
 - Pinterest: http://media-cache-ak0.pinimg.com/736x/a0/f6/29/a0f6290890cb49f50263a4789a1f5321.jpg
@@ -282,13 +284,13 @@ So does giving these hash.jpg on our system loose some valuable information...?
 
 ### Troubleshooting
 
-- If you get an **enoent error** while trying to run **gm** see: 
+- If you get an **enoent error** while trying to run **gm** see:
 http://stackoverflow.com/questions/16222116/error-spawn-enoent-while-using-gm-in-node
 
 ### History
 
-I've *partially* "solved" this problem before: 
-- https://github.com/nelsonic/node-cdn 
+I've *partially* "solved" this problem before:
+- https://github.com/nelsonic/node-cdn
 - https://github.com/nelsonic/imagemagic-test
 - https://github.com/nelsonic/imgresizer
 
@@ -299,7 +301,7 @@ I need to re-visit these and get them working together (*with tests* :-)
 The more successful image apps on the web/mobile:
 
 - **Flickr** (Yahoo): http://gizmodo.com/5910223/how-yahoo-killed-flickr-and-lost-the-internet
-- **Picassa** (Google): http://news.cnet.com/Google-picks-up-photo-management-firm/2100-1025_3-5267730.html 
+- **Picassa** (Google): http://news.cnet.com/Google-picks-up-photo-management-firm/2100-1025_3-5267730.html
 - Imgur: http://www.businessinsider.com/imgur-and-yahoo-acquisition-talks-2013-12
 - **Instagram** (Facebook): http://techcrunch.com/2012/09/06/facebook-closes-instagram-acquisition-instagram-announces-5-billion-photos-shared/
 - **SnapChat** (Which Sucker?): http://mashable.com/2014/01/06/snapchat-facebook-acquisition-2

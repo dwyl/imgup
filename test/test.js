@@ -12,7 +12,7 @@ gm(filename).identify(function (err, data) {
 	if(err) { 
 		console.log(err);  
 	}
-	
+
 	console.log(data.size);
 	rotation = getRotationAngle(data);
 	var rotated = 'rotated_'+filename; 
@@ -27,7 +27,7 @@ gm(filename).identify(function (err, data) {
 		.write('mobile_'+rotated, function (err) {
 			if(err) { console.log(err);  }
 			else    { console.log('mobile_ saved'); }
-		})
+		});
 			
 		gm(rotated)
 		.resize(200)
@@ -39,10 +39,10 @@ gm(filename).identify(function (err, data) {
 			.identify(function (err, data) {
 				if(err) { console.log(err);  }
 				else    { console.log(data.Properties['exif:Orientation']); }
-			})
-		})
-	})
-})
+			});
+		});
+	});
+});
 
 /**
  * get Orientation info from image file meta data
