@@ -4,15 +4,6 @@ We want to upload images to an S3 bucket via an html form.
 
 html form -
 
-      <input type="hidden" name="key" value="uploads/${filename}">
-      <input type="hidden" name="AWSAccessKeyId" value="YOUR_AWS_ACCESS_KEY">
-      <input type="hidden" name="acl" value="private">
-      <input type="hidden" name="success_action_redirect" value="http://localhost/">
-      <input type="hidden" name="policy" value="YOUR_POLICY_DOCUMENT_BASE64_ENCODED">
-      <input type="hidden" name="signature" value="YOUR_CALCULATED_SIGNATURE">
-      <input type="hidden" name="Content-Type" value="image/jpeg">
-      <!-- Include any additional input fields here -->
-
 The html form needs to have a meta tag in the head that takes the following to
 let the browser know that you're using UTF-8 unicode character encoding:
 
@@ -43,8 +34,8 @@ There are 7 that you need to add. They are:
 
 ```html
   /* this is the path to the file you wish to upload */
-  <input type="hidden" name="key" value=`uploads/${filename}`>
-  /* this is your AWS access key ID - [Find your key](http://amzn.to/1sT9aw0)*/
+  <input type="hidden" name="key" value=`image-uploads/${filename}`>
+  /* this is your AWS access key ID - [find/create your key](http://amzn.to/1sT9aw0)*/
   <input type="hidden" name="AWSAccessKeyId" value="YOUR_AWS_ACCESS_KEY">
   /* set the access control policy public or private */
   <input type="hidden" name="acl" value="private">
@@ -56,4 +47,13 @@ There are 7 that you need to add. They are:
   <input type="hidden" name="signature" value="YOUR_CALCULATED_SIGNATURE">
   /* this is the content type that will be applied to the uploaded files */
   <input type="hidden" name="Content-Type" value="image/jpeg">
+```
+
++ #### Step 3:
+Then you'll need to add a couple of fields to choose the file to upload, and then
+submit it.
+
+```html
+<input name="file" type="file">
+<input type="submit" value="Upload File to S3">
 ```
