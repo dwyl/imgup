@@ -14,7 +14,7 @@ let the browser know that you're using UTF-8 unicode character encoding:
 The form needs to send certain information to S3 before the upload can be accepted.
 If any information is excluded or incorrect the upload will be rejected.
 
-+ #### Step 1:
+#### Step 1:
 Assign the action of your form to the bucket URL you want to upload to.
 If you're new to Amazon Web Services, you'll first have to create an account on the
 [Amazon Developer Console](aws.amazon.co.uk) Navigate to the S3 console and create
@@ -28,13 +28,13 @@ will be able to find it from the bucket name automatically.
   <form action="https://[your-bucket-name].s3.amazonaws.com/" method="post" enctype="multipart/form-data">
 ```
 
-+ #### Step 2:
+#### Step 2:
 Next you'll want to add the input information that will be sent to AWS in your form.
 There are 7 that you need to add. They are:
 
 ```html
   /* this is the path to the file you wish to upload */
-  <input type="hidden" name="key" value=`image-uploads/${filename}`>
+  <input type="hidden" name="key" value="image-uploads/${filename}">
   /* this is your AWS access key ID - [find/create your key](http://amzn.to/1sT9aw0)*/
   <input type="hidden" name="AWSAccessKeyId" value="YOUR_AWS_ACCESS_KEY">
   /* set the access control policy public or private */
@@ -49,7 +49,7 @@ There are 7 that you need to add. They are:
   <input type="hidden" name="Content-Type" value="image/jpeg">
 ```
 
-+ #### Step 3:
+#### Step 3:
 Then you'll need to add a couple of fields to choose the file to upload, and then
 submit it.
 

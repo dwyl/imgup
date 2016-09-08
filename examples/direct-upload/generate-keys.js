@@ -1,4 +1,4 @@
-var CryptoJS = require('crypto-js')
+var Crypto = require('crypto')
 var AWSAccessKey = require('./aws-config.json').AWSAccessKeyId
 
 var bucket = 'dwyl-direct-upload'
@@ -9,10 +9,10 @@ var date = '20160908' // hard coded for testing
 var serviceName = 's3'
 
 function getSignatureKey (key, dateStamp, regionName, serviceName) {
-  var kDate = CryptoJS.HmacSHA256(dateStamp, 'AWS4' + key)
-  var kRegion = CryptoJS.HmacSHA256(regionName, kDate)
-  var kService = CryptoJS.HmacSHA256(serviceName, kRegion)
-  var kSigning = CryptoJS.HmacSHA256('aws4_request', kService)
+  var kDate = Crypto.HmacSHA256(dateStamp, 'AWS4' + key)
+  var kRegion = Crypto.HmacSHA256(regionName, kDate)
+  var kService = Crypto.HmacSHA256(serviceName, kRegion)
+  var kSigning = Crypto.HmacSHA256('aws4_request', kService)
   return kSigning
 }
 
@@ -39,7 +39,7 @@ function getAWSAccessKey () {
 }
 
 function getS3Signature () {
-  var s3Signature = CryptoJS.HmacSHA256(base64Policy, signatureKey).toString(CryptoJS.enc.Hex)
+  var s3Signature = Crypto.HmacSHA256(base64Policy, signatureKey).toString(Crypto.enc.Hex)
   return s3Signature
 }
 
