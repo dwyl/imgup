@@ -2,23 +2,29 @@
 <html>
   <head>
     <title>Dwyl Direct Upload</title>
-    <meta http-equiv="content-type" content="text/html" charset="utf-8"/>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.2.2/css/flat-ui.min.css">
-    <script type="text/javascript" charset="utf-8" src="./generate-keys.js"></script>
   </head>
   <body>
     <h2>S3 Direct Upload</h2>
     <form action="https://dwyl-direct-upload.s3.amazonaws.com/" method="post" enctype="multipart/form-data" >
       <input type="hidden" name="key" value="image-uploads/${filename}">
-      <input type="hidden" name="AWSAccessKeyId" value="getAWSAccessKey()">
+      <input type="hidden" name="AWSAccessKeyId" id="awsAccess" value="">
       <input type="hidden" name="acl" value="private">
       <input type="hidden" name="Content-Type" value="image/jpeg">
-      <input type="hidden" name="policy" value="getBase64Policy()">
-      <input type="hidden" name="signature" value="getS3Signature()">
+      <input type="hidden" name="x-amz-meta-uuid" value="14365123651274">
+      <input type="hidden" name="x-amz-server-side-encryption" value="AES256">
+      <input type="hidden" name="X-Amz-Credential" id="credential" value="">
+      <input type="hidden" name="X-Amz-Algorithm" value="AWS4-HMAC-SHA256">
+      <input type="hidden" name="X-Amz-Date" id="date" value="">
+      <input type="input"  name="x-amz-meta-tag" value="">
+      <input type="hidden" name="policy" id="base64" value="">
+      <input type="hidden" name="Signature" id="sig" value="">
       <input name="file" type="file">
       <br>
       <br>
       <input type="submit" value="Upload File to S3">
     </form>
+    <script type="text/javascript" src="bundle.js" charset="utf-8"></script>
   </body>
 </html>
