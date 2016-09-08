@@ -4,16 +4,17 @@
     <title>Dwyl Direct Upload</title>
     <meta http-equiv="content-type" content="text/html" charset="utf-8"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.2.2/css/flat-ui.min.css">
+    <script type="text/javascript" charset="utf-8" src="./generate-keys.js"></script>
   </head>
   <body>
     <h2>S3 Direct Upload</h2>
     <form action="https://dwyl-direct-upload.s3.amazonaws.com/" method="post" enctype="multipart/form-data" >
       <input type="hidden" name="key" value="image-uploads/${filename}">
-      <input type="hidden" name="AWSAccessKeyId" value="YOUR_AWS_ACCESS_KEY">
+      <input type="hidden" name="AWSAccessKeyId" value="getAWSAccessKey()">
       <input type="hidden" name="acl" value="private">
       <input type="hidden" name="Content-Type" value="image/jpeg">
-      <input type="hidden" name="policy" value="YOUR_POLICY_DOCUMENT_BASE64_ENCODED">
-      <input type="hidden" name="signature" value="YOUR_CALCULATED_SIGNATURE">
+      <input type="hidden" name="policy" value="getBase64Policy()">
+      <input type="hidden" name="signature" value="getS3Signature()">
       <input name="file" type="file">
       <br>
       <br>
