@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>S3 Upload Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.5.7/jquery.fileupload.js"></script>
+    <script src="/client.js"></script>
+    <script>
+      $(function() {
+        initS3FileUpload($('#fileInput'));
+      });
+    </script>
+  </head>
+  <body>
+    <h1>S3 Upload Demo</h1>
+    <p>Sorry, but you can <b>only upload files less than a kilobyte here</b>.</p>
+    <p>Here's an image that you can use: <img src="/demo.png" alt="demo image" /></p>
+    <form>
+      <input id="fileInput" type="file" name="file" />
+    </form>
+  </body>
+</html>
+
