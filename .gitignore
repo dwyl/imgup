@@ -11,3 +11,6 @@ coverage
 
 # Dependency directories
 node_modules
+
+# AWS keys
+examples/direct-upload/aws-config.json
