@@ -3,7 +3,7 @@
 We are going to implement a simple solution for uploading images to an S3 bucket
 via a POST request from the browser.
 
-#### Step 1 - Creating the bucket
+### Step 1 - Creating the bucket
 
 + Create an S3 bucket on [Amazon Web Services](aws.amazon.co.uk). To do so you'll need to
 create an account if you haven't got one already.
@@ -64,9 +64,9 @@ following into the CORS field
 
 ![save CORS](https://cloud.githubusercontent.com/assets/12450298/18393882/359e3bf6-76af-11e6-90da-bcd993d035ff.png)
 
-##### Our bucket is now completely set up so that it will accept our POST request images!
+#### Our bucket is now completely set up so that it will accept our POST request images!
 
-#### Step 2 - Creating an IAM user with S3 permissions
+### Step 2 - Creating an IAM user with S3 permissions
 
 + Navigate to the IAM console. This is where you can create users and give them
 permissions to access certain AWS services by attaching the relevant policies.
@@ -151,9 +151,9 @@ button
 
 ![user policies](https://cloud.githubusercontent.com/assets/12450298/18395646/33a6a7f4-76b7-11e6-9efa-6b1849c8b6b6.png)
 
-##### Our user is now set up with the correct permissions in order to access S3!
+#### Our user is now set up with the correct permissions in order to access S3!
 
-#### Step 3 - Generate a signed S3 policy
+### Step 3 - Generate a signed S3 policy
 
 + We'll be uploading our images to S3 via a simple HTTP POST request to an S3 endpoint. The request contains the following:
   + the file you wish to upload
@@ -318,9 +318,9 @@ module.exports = {
 }
 ```
 
-##### We've now created a signed policy that we can attach to our POST request!
+#### We've now created a signed policy that we can attach to our POST request!
 
-#### Step 4 - Create a server to facilitate the credential creation
+### Step 4 - Create a server to facilitate the credential creation
 
 + Create a file called `server.js`. This file will serve both your application
 and the generated signing key from the previous step. We're going to use [hapi.js](http://hapijs.com/)
@@ -436,6 +436,6 @@ server.start((err) => {
   }
   console.log(`✅ Server running at: ${server.info.uri}`)
 ```
-##### We now have a server that can our index.html can communicate with!
+#### We now have a server that can our index.html can communicate with!
 
-Step 5 - Write the client side code to send our requests to the backend and to S3
+### Step 5 - Write the client side code to send our requests to the backend and to S3
