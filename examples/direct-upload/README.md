@@ -26,7 +26,8 @@ create an account if you haven't got one already.
 
 ![bucket created](https://cloud.githubusercontent.com/assets/12450298/18393331/db497442-76ac-11e6-90e4-08aa31d8d53b.png)
 
-+ When you open your bucket it should be empty. We need to add some permission configuration to the bucket so that it is can be accessed remotely. Click on the
++ When you open your bucket it should be empty. We need to add some permission
+configuration to the bucket so that it is can be accessed remotely. Click on the
 properties tab in the top right
 
 ![properties](https://cloud.githubusercontent.com/assets/12450298/18393302/bd0fcfd0-76ac-11e6-90a3-7a3d12705470.png)
@@ -87,7 +88,8 @@ access key for each user' check box is selected. Then click ***Create***
 
 + It should say that your new user has been created. Click on the 'Show User Security
 Credentials' to view your keys. This is the only time you'll be able to see both
-of these together so make a note of them! We'd recommend that you download them by clicking the button in the bottom right and storing them in a safe place
+of these together so make a note of them! We'd recommend that you download them by
+clicking the button in the bottom right and storing them in a safe place
 
 ![save credentials](https://cloud.githubusercontent.com/assets/12450298/18394743/5a549cac-76b3-11e6-9bba-dff5d8f3409c.png)
 
@@ -151,7 +153,7 @@ button
 
 ##### Our user is now set up with the correct permissions in order to access S3!
 
-#### Step 3 - Upload images to S3
+#### Step 3 - Generate a signed S3 policy
 
 + We'll be uploading our images to S3 via a simple HTTP POST request to an S3 endpoint. The request contains the following:
   + the file you wish to upload
@@ -161,8 +163,159 @@ button
 
 ##### Policies
 
-We mentioned some policies earlier when we were talking about our IAM user permissions. We need to attach something similar to our S3 POST request in order for it to be ***validated*** and ***accepted***. In order to generate a policy, we need to manipulate some of our AWS information (*these need to be kept secret so we'll have to create our policy on the server side*). This will provide our request with the *neccessary* credentials it needs in order to *gain access* to our S3 bucket. 
+We mentioned some policies earlier when we were talking about our IAM user permissions.
+We need to attach something similar to our S3 POST request in order for it to be
+***validated*** and ***accepted***. In order to generate a policy, we need to manipulate
+some of our AWS information (*these need to be kept secret so we'll have to create
+our policy on the server side*). This will provide our request with the *neccessary*
+credentials it needs in order to *gain access* to our S3 bucket.
 
 ###### To generate your credentials follow these steps
 
-+ Create a file
++ Create a file called `generate-credentials.js`. This will contain the script we
+will use to create our signed policy. Add the following to that file:
+
+```js
+var crypto = require('crypto')
+// require the crypto module
+// it provides cryptographic functionality that we need to create our signed policy
+```
+Let's add a function that will provide the relevant information to the frontend
+when needed. We can call it `getS3Credentials`:
+
+```js
+// passes config and filename down to buildS3Params
+function getS3Credentials (config, filename) {
+  return {
+    // this is the endpoint for our bucket
+    endpoint_url: "https://" + config.bucket + ".s3.amazonaws.com",
+    // these are the params needed to upload to S3
+    params: buildS3Params(config, filename)
+  }
+}
+```
+The `buildS3Params` function will construct the neccessary params needed to make
+the API call to S3:
+
+```js
+/**
+* Returns S3 upload params
+* @param {Object} config - access key, secret key, bucket name, region
+* @param {string} filename - name of the file to be uploaded
+**/
+function buildS3Params (config, filename) {
+  // formats the amz credential correctly
+  var credential = formatAmzCredential(config);
+  // creates the upload policy needed for S3
+  var policy = buildS3UploadPolicy(config, filename, credential);
+  // converts the policy to base64 format
+  var policyBase64 = new Buffer(JSON.stringify(policy)).toString('base64');
+  return {
+    key: filename,
+    acl: 'public-read',
+    success_action_status: '201',
+    policy: policyBase64,
+    'x-amz-algorithm': 'AWS4-HMAC-SHA256',
+    'x-amz-credential': credential,
+    'x-amz-date': dateString() + 'T000000Z',
+    'x-amz-signature': buildS3UploadSignature(config, policyBase64, credential)
+  }
+}
+```
+The `formatAmzCredential` function takes the config and returns a formatted amz
+credential:
+
+```js
+/**
+* Returns a formatted amz credential string
+* @param {Object} config - access key, region
+**/
+function formatAmzCredential (config) {
+  return [config.accessKey, dateString(), config.region, 's3/aws4_request'].join('/')
+}
+```
+
+The `buildS3UploadPolicy` function constructs the policy that we need to attach
+to the S3 params:
+
+```js
+/**
+* Returns the S3 upload policy object
+* @param {Object} config - bucket name
+* @param {string} filename - name of the file to be uploaded
+* @param {string} credential - formatted amz credential
+**/
+function buildS3UploadPolicy (config, filename, credential) {
+  return {
+    // we want the policy to expire 3 minutes after it was created
+    expiration: new Date((new Date).getTime() + (3 * 60 * 1000)).toISOString(),
+    conditions: [
+      { bucket: config.bucket },
+      { key: filename },
+      { acl: 'public-read' },
+      { success_action_status: "201" },
+      // size range of the image to be uploaded (in bytes)
+      ['content-length-range', 0, 1000000],
+      { 'x-amz-algorithm': 'AWS4-HMAC-SHA256' },
+      { 'x-amz-credential': credential },
+      { 'x-amz-date': dateString() + 'T000000Z' }
+    ],
+  }
+}
+```
+The `dateString` function formats the date for the policy in the way that S3 is
+expecting it:
+
+```js
+function dateString () {
+  var date = new Date().toISOString()
+  return date.substr(0, 4) + date.substr(5, 2) + date.substr(8, 2)
+}
+```
+
+The `buildS3UploadSignature` function creates a hash that is used to sign our policy
+(see the [*calculating a signature*](http://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-authentication-HTTPPOST.html)
+diagram in the AWS documentation):
+
+```js
+/**
+* Returns an HMAC hex hash signature
+* @param {Object} config - secret key, region
+* @param {string} policyBase64 - encoded policy string
+* @param {string} credential - formatted amz credential
+**/
+function buildS3UploadSignature (config, policyBase64, credential) {
+  var dateKey = hmac('AWS4' + config.secretKey, dateString())
+  var dateRegionKey = hmac(dateKey, config.region)
+  var dateRegionServiceKey = hmac(dateRegionKey, 's3')
+  var signingKey = hmac(dateRegionServiceKey, 'aws4_request')
+  // note that only the returned string is converted to hex format
+  return hmac(signingKey, policyBase64).toString('hex')
+}
+```
+
+The `hmac` function is a helper function used to build HMAC encoded strings:
+
+```js
+/**
+* Returns an HMAC of key + string
+* @param {string} key
+* @param {string} string
+**/
+function hmac (key, string) {
+  var hmac = crypto.createHmac('sha256', key)
+  hmac.end(string)
+  return hmac.read()
+}
+```
+
+Lastly we need to export our `getS3Credentials` function so that it can be used
+on the backend:
+
+```js
+module.exports = {
+  getS3Credentials: getS3Credentials
+}
+```
+
+##### We've now created a signed policy that we can attach to our POST request!

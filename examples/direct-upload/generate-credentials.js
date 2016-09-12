@@ -6,17 +6,17 @@ var crypto = require('crypto');
 // * region
 // * accessKey
 // * secretKey
-function s3Credentials(config, filename) {
+function getS3Credentials(config, filename) {
   return {
     endpoint_url: "https://" + config.bucket + ".s3.amazonaws.com",
-    params: s3Params(config, filename)
+    params: buildS3Params(config, filename)
   }
 }
 
 // Returns the parameters that must be passed to the API call
-function s3Params(config, filename) {
-  var credential = amzCredential(config);
-  var policy = s3UploadPolicy(config, filename, credential);
+function buildS3Params(config, filename) {
+  var credential = formatAmzCredential(config);
+  var policy = buildS3UploadPolicy(config, filename, credential);
   var policyBase64 = new Buffer(JSON.stringify(policy)).toString('base64');
   return {
     key: filename,
@@ -26,7 +26,7 @@ function s3Params(config, filename) {
     'x-amz-algorithm': 'AWS4-HMAC-SHA256',
     'x-amz-credential': credential,
     'x-amz-date': dateString() + 'T000000Z',
-    'x-amz-signature': s3UploadSignature(config, policyBase64, credential)
+    'x-amz-signature': buildS3UploadSignature(config, policyBase64, credential)
   }
 }
 
@@ -35,12 +35,12 @@ function dateString() {
   return date.substr(0, 4) + date.substr(5, 2) + date.substr(8, 2);
 }
 
-function amzCredential(config) {
+function formatAmzCredential(config) {
   return [config.accessKey, dateString(), config.region, 's3/aws4_request'].join('/')
 }
 
 // Constructs the policy
-function s3UploadPolicy(config, filename, credential) {
+function buildS3UploadPolicy(config, filename, credential) {
   return {
     // 5 minutes into the future
     expiration: new Date((new Date).getTime() + (5 * 60 * 1000)).toISOString(),
@@ -66,7 +66,7 @@ function hmac(key, string) {
 }
 
 // Signs the policy with the credential
-function s3UploadSignature(config, policyBase64, credential) {
+function buildS3UploadSignature(config, policyBase64, credential) {
   var dateKey = hmac('AWS4' + config.secretKey, dateString());
   var dateRegionKey = hmac(dateKey, config.region);
   var dateRegionServiceKey = hmac(dateRegionKey, 's3');
