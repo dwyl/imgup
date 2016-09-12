@@ -321,3 +321,121 @@ module.exports = {
 ##### We've now created a signed policy that we can attach to our POST request!
 
 #### Step 4 - Create a server to facilitate the credential creation
+
++ Create a file called `server.js`. This file will serve both your application
+and the generated signing key from the previous step. We're going to use [hapi.js](http://hapijs.com/)
+so before we get started, run the following command in your terminal:  
+
+`$ npm install hapi --save`
+
+Next add the following to your newly created server file:
+
+```js
+// load the modules we'll be using on the server side
+var Hapi = require('hapi')
+// we'll be using crypto for our unique filenames
+var crypto = require('crypto')
+// we'll be using path for the correct file path extensions for our files
+var path = require('path')
+// need to load our script to generate the S3 credentials
+var s3 = require('./generate-credentials')
+```
+
+Now we'll create our S3 configuration that our `getS3Credentials` function can
+use. Before we do this we have to export some environment variables. Type the
+following into your terminal (*you'll need your access key id and your secret
+access key that you saved when you created your user*):
+
+```
+export S3_ACCESS_KEY=[your_iam_user_access_key]
+export S3_SECRET_KEY=[your_iam_user_secret_key]
+export S3_BUCKET=[your_bucket_name]
+export S3_REGION=[the_region_you_created_your_bucket_in]
+```
+
+```js
+var s3Config = {
+  accessKey: process.env.S3_ACCESS_KEY,
+  secretKey: process.env.S3_SECRET_KEY,
+  bucket: process.env.S3_BUCKET,
+  region: process.env.S3_REGION,
+}
+```
+
+Let's create our hapi server:
+
+```js
+// create the new instance
+var server = new Hapi.Server()
+
+// determine the host and port
+server.connection({
+  host: 'localhost',
+  port: 8000
+})
+
+// in order to serve static files such as our index.html we need to require inert
+server.register(require('inert'),
+(err) => {
+  if (err) {
+    throw err
+  }
+})
+```
+
+Within the `server.register` function we can now declare our routes:
+
+```js
+server.register(require('inert'),
+(err) => {
+  if (err) {
+    throw err
+  }
+  // serves our index.html when '/' path is requested
+  server.route({
+    method: 'GET',
+    path: '/',
+    handler: function (request, reply) {
+      reply.file('./public/index.html')
+    }
+  })
+  // this serves our S3 credentials when the HTTP GET request is made to '/s3_credentials'
+  server.route({
+    method: 'GET',
+    path: '/s3_credentials',
+    handler: function (request, reply) {
+      if (request.query.filename) {
+        var filename =
+        crypto.randomBytes(8).toString('hex') +
+        path.extname(request.query.filename)
+        reply(s3.getS3Credentials(s3Config, filename))
+      } else {
+        reply('Filename required')
+      }
+    }
+  })
+  // to require static files from your public folder in your index.html you will
+  // need to add this route otherwise you will see a 404 error message
+  server.route({
+    method: 'GET',
+    path: '/{filename*}',
+    handler: {
+      directory: {
+        path: __dirname + '/public',
+        listing: false,
+        index: false
+      }
+    }
+  })
+})
+
+// lastly we need to start the server
+server.start((err) => {
+  if (err) {
+    throw err
+  }
+  console.log(`✅ Server running at: ${server.info.uri}`)
+```
+##### We now have a server that can our index.html can communicate with!
+
+Step 5 - Write the client side code to send our requests to the backend and to S3
