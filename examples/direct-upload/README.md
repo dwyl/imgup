@@ -151,4 +151,18 @@ button
 
 ##### Our user is now set up with the correct permissions in order to access S3!
 
-#### Step 3 - Upload images to S3 
+#### Step 3 - Upload images to S3
+
++ We'll be uploading our images to S3 via a simple HTTP POST request to an S3 endpoint. The request contains the following:
+  + the file you wish to upload
+  + the filename which is the ***key*** in S3
+  + metadata
+  + a *signed* **policy**
+
+##### Policies
+
+We mentioned some policies earlier when we were talking about our IAM user permissions. We need to attach something similar to our S3 POST request in order for it to be ***validated*** and ***accepted***. In order to generate a policy, we need to manipulate some of our AWS information (*these need to be kept secret so we'll have to create our policy on the server side*). This will provide our request with the *neccessary* credentials it needs in order to *gain access* to our S3 bucket. 
+
+###### To generate your credentials follow these steps
+
++ Create a file

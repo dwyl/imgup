@@ -2,7 +2,7 @@ var express = require('express');
 var crypto = require('crypto');
 var path = require('path');
 
-var s3 = require('./s3');
+var s3 = require('./generate-credentials');
 
 var s3Config = {
   accessKey: process.env.S3_ACCESS_KEY,
