@@ -46,5 +46,5 @@ function onS3Done(e, data) {
   var s3Key = $(data.jqXHR.responseXML).find('Key').text();
   // Typically, after uploading a file to S3, you want to register that file with
   // your backend. Remember that we did not persist anything before the upload.
-  console.log($('<a/>').attr('href', s3Url).text('File uploaded at '+s3Url+ '\n').appendTo($('body')));
+  console.log($('<a/>').attr('href', s3Url).text(s3Url).appendTo($('body')));
 };
