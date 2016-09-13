@@ -33,15 +33,3 @@ test('POST request to /s3_credentials should return 404', function (t) {
     })
   })
 })
-
-// test('Basic HTTP Tests - GET /{yourname*}', function (t) { // t
-//   var options = {
-//     method: 'GET',
-//     url: '/s3_credentials'
-//   }
-//   // server.inject lets you similate an http request
-//   server.inject(options, function (response) {
-//     t.equal(response.statusCode, 200)  //  Expect http response status code to be 200 ('Ok')
-//     server.stop(t.end) // t.end() callback is required to end the test in tape
-//   })
-// })
