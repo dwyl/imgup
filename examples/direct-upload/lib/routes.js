@@ -14,6 +14,7 @@ exports.register = function (server, options, next) {
       method: 'GET',
       path: '/',
       handler: function (request, reply) {
+        console.log(request)
         reply.file('./public/index.html')
       }
     },
@@ -33,7 +34,7 @@ exports.register = function (server, options, next) {
     },
     {
       method: 'GET',
-      path: '/{filename*}',
+      path: '/{param*}',
       handler: {
         directory: {
           path: 'public',
