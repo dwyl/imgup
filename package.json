@@ -1,0 +1,28 @@
+{
+  "name": "image-uploads",
+  "version": "1.0.0",
+  "description": "A solution to uploading photos with AWS Lambda",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "dependencies": {
+    "hapi": "^15.0.3",
+    "inert": "^4.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dwyl/image-uploads.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dwyl/image-uploads/issues"
+  },
+  "homepage": "https://github.com/dwyl/image-uploads#readme"
+}
