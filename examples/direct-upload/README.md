@@ -405,6 +405,8 @@ server.register(require('inert'),
     path: '/s3_credentials',
     handler: function (request, reply) {
       if (request.query.filename) {
+        // if  you upload two items with the same name to the same bucket, the second
+        // will overwrite the first. These random hashes prevent that from happening
         var filename =
         crypto.randomBytes(8).toString('hex') +
         path.extname(request.query.filename)

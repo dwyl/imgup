@@ -1,7 +1,6 @@
-var Hapi = require('hapi')
 var crypto = require('crypto')
 var path = require('path')
-var s3 = require('./generate-credentials')
+var s3 = require('../generate-credentials')
 var s3Config = {
   accessKey: process.env.S3_ACCESS_KEY,
   secretKey: process.env.S3_SECRET_KEY,
@@ -9,18 +8,7 @@ var s3Config = {
   region: process.env.S3_REGION
 }
 
-var server = new Hapi.Server()
-
-server.connection({
-  host: 'localhost',
-  port: 8000
-})
-
-server.register(require('inert'),
-(err) => {
-  if (err) {
-    throw err
-  }
+exports.register = function (server, options, next) {
   server.route([
     {
       method: 'GET',
@@ -55,13 +43,10 @@ server.register(require('inert'),
       }
     }
   ])
-})
 
-server.start((err) => {
-  if (err) {
-    throw err
-  }
-  console.log(`✅ Server running at: ${server.info.uri}`)
-})
+  return next()
+}
 
-module.exports = server
+exports.register.attributes = {
+  name: 'Routes'
+}

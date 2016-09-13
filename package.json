@@ -11,9 +11,12 @@
     "hapi": "^15.0.3",
     "inert": "^4.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "istanbul": "^0.4.5",
+    "tape": "^4.6.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "istanbul cover tape examples/direct-upload/test/server.test.js"
   },
   "repository": {
     "type": "git",
