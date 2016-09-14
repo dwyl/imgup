@@ -33,6 +33,22 @@ test('checks POST to /s3_credentials returns 404', function (t) {
   })
 })
 
+test('checks GET request for our index.html', function (t) {
+  var options = {
+    method: 'GET',
+    url: '/'
+  }
+  Server.start((err, server) => {
+    if (err) {
+      console.log(err)
+    }
+    server.inject(options, function (response) {
+      t.equal(response.statusCode, 200, '200 status code returned - ✅')
+      server.stop(t.end)
+    })
+  })
+})
+
 // test('checks our GET request for our index.html', function (t) {
 //   Server.start((err, server) => {
 //     if (err) {
