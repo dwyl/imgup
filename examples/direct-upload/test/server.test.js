@@ -6,7 +6,7 @@ test('checks our /s3_credentials GET endpoint', function (t) {
     method: 'GET',
     url: '/s3_credentials'
   }
-  Server.start((err, server) => {
+  Server.start(function (err, server) {
     if (err) {
       console.log(err)
     }
@@ -22,7 +22,7 @@ test('checks POST to /s3_credentials returns 404', function (t) {
     method: 'POST',
     url: '/s3_credentials'
   }
-  Server.start((err, server) => {
+  Server.start(function (err, server) {
     if (err) {
       console.log(err)
     }
@@ -38,7 +38,7 @@ test('checks GET request for our index.html', function (t) {
     method: 'GET',
     url: '/'
   }
-  Server.start((err, server) => {
+  Server.start(function (err, server) {
     if (err) {
       console.log(err)
     }
