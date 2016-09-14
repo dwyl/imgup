@@ -423,8 +423,8 @@ server.register(require('inert'),
     path: '/{filename*}',
     handler: {
       directory: {
-        path: __dirname + '/public',
-        listing: false,
+        path: 'public',
+        listing: true,
         index: false
       }
     }

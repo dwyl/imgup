@@ -1,3 +1,4 @@
+var env2 = require('env2')('./.env')
 var crypto = require('crypto')
 var path = require('path')
 var s3 = require('../generate-credentials')
@@ -14,7 +15,7 @@ exports.register = function (server, options, next) {
       method: 'GET',
       path: '/',
       handler: function (request, reply) {
-        reply.file('./public/index.html')
+        reply.file('public/index.html')
       }
     },
     {
@@ -38,7 +39,7 @@ exports.register = function (server, options, next) {
         directory: {
           path: 'public',
           listing: true,
-          index: false
+          index: true
         }
       }
     }
