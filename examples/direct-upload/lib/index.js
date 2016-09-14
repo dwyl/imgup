@@ -1,20 +1,22 @@
 'use strict'
 
 var Hapi = require('hapi')
-var Routes = require('./routes.js')
 var Inert = require('inert')
+var assert = require('assert')
 
-exports.start = function (callback) {
-  var server = new Hapi.Server()
-  server.connection({port: 8000})
-  server.register([Inert, Routes], function (err) {
-    if (err) {
-      return callback(err, null)
-    }
+var server = new Hapi.Server()
 
-    server.start(function (err) {
-      if (err) callback(err, null)
-      return callback(null, server)
-    })
+server.connection({port: 8000})
+server.register([Inert], function (err) {
+  assert(!err); // not much point continuing without plugins ...
+
+  server.route(require('./routes.js'));
+
+  server.start(function (err) {
+    assert(!err); // not much point continuing if the server does not start ...
+    console.log('The server is running on: ', server.info.uri)
   })
-}
+})
+
+module.exports = server;
+

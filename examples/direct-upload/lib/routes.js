@@ -8,45 +8,37 @@ var s3Config = {
   region: process.env.S3_REGION
 }
 
-exports.register = function (server, options, next) {
-  server.route([
-    {
-      method: 'GET',
-      path: '/',
-      handler: function (request, reply) {
-        reply.file('./public/index.html')
-      }
-    },
-    {
-      method: 'GET',
-      path: '/s3_credentials',
-      handler: function (request, reply) {
-        if (request.query.filename) {
-          var filename =
-          crypto.randomBytes(8).toString('hex') +
-          path.extname(request.query.filename)
-          reply(s3.getS3Credentials(s3Config, filename))
-        } else {
-          reply('Filename required')
-        }
-      }
-    },
-    {
-      method: 'GET',
-      path: '/{param*}',
-      handler: {
-        directory: {
-          path: 'public',
-          listing: true,
-          index: false
-        }
+module.exports = [
+  {
+    method: 'GET',
+    path: '/',
+    handler: function (request, reply) {
+      return reply.file(path.resolve(__dirname, '../public/index.html'))
+    }
+  },
+  {
+    method: 'GET',
+    path: '/s3_credentials',
+    handler: function (request, reply) {
+      if (request.query.filename) {
+        var filename =
+        crypto.randomBytes(8).toString('hex') +
+        path.extname(request.query.filename)
+        return reply(s3.getS3Credentials(s3Config, filename))
+      } else {
+        return reply('Filename required')
       }
     }
-  ])
-
-  return next()
-}
-
-exports.register.attributes = {
-  name: 'Routes'
-}
+  },
+  {
+    method: 'GET',
+    path: '/{param*}',
+    handler: {
+      directory: {
+        path: path.resolve(__dirname, '../public'),
+        listing: true,
+        index: false
+      }
+    }
+  }
+]

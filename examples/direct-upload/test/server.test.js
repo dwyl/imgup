@@ -1,20 +1,15 @@
 var test = require('tape')
-var Server = require('../lib/index.js')
+var server = require('../lib/index.js')
 
 test('checks our /s3_credentials GET endpoint', function (t) {
   var options = {
     method: 'GET',
     url: '/s3_credentials'
   }
-  Server.start((err, server) => {
-    if (err) {
-      console.log(err)
-    }
     server.inject(options, function (response) {
       t.equal(response.statusCode, 200, '200 status code returned - ✅')
-      server.stop(t.end)
+      t.end(server.stop(function () {}))
     })
-  })
 })
 
 test('checks POST to /s3_credentials returns 404', function (t) {
@@ -22,14 +17,9 @@ test('checks POST to /s3_credentials returns 404', function (t) {
     method: 'POST',
     url: '/s3_credentials'
   }
-  Server.start((err, server) => {
-    if (err) {
-      console.log(err)
-    }
-    server.inject(options, function (response) {
-      t.equal(response.statusCode, 404, '404 status code returned - ✅')
-      server.stop(t.end)
-    })
+  server.inject(options, function (response) {
+    t.equal(response.statusCode, 404, '404 status code returned - ✅')
+    t.end(server.stop(function () {}))
   })
 })
 
@@ -38,14 +28,9 @@ test('checks GET request for our index.html', function (t) {
     method: 'GET',
     url: '/'
   }
-  Server.start((err, server) => {
-    if (err) {
-      console.log(err)
-    }
-    server.inject(options, function (response) {
-      t.equal(response.statusCode, 200, '200 status code returned - ✅')
-      server.stop(t.end)
-    })
+  server.inject(options, function (response) {
+    t.equal(response.statusCode, 200, '200 status code returned - ✅')
+    t.end(server.stop(function () {}))
   })
 })
 
