@@ -8,6 +8,7 @@
     "test": "test"
   },
   "dependencies": {
+    "env2": "^2.1.1",
     "hapi": "^15.0.3",
     "inert": "^4.0.2"
   },
