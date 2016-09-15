@@ -1,3 +1,4 @@
+require('env2')('./.env')
 var crypto = require('crypto')
 var path = require('path')
 var s3 = require('../generate-credentials')

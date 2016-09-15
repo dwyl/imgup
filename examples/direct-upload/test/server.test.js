@@ -6,10 +6,10 @@ test('checks our /s3_credentials GET endpoint', function (t) {
     method: 'GET',
     url: '/s3_credentials'
   }
-    server.inject(options, function (response) {
-      t.equal(response.statusCode, 200, '200 status code returned - ✅')
-      t.end(server.stop(function () {}))
-    })
+  server.inject(options, function (response) {
+    t.equal(response.statusCode, 200, '200 status code returned - ✅')
+    t.end(server.stop(function () {}))
+  })
 })
 
 test('checks POST to /s3_credentials returns 404', function (t) {
@@ -27,6 +27,17 @@ test('checks GET request for our index.html', function (t) {
   var options = {
     method: 'GET',
     url: '/'
+  }
+  server.inject(options, function (response) {
+    t.equal(response.statusCode, 200, '200 status code returned - ✅')
+    t.end(server.stop(function () {}))
+  })
+})
+
+test('checks GET request for our index.html', function (t) {
+  var options = {
+    method: 'GET',
+    url: '/client.js'
   }
   server.inject(options, function (response) {
     t.equal(response.statusCode, 200, '200 status code returned - ✅')
