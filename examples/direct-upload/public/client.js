@@ -29,34 +29,45 @@ var uploadDemo = (function () {
 
   function submitFile () {
     console.log('++++++++++++++', filename)
-    getCredentialsFromServer()
+    getCredentialsFromServer(filename)
   }
 
-  function getCredentialsFromServer () {
+  function getCredentialsFromServer (filename) {
     var xhttp = new XMLHttpRequest()
     xhttp.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         var s3Data = JSON.parse(xhttp.responseText)
         console.log('GET RESPONSE', s3Data)
-        var form = document.querySelector('form')
-        var keyInput = document.createElement('input')
-        keyInput.setAttribute('type', 'hidden')
-        keyInput.setAttribute('name', 'key')
-        keyInput.setAttribute('value', `${filename}`)
-        form.setAttribute('method', 'post')
-        form.setAttribute('action', s3Data.endpoint_url)
-        form.setAttribute('enctype', 'multipart/form-data')
-        form.insertBefore(keyInput, form.firstChild)
-        form.url = s3Data.endpoint_url
-        form.formData = s3Data.params
-        form.submit()
-        var successMessage = document.createElement('h2')
-        successMessage.innerHTML = 'Image Successfully Uploaded!'
-        document.body.appendChild(successMessage)
+        buildAndSubmitForm(s3Data)
+        var successMessage = document.createElement('h4')
+        successMessage.innerHTML = 'Image Successfully Uploaded at: '
+        var link = `https://dwyl-direct-upload.s3.amazonaws.com/${filename}`
+        var imageATag = document.querySelector('a')
+        imageATag.setAttribute('href', link)
+        var imageLink = document.createElement('h4')
+        imageLink.innerHTML = link
+        var div = document.querySelector('div')
+        div.insertBefore(successMessage, div.firstChild)
+        imageATag.appendChild(imageLink)
       }
     }
     xhttp.open('GET', `/s3_credentials?filename=${filename}`, true)
     xhttp.send()
+  }
+
+  function buildAndSubmitForm (s3Data) {
+    var form = document.querySelector('form')
+    var keyInput = document.createElement('input')
+    keyInput.setAttribute('type', 'hidden')
+    keyInput.setAttribute('name', 'key')
+    keyInput.setAttribute('value', `${filename}`)
+    form.setAttribute('method', 'post')
+    form.setAttribute('action', s3Data.endpoint_url)
+    form.setAttribute('enctype', 'multipart/form-data')
+    form.insertBefore(keyInput, form.firstChild)
+    form.url = s3Data.endpoint_url
+    form.formData = s3Data.params
+    form.submit()
   }
   // This function retrieves s3 parameters from our server API and appends them
   // to the upload form.
