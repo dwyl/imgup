@@ -438,6 +438,164 @@ server.start((err) => {
   }
   console.log(`✅ Server running at: ${server.info.uri}`)
 ```
+
 #### We now have a server that can our index.html can communicate with!
 
-### Step 5 - Write the client side code to send our requests to the backend and to S3
+### Step 5 - Write the client side code to send our requests to the backend and then to S3
+
++ Create a `public` directory in the root of your project. Inside this new folder
+create two new files `index.html` and `client.js`
+
+Insert the following into your `index.html`:
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>S3 Upload Demo</title>
+    // optional stylesheet
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.2.2/css/flat-ui.min.css">
+    // include your client.js file that we are going to write
+    <script type="text/javascript" src="client.js"></script>
+  </head>
+  <body>
+    <h1>S3 Direct Upload Demo</h1>
+    // simple form with a file input (we'll be adding more later dynamically)
+    <form>
+    // onchange gets fired when a file is selected so we want to save the file
+      <input id="fileInput" type="file" name="file" onchange="uploadDemo.saveFile(this.files)"/>
+    </form>
+    // button that will submit our file
+    <button onclick="uploadDemo.submitFile()">Submit</button>
+    // container for the success message and link to our image
+    <div class="successMessageContainer">
+      <a class="imageLink"></a>
+    </div>
+  </body>
+</html>
+```
+In your `client.js` file add the following:
+
+```js
+// wrap everything in an IIFE (immediately invoked function expression) to contain
+// global variables
+var uploadDemo = (function () {
+  // 'global' variable used to store our filename
+  var filename
+
+  /**
+  * Saves the filename to our global variable when a file has been selected
+  * @param {Object} file - file from our file input tag
+  **/
+  function saveFile (file) {
+    filename = file[0].name
+  }
+
+  /**
+  * Calls our getCredentialsFromServer function with the global filename
+  **/
+  function submitFile () {
+    getCredentialsFromServer(filename)
+  }
+
+  // function that retrieves our S3 credentials from our server
+  /**
+  * Saves the filename to our global variable when a file has been selected
+  * @param {string} filename - name of the file we want to upload
+  **/
+  function getCredentialsFromServer (filename) {
+    var xhttp = new XMLHttpRequest()
+    xhttp.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
+        // after we've received a response we want to assign it to a variable
+        var s3Data = JSON.parse(xhttp.responseText)
+        // call our buildAndSubmitForm function
+        buildAndSubmitForm(s3Data)
+        // return a success message after the image has been uploaded along with
+        // link to image
+        var successMessage = document.createElement('h4')
+        successMessage.innerHTML = 'Image Successfully Uploaded at: '
+        var link = `https://<your_bucket_name>.s3.amazonaws.com/${filename}`
+        var imageATag = document.querySelector('a')
+        imageATag.setAttribute('href', link)
+        var imageLink = document.createElement('h4')
+        imageLink.innerHTML = link
+        var div = document.querySelector('div')
+        div.insertBefore(successMessage, div.firstChild)
+        imageATag.appendChild(imageLink)
+      }
+    }
+    // open the GET request to our endpoint with our filename attached
+    xhttp.open('GET', `/s3_credentials?filename=${filename}`, true)
+    // send the GET request
+    xhttp.send()
+  }
+
+  /**
+  * Dynamically creates and submits our form to S3
+  * @param {Object} s3Data - endpoint_url and params sent back from our server
+  **/
+  function buildAndSubmitForm (s3Data) {
+    // access the form in our index.html
+    var form = document.querySelector('form')
+    // create a new input element
+    var keyInput = document.createElement('input')
+    // set its type attribute to hidden
+    keyInput.setAttribute('type', 'hidden')
+    // set its name attribute to key
+    keyInput.setAttribute('name', 'key')
+    // set its value attribute to our filename
+    keyInput.setAttribute('value', `${filename}`)
+    // set the method of the form to POST
+    form.setAttribute('method', 'post')
+    // set the action attribute to be our endpoint_url from our server
+    form.setAttribute('action', s3Data.endpoint_url)
+    // set the encoding type to multipart/form-data
+    form.setAttribute('enctype', 'multipart/form-data')
+    // our file input **must** be the last input in the form, therefore we need
+    // to insert our keyInput before the first child of the form otherwise it will
+    // throw an error
+    form.insertBefore(keyInput, form.firstChild)
+    // set the form url to be our endpoint_url from our server
+    form.url = s3Data.endpoint_url
+    // set the form data to be our S3 params from our server
+    form.formData = s3Data.params
+    // submit the form
+    form.submit()
+  }
+  // return functions from our IIFE that we'll need to expose to our index.html
+  return {
+    saveFile,
+    submitFile
+  }
+}())
+```
+#### We've now written the neccessary code needed to upload directly to S3!
+
+##### Let's take it for a spin!
+
++ In your terminal run the following command to start the server:  
+`$ node lib/index.js`
+
++ Navigate to localhost:8000. You should see the following screen. Click on **Choose File**:
+
+![demo](https://cloud.githubusercontent.com/assets/12450298/18581819/27ac5dac-7bfa-11e6-987f-8aef76c7243c.png)
+
++ Choose the file you wish to upload and click **open**:
+
+![choose file](https://cloud.githubusercontent.com/assets/12450298/18582392/afcb9598-7bfc-11e6-940d-9f1c85f44c67.png)
+
++ Then click the **Submit** button
+
+![submit](https://cloud.githubusercontent.com/assets/12450298/18582412/d15503ca-7bfc-11e6-8bd8-52548bf29e2e.png)
+
++ You should then see the success message with the link to where the image is being hosted (*this can now be used as an img src*). Click on the link:
+
+![success](https://cloud.githubusercontent.com/assets/12450298/18582441/fc24f646-7bfc-11e6-89e8-5dcdaa49ffef.png)
+
++ This should start an automatic download. Click on the download and you should see your image!
+
+![image download](https://cloud.githubusercontent.com/assets/12450298/18582455/1f080edc-7bfd-11e6-8280-881ef2462e92.png)
+![one does not simply](https://cloud.githubusercontent.com/assets/12450298/18582475/4d75e28a-7bfd-11e6-83a0-2c7029cb9830.png)
+
+# 🎉 We've successfully uploaded an image directly to S3! 
