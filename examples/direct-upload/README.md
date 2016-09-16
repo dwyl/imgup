@@ -3,6 +3,15 @@
 We are going to implement a simple solution for uploading images to an S3 bucket
 via a POST request from the browser.
 
+### Contents
+- [Creating an S3 Bucket](#creating-the-bucket)
+- [Creating IAM User with S3 Permissions](#creating-an-iam-user-with-s3-permissions)
+- [Generate a Signed S3 Policy](#generate-a-signed-s3-policy)
+- [Create a Server](#create-a-server-to-facilitate-the-credential-creation)
+- [Server and S3 Requests](#write-the-client-side-code-to-send-our-requests-to-the-backend-and-then-to-s3)
+- [Take it for a Spin](#take-it-for-a-spin!)
+- [Learning Resources](#learning-resources)
+
 ### Step 1 - Creating the bucket
 
 + Create an S3 bucket on [Amazon Web Services](aws.amazon.co.uk). To do so you'll need to
@@ -572,7 +581,7 @@ var uploadDemo = (function () {
 ```
 #### We've now written the neccessary code needed to upload directly to S3!
 
-##### Let's take it for a spin!
+##### Take it for a spin!
 
 + In your terminal run the following command to start the server:  
 `$ node lib/index.js`
@@ -608,3 +617,11 @@ var uploadDemo = (function () {
 
 
 # 🎉 We've successfully uploaded an image directly to S3!
+
+### Learning Resources
+
+- Amazon documentation - [Browser-Based Upload using HTTP POST (Using AWS Signature Version 4)](http://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-post-example.html)
+- Leonid Shevtsov - [Demystifying direct uploads from the browser to Amazon S3](https://leonid.shevtsov.me/post/demystifying-s3-browser-upload/)
+- Stackoverflow Q - [Amazon S3 POST api, and signing a policy with NodeJS](http://stackoverflow.com/questions/18476217/amazon-s3-post-api-and-signing-a-policy-with-nodejs)
+- AWS Articles - [Browser Uploads to S3 using HTML POST Forms
+](https://aws.amazon.com/articles/1434)
