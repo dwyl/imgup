@@ -593,9 +593,18 @@ var uploadDemo = (function () {
 
 ![success](https://cloud.githubusercontent.com/assets/12450298/18582441/fc24f646-7bfc-11e6-89e8-5dcdaa49ffef.png)
 
-+ This should start an automatic download. Click on the download and you should see your image!
++ This should start an automatic download. Click on the download:
 
 ![image download](https://cloud.githubusercontent.com/assets/12450298/18582455/1f080edc-7bfd-11e6-8280-881ef2462e92.png)
+
++ You should see your image!
 ![one does not simply](https://cloud.githubusercontent.com/assets/12450298/18582475/4d75e28a-7bfd-11e6-83a0-2c7029cb9830.png)
 
-# 🎉 We've successfully uploaded an image directly to S3! 
++ Let's check our S3 console so that we know *for sure* that our image is there. Navigate back to your S3 buckets and click on the one you uploaded to:
+![s3 buckets](https://cloud.githubusercontent.com/assets/12450298/18583007/098154ee-7c00-11e6-931e-4dec223cf95d.png)
+
++ You should be able to see the image that you just uploaded:
+![image uploaded](https://cloud.githubusercontent.com/assets/12450298/18583075/5132dc9a-7c00-11e6-91f4-8e1103d3e49a.png)
+
+
+# 🎉 We've successfully uploaded an image directly to S3!
