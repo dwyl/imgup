@@ -7,10 +7,12 @@
   </head>
   <body>
     <h1>S3 Direct Upload Demo</h1>
+    <br/>
     <form>
-      <input id="fileInput" type="file" name="file" onchange="uploadDemo.saveFile(this.files)"/>
+      <input class="form-control input-sm" id="fileInput" type="file" name="file" onchange="uploadDemo.saveFile(this.files)"/>
     </form>
-    <button onclick="uploadDemo.submitFile()">Submit</button>
+    <br/>
+    <button class="btn btn-embossed btn-primary" onclick="uploadDemo.submitFile()">Submit</button>
     <div class="successMessageContainer">
       <a class="imageLink"></a>
     </div>
