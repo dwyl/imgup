@@ -1,4 +1,4 @@
-## Direct Upload Example
+## Direct Upload to S3 - A Complete Guide
 
 We are going to implement a simple solution for uploading images to an S3 bucket
 via a POST request from the browser.
