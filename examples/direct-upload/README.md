@@ -6,12 +6,12 @@ via a POST request from the browser.
 ![upload example](https://cloud.githubusercontent.com/assets/12450298/18589369/593617dc-7c22-11e6-899d-00ffdc15ac73.png)
 
 ### Contents
-- [Creating an S3 Bucket](#creating-the-bucket)
-- [Creating IAM User with S3 Permissions](#creating-an-iam-user-with-s3-permissions)
-- [Generate a Signed S3 Policy](#generate-a-signed-s3-policy)
-- [Create a Server](#create-a-server-to-facilitate-the-credential-creation)
-- [Server and S3 Requests](#write-the-client-side-code-to-send-our-requests-to-the-backend-and-then-to-s3)
-- [Take it for a Spin](#take-it-for-a-spin!)
+- [Creating an S3 Bucket](#step-1---creating-the-bucket)
+- [Creating IAM User with S3 Permissions](#step-2---creating-an-iam-user-with-s3-permissions)
+- [Generate a Signed S3 Policy](#step-3---generate-a-signed-s3-policy)
+- [Create a Server](#step-4---create-a-server-to-facilitate-the-credential-creation)
+- [Server and S3 Requests](#step-5---write-the-client-side-code-to-send-our-requests-to-the-backend-and-then-to-s3)
+- [Take it for a Spin](#take-it-for-a-spin)
 - [Learning Resources](#learning-resources)
 
 ### Step 1 - Creating the bucket
@@ -582,7 +582,7 @@ var uploadDemo = (function () {
 ```
 #### We've now written the neccessary code needed to upload directly to S3!
 
-##### Take it for a spin!
+### Take it for a spin!
 
 + In your terminal run the following command to start the server:  
 `$ node lib/index.js`
