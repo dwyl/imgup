@@ -3,6 +3,8 @@
 We are going to implement a simple solution for uploading images to an S3 bucket
 via a POST request from the browser.
 
+![upload example](https://cloud.githubusercontent.com/assets/12450298/18589369/593617dc-7c22-11e6-899d-00ffdc15ac73.png)
+
 ### Contents
 - [Creating an S3 Bucket](#creating-the-bucket)
 - [Creating IAM User with S3 Permissions](#creating-an-iam-user-with-s3-permissions)
@@ -14,8 +16,7 @@ via a POST request from the browser.
 
 ### Step 1 - Creating the bucket
 
-+ Create an S3 bucket on [Amazon Web Services](aws.amazon.co.uk). To do so you'll need to
-create an account if you haven't got one already.
++ Create an S3 bucket on [Amazon Web Services](aws.amazon.co.uk). To do so you'll need to create an account if you haven't got one already.
 
 ![sign up](https://cloud.githubusercontent.com/assets/12450298/18392395/86991fb8-76a9-11e6-83d8-f16d7751b41d.png)
 
