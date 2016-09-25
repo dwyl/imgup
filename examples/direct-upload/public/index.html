@@ -2,21 +2,20 @@
 <html>
   <head>
     <title>S3 Upload Demo</title>
+    <link rel="icon" href="http://downloadicons.net/sites/default/files/upload-icon-46097.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.2.2/css/flat-ui.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.5.7/jquery.fileupload.js"></script>
     <script type="text/javascript" src="client.js"></script>
-    <script>
-      $(function() {
-        initS3FileUpload($('#fileInput'));
-      });
-    </script>
   </head>
   <body>
     <h1>S3 Direct Upload Demo</h1>
+    <br/>
     <form>
-      <input id="fileInput" type="file" name="file" />
+      <input class="form-control input-sm" id="fileInput" type="file" name="file" onchange="uploadDemo.saveFile(this.files)"/>
     </form>
+    <br/>
+    <button class="btn btn-embossed btn-primary" onclick="uploadDemo.submitFile()">Submit</button>
+    <div class="successMessageContainer">
+      <a class="imageLink"></a>
+    </div>
   </body>
 </html>
