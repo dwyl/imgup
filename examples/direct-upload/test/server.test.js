@@ -13,14 +13,14 @@ test('checks our /s3_credentials GET endpoint with filename', function (t) {
   })
 })
 
-test('checks our /s3_credentials GET endpoint returns 404 when no filename is specified', function (t) {
+test('checks our /s3_credentials GET endpoint returns 400 when no filename is specified', function (t) {
   var filename = ''
   var options = {
     method: 'GET',
     url: `/s3_credentials?filename=${filename}`
   }
   server.inject(options, function (response) {
-    t.equal(response.statusCode, 404, '404 status code returned - ✅')
+    t.equal(response.statusCode, 400, '400 status code returned - ✅')
     t.end(server.stop(function () {}))
   })
 })
