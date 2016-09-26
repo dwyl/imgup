@@ -25,17 +25,6 @@ test('checks our /s3_credentials GET endpoint returns 400 when no filename is sp
   })
 })
 
-test('checks POST to /s3_credentials returns 404', function (t) {
-  var options = {
-    method: 'POST',
-    url: '/s3_credentials'
-  }
-  server.inject(options, function (response) {
-    t.equal(response.statusCode, 404, '404 status code returned - ✅')
-    t.end(server.stop(function () {}))
-  })
-})
-
 test('checks GET request for our index.html', function (t) {
   var options = {
     method: 'GET',
