@@ -27,7 +27,7 @@ module.exports = [
         path.extname(request.query.filename)
         return reply(s3.getS3Credentials(s3Config, filename))
       } else {
-        return reply('Filename required')
+        return reply('Filename required').code(404)
       }
     }
   },

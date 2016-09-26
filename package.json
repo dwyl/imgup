@@ -18,7 +18,8 @@
     "tape": "^4.6.0"
   },
   "scripts": {
-    "test": "istanbul cover tape examples/direct-upload/test/**/*.js && codecov"
+    "test": "istanbul cover tape examples/direct-upload/test/**/*.js",
+    "coverage": "istanbul cover tape examples/direct-upload/test/**/*.js && codecov"
   },
   "repository": {
     "type": "git",
