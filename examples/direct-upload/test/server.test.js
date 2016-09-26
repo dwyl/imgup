@@ -1,10 +1,11 @@
 var test = require('tape')
 var server = require('../lib/index.js')
 
-test('checks our /s3_credentials GET endpoint', function (t) {
+test('checks our /s3_credentials GET endpoint with filename', function (t) {
+  var filename = 'test'
   var options = {
     method: 'GET',
-    url: '/s3_credentials'
+    url: `/s3_credentials?filename=${filename}`
   }
   server.inject(options, function (response) {
     t.equal(response.statusCode, 200, '200 status code returned - ✅')
@@ -12,13 +13,14 @@ test('checks our /s3_credentials GET endpoint', function (t) {
   })
 })
 
-test('checks POST to /s3_credentials returns 404', function (t) {
+test('checks our /s3_credentials GET endpoint returns 400 when no filename is specified', function (t) {
+  var filename = ''
   var options = {
-    method: 'POST',
-    url: '/s3_credentials'
+    method: 'GET',
+    url: `/s3_credentials?filename=${filename}`
   }
   server.inject(options, function (response) {
-    t.equal(response.statusCode, 404, '404 status code returned - ✅')
+    t.equal(response.statusCode, 400, '400 status code returned - ✅')
     t.end(server.stop(function () {}))
   })
 })
@@ -44,16 +46,3 @@ test('checks GET request for our index.html', function (t) {
     t.end(server.stop(function () {}))
   })
 })
-
-// test('checks our GET request for our index.html', function (t) {
-//   Server.start((err, server) => {
-//     if (err) {
-//       console.log(err)
-//     }
-//     server.route({ method: 'GET', path: '/public/{path*}', handler: { directory: { path: './', listing: true } } })
-//     server.inject('/public/index.html', function (response) {
-//       t.equal(response.statusCode, 200, '200 status code returned - ✅')
-//       server.stop(t.end)
-//     })
-//   })
-// })

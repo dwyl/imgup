@@ -13,11 +13,13 @@
     "inert": "^4.0.2"
   },
   "devDependencies": {
+    "codecov": "^1.0.1",
     "istanbul": "^0.4.5",
     "tape": "^4.6.0"
   },
   "scripts": {
-    "test": "istanbul cover tape examples/direct-upload/test/*"
+    "test": "istanbul cover tape examples/direct-upload/test/**/*.js",
+    "coverage": "istanbul cover tape examples/direct-upload/test/**/*.js && codecov"
   },
   "repository": {
     "type": "git",
