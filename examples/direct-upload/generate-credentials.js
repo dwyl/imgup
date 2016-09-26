@@ -21,9 +21,6 @@ function pureGetS3Credentials (config, filename, credential, policyBase64, dateS
 };
 
 function buildS3Params (config, filename, credential, policyBase64, dateString, expiration) {
-  // var credential = formatAmzCredential(config)
-  // var policy = buildS3UploadPolicy(config, filename, credential)
-  // var policyBase64 = new Buffer(JSON.stringify(policy)).toString('base64')
   return {
     key: filename,
     acl: 'public-read',
@@ -58,7 +55,6 @@ function buildS3UploadPolicy (config, filename, credential, dateString, expirati
 }
 
 function dateString (date) {
-  // var date = new Date().toISOString()
   return date.substr(0, 4) + date.substr(5, 2) + date.substr(8, 2)
 }
 
