@@ -23,6 +23,7 @@ module.exports = [
     handler: function (request, reply) {
       if (request.query.filename) {
         var filename =
+        request.query.filename.split('.')[0] +
         crypto.randomBytes(8).toString('hex') +
         path.extname(request.query.filename)
         return reply(s3.getS3Credentials(s3Config, filename))

@@ -17,7 +17,7 @@ var uploadDemo = (function () {
         buildAndSubmitForm(s3Data)
         var successMessage = document.createElement('h4')
         successMessage.innerHTML = 'Image Successfully Uploaded at: '
-        var link = `${s3Data.endpoint_url}/${filename}`
+        var link = `${s3Data.endpoint_url}/${s3Data.filename}`
         var imageATag = document.querySelector('a')
         imageATag.setAttribute('href', link)
         var imageLink = document.createElement('h4')
@@ -36,7 +36,7 @@ var uploadDemo = (function () {
     var keyInput = document.createElement('input')
     keyInput.setAttribute('type', 'hidden')
     keyInput.setAttribute('name', 'key')
-    keyInput.setAttribute('value', `${filename}`)
+    keyInput.setAttribute('value', s3Data.filename)
     form.setAttribute('method', 'post')
     form.setAttribute('action', s3Data.endpoint_url)
     form.setAttribute('enctype', 'multipart/form-data')

@@ -16,7 +16,8 @@ function getS3Credentials (config, filename) {
 function pureGetS3Credentials (config, filename, credential, policyBase64, dateString, s3Signature, expiration) {
   return {
     endpoint_url: 'https://' + config.bucket + '.s3.amazonaws.com',
-    params: buildS3Params(config, filename, credential, policyBase64, dateString, expiration)
+    params: buildS3Params(config, filename, credential, policyBase64, dateString, expiration),
+    filename: filename
   }
 };
 

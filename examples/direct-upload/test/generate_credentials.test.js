@@ -22,6 +22,7 @@ test('getS3Credentials', function (t) {
   var s3Credentials = getS3Credentials(config, filename, credential, policyBase64, dateStringT, s3Signature, expiration)
   var expected = {
     endpoint_url: 'https://' + 'testBucket' + '.s3.amazonaws.com',
+    filename: 'testFilename',
     params: {
       acl: 'public-read',
       key: 'testFilename',
