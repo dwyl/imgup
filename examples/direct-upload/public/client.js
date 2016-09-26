@@ -34,13 +34,18 @@ var uploadDemo = (function () {
   function buildAndSubmitForm (s3Data) {
     var form = document.querySelector('form')
     var keyInput = document.createElement('input')
+    var contentTypeInput = document.createElement('input')
     keyInput.setAttribute('type', 'hidden')
     keyInput.setAttribute('name', 'key')
     keyInput.setAttribute('value', s3Data.filename)
+    contentTypeInput.setAttribute('type', 'hidden')
+    contentTypeInput.setAttribute('name', 'Content-Type')
+    contentTypeInput.setAttribute('value', 'image')
     form.setAttribute('method', 'post')
     form.setAttribute('action', s3Data.endpoint_url)
     form.setAttribute('enctype', 'multipart/form-data')
     form.insertBefore(keyInput, form.firstChild)
+    form.insertBefore(contentTypeInput, form.firstChild)
     form.url = s3Data.endpoint_url
     form.formData = s3Data.params
     form.submit()
