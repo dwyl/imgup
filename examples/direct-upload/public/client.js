@@ -18,7 +18,7 @@ var uploadDemo = (function () {
         buildAndSubmitForm(s3Data)
         var successMessage = document.createElement('h4')
         successMessage.innerHTML = 'Image Successfully Uploaded at: '
-        var link = `https://dwyl-direct-upload.s3.amazonaws.com/${filename}`
+        var link = `${s3Data.endpoint_url}/${filename}`
         var imageATag = document.querySelector('a')
         imageATag.setAttribute('href', link)
         var imageLink = document.createElement('h4')
