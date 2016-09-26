@@ -14,7 +14,6 @@ var uploadDemo = (function () {
     xhttp.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         var s3Data = JSON.parse(xhttp.responseText)
-        console.log('GET RESPONSE', s3Data)
         buildAndSubmitForm(s3Data)
         var successMessage = document.createElement('h4')
         successMessage.innerHTML = 'Image Successfully Uploaded at: '
