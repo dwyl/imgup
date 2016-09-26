@@ -40,7 +40,7 @@ var uploadDemo = (function () {
     keyInput.setAttribute('value', s3Data.filename)
     contentTypeInput.setAttribute('type', 'hidden')
     contentTypeInput.setAttribute('name', 'Content-Type')
-    contentTypeInput.setAttribute('value', 'image')
+    contentTypeInput.setAttribute('value', 'image/jpg')
     form.setAttribute('method', 'post')
     form.setAttribute('action', s3Data.endpoint_url)
     form.setAttribute('enctype', 'multipart/form-data')
