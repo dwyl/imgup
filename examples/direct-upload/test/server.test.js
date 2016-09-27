@@ -8,7 +8,7 @@ test('checks our /s3_credentials GET endpoint with filename', function (t) {
     url: `/s3_credentials?filename=${filename}`
   }
   server.inject(options, function (response) {
-    t.equal(response.statusCode, 200, '200 status code returned - ✅')
+    t.equal(response.statusCode, 200, '✅ 200 status code returned')
     t.end(server.stop(function () {}))
   })
 })
@@ -20,7 +20,7 @@ test('checks our /s3_credentials GET endpoint returns 400 when no filename is sp
     url: `/s3_credentials?filename=${filename}`
   }
   server.inject(options, function (response) {
-    t.equal(response.statusCode, 400, '400 status code returned - ✅')
+    t.equal(response.statusCode, 400, '✅ 400 status code returned')
     t.end(server.stop(function () {}))
   })
 })
@@ -31,7 +31,7 @@ test('checks GET request for our index.html', function (t) {
     url: '/'
   }
   server.inject(options, function (response) {
-    t.equal(response.statusCode, 200, '200 status code returned - ✅')
+    t.equal(response.statusCode, 200, '✅ 200 status code returned')
     t.end(server.stop(function () {}))
   })
 })
@@ -42,7 +42,7 @@ test('checks GET request for our index.html', function (t) {
     url: '/client.js'
   }
   server.inject(options, function (response) {
-    t.equal(response.statusCode, 200, '200 status code returned - ✅')
+    t.equal(response.statusCode, 200, '✅ 200 status code returned')
     t.end(server.stop(function () {}))
   })
 })

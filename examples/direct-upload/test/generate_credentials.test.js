@@ -34,7 +34,7 @@ test('getS3Credentials', function (t) {
       'x-amz-signature': 'e57a6a4f6feb81e41ccca1f5c9abc25e9ab16731748f0118c1bbce33e8c00483'
     }
   }
-  t.deepEqual(s3Credentials, expected, 'correct s3 credentials returned ✅')
+  t.deepEqual(s3Credentials, expected, '✅ correct s3 credentials returned')
   t.end()
 })
 
@@ -42,7 +42,7 @@ test('formatAmzCredential', function (t) {
   var date = 'testDate'
   var amzCredential = formatAmzCredential(config, date)
   var expected = 'testAccess/testDate/testRegion/s3/aws4_request'
-  t.deepEqual(amzCredential, expected, 'amz credential formatted correctly ✅')
+  t.deepEqual(amzCredential, expected, '✅ amz credential formatted correctly')
   t.end()
 })
 
@@ -61,7 +61,7 @@ test('buildS3UploadPolicy', function (t) {
       { 'x-amz-date': 'testDateStringT' } ],
     expiration: 'testExpiration'
   }
-  t.deepEqual(s3UploadPolicy, expected, 'correct s3 policy returned ✅')
+  t.deepEqual(s3UploadPolicy, expected, '✅ correct s3 policy returned')
   t.end()
 })
 
@@ -69,6 +69,6 @@ test('dateString', function (t) {
   var date = 'testDate'
   var dateStr = dateString(date)
   var expected = 'testat'
-  t.equal(dateStr, expected, 'correct dateString returned ✅')
+  t.equal(dateStr, expected, '✅ correct dateString returned')
   t.end()
 })
