@@ -1,6 +1,6 @@
 module.exports = {
   'src_folders': [
-    'test/e2e'// Where you are storing your Nightwatch e2e tests
+    'tests/e2e'// Where you are storing your Nightwatch e2e tests
   ],
   'output_folder': './reports', // reports (test outcome) output by nightwatch
   'selenium': { // downloaded by selenium-download module
