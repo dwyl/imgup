@@ -5,9 +5,9 @@
 
   <testsuite name="upload"
     errors="0" failures="0" hostname="" id="" package="upload" skipped="0"
-    tests="1" time="11.21" timestamp="Tue, 27 Sep 2016 10:27:54 GMT">
+    tests="1" time="7.678" timestamp="Tue, 27 Sep 2016 10:30:49 GMT">
   
-    <testcase name="Image Upload" time="11.21" assertions="3">
+    <testcase name="Image Upload" time="7.678" assertions="3">
 
     
 
