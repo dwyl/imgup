@@ -12,6 +12,7 @@ via a POST request from the browser.
 - [Create a Server](#step-4---create-a-server-to-facilitate-the-credential-creation)
 - [Server and S3 Requests](#step-5---write-the-client-side-code-to-send-our-requests-to-the-backend-and-then-to-s3)
 - [Take it for a Spin](#take-it-for-a-spin)
+- [Testing](#testing)
 - [Learning Resources](#learning-resources)
 
 ### Step 1 - Creating the bucket
@@ -618,6 +619,16 @@ var uploadDemo = (function () {
 
 
 # 🎉 We've successfully uploaded an image directly to S3!
+
+### Testing
+
+#### Front-end tests
+We're using [Nightwatch](http://nightwatchjs.org/) for our front end tests.
+It's a browser automated testing framework used for browser based apps and
+websites.
+
+#### Back-end tests
+We're using [Tape](https://github.com/substack/tape) for our back-end tests.   
 
 ### Learning Resources
 
