@@ -71,7 +71,27 @@ following into the CORS field
 (*it's basically saying that we are allowing GET,
  POST and PUT requests from any Allowed Origin with any Allowed Header*)  
 
++ Finally we need to add a policy to the bucket to make it public readable. Click
+on the 'Add bucket policy' button and then add the following to the input field:
+
+```
+{
+	"Version": "2008-10-17",
+	"Statement": [
+		{
+			"Sid": "AllowPublicRead",
+			"Effect": "Allow",
+			"Principal": {
+				"AWS": "*"
+			},
+			"Action": "s3:GetObject",
+			"Resource": "arn:aws:s3:::[YOUR_BUCKET_NAME]/*"
+		}
+	]
+}
+```
 + Then click ***save***
+
 
 ![save CORS](https://cloud.githubusercontent.com/assets/12450298/18393882/359e3bf6-76af-11e6-90da-bcd993d035ff.png)
 

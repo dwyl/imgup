@@ -21,8 +21,10 @@
     "tape": "^4.6.0"
   },
   "scripts": {
-    "test": "istanbul cover tape examples/direct-upload/test/**/*.js",
-    "coverage": "istanbul cover tape examples/direct-upload/test/**/*.js && codecov"
+    "direct-upload-test": "istanbul cover tape examples/direct-upload/test/**/*.js",
+    "direct-upload-coverage": "istanbul cover tape examples/direct-upload/test/**/*.js && codecov",
+    "sdk-upload-test": "istanbul cover tape examples/sdk-upload/test/**/*.js",
+    "sdk-upload-coverage": "istanbul cover tape examples/sdk-upload/test/**/*.js && codecov"
   },
   "repository": {
     "type": "git",

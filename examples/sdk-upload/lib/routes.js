@@ -1,4 +1,4 @@
-// require('env2')('./.env')
+var s3 = require('../src/upload.js')
 var path = require('path')
 
 module.exports = [
@@ -13,7 +13,12 @@ module.exports = [
     method: 'POST',
     path: '/file_submitted',
     handler: function (request, reply) {
-      console.log('-------->', request.payload)
+      var file = request.payload.file
+      var filename = request.payload.filename
+      s3.upload(file, filename, function (err, data) {
+        console.log(err)
+        reply(data)
+      })
     }
   },
   {
