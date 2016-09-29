@@ -16,6 +16,8 @@
   "devDependencies": {
     "codecov": "^1.0.1",
     "istanbul": "^0.4.5",
+    "nightwatch": "^0.9.8",
+    "selenium-download": "^2.0.6",
     "tape": "^4.6.0"
   },
   "scripts": {
