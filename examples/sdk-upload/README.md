@@ -304,3 +304,31 @@ var sdkDemo = (function () {
   }
 }())
 ```
+#### You can now upload to S3 directly from your server!
+
+### Take it for a spin
+
++ In your terminal run the following command to start the server:  
+`$ node lib/index.js`
+
++ Navigate to localhost:8000. You should see the following screen. Click on **Choose File**:
+
+![upload](https://cloud.githubusercontent.com/assets/12450298/18966154/0b014fae-8678-11e6-83b1-523bea2c605f.png)
+
++ Once you've selected a file, click the 'Submit' button:
+
+![submit](https://cloud.githubusercontent.com/assets/12450298/18966222/5ca5687c-8678-11e6-99b0-aa798222bd80.png)
+
++ If your upload has been successful you should see the success message with the
+link to your image. Click on the link:
+
+![success](https://cloud.githubusercontent.com/assets/12450298/18966287/8f3a3484-8678-11e6-90e4-2c8147b4907d.png)
+![click link](https://cloud.githubusercontent.com/assets/12450298/18966895/041c8e08-867b-11e6-89e0-183ff2f19cb8.png)
+
++ Click on the download and you should see your image:
+
+![image](https://cloud.githubusercontent.com/assets/12450298/18966940/367afb3c-867b-11e6-8c0e-f66f505027c2.png)
+
++ Navigate back to your S3 bucket. You should see your image there:
+
+![image in bucket](https://cloud.githubusercontent.com/assets/12450298/18966358/d14fa160-8678-11e6-84aa-1420b5ec6621.png)
