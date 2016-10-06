@@ -16,7 +16,7 @@ module.exports = [
       var file = request.payload.file
       var filename = request.payload.filename
       s3.upload(file, filename, function (err, data) {
-        console.log(err)
+        request.handleError(err, data)
         reply(data)
       })
     }
