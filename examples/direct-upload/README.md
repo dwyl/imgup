@@ -71,8 +71,9 @@ following into the CORS field
 (*it's basically saying that we are allowing GET,
  POST and PUT requests from any Allowed Origin with any Allowed Header*)  
 
-+ Finally we need to add a policy to the bucket to make it public readable. Click
-on the 'Add bucket policy' button and then add the following to the input field:
++ Finally we need to add a policy to the bucket to make it public readable. It makes
+the files uploaded to the bucket viewable in browsers. Click on the 'Add bucket
+policy' button and then add the following to the input field:
 
 ```
 {
@@ -357,7 +358,7 @@ module.exports = {
 and the generated signing key from the previous step. We're going to use [hapi.js](http://hapijs.com/)
 so before we get started, run the following command in your terminal:  
 
-`$ npm install hapi --save`
+`npm install hapi --save`
 
 Next add the following to your newly created server file:
 
@@ -467,7 +468,7 @@ server.start((err) => {
   if (err) {
     throw err
   }
-  console.log(`✅ Server running at: ${server.info.uri}`)
+  console.log(`✅ Server running at: {server.info.uri}`)
 ```
 
 #### We now have a server that can our index.html can communicate with!
@@ -546,7 +547,7 @@ var uploadDemo = (function () {
         // link to image
         var successMessage = document.createElement('h4')
         successMessage.innerHTML = 'Image Successfully Uploaded at: '
-        var link = `https://<your_bucket_name>.s3.amazonaws.com/${filename}`
+        var link = `https://<your_bucket_name>.s3.amazonaws.com/{filename}`
         var imageATag = document.querySelector('a')
         imageATag.setAttribute('href', link)
         var imageLink = document.createElement('h4')
@@ -557,7 +558,7 @@ var uploadDemo = (function () {
       }
     }
     // open the GET request to our endpoint with our filename attached
-    xhttp.open('GET', `/s3_credentials?filename=${filename}`, true)
+    xhttp.open('GET', `/s3_credentials?filename={filename}`, true)
     // send the GET request
     xhttp.send()
   }
@@ -576,7 +577,7 @@ var uploadDemo = (function () {
     // set its name attribute to key
     keyInput.setAttribute('name', 'key')
     // set its value attribute to our filename
-    keyInput.setAttribute('value', `${filename}`)
+    keyInput.setAttribute('value', `{filename}`)
     // set the method of the form to POST
     form.setAttribute('method', 'post')
     // set the action attribute to be our endpoint_url from our server
@@ -606,7 +607,7 @@ var uploadDemo = (function () {
 ### Take it for a spin!
 
 + In your terminal run the following command to start the server:  
-`$ node lib/index.js`
+` node lib/index.js`
 
 + Navigate to localhost:8000. You should see the following screen. Click on **Choose File**:
 
