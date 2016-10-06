@@ -118,7 +118,7 @@ module.exports = {
 }
 ```
 
-#### We've now set up our S3 upload function!
+We've now set up our S3 upload function!
 
 
 ### Step 5 - Create a server to handle our upload file
