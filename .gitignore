@@ -14,3 +14,7 @@ node_modules
 
 # Environment variables
 .env
+
+# Nightwatch screenshots
+examples/sdk-upload/reports/*
+examples/direct-upload/reports/*
