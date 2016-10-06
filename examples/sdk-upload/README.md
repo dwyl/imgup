@@ -64,8 +64,8 @@ First you'll need to set some environment variables. These are as follows:
 > If you are new to Environment Variables see:
 [github.com/dwyl/**learn-environment-variables**](https://github.com/dwyl/learn-environment-variables/)
 
-`export S3_REGION=<YOUR_REGION>`
-`export S3_BUCKET=<YOUR_BUCKET_NAME>`
+`export AWS_S3_REGION=<YOUR_REGION>`
+`export AWS_S3_BUCKET=<YOUR_BUCKET_NAME>`
 
 Alternatively you could store your environment variables in a `.env` file and load
 them in. We've written a module that can help you do this called
@@ -84,7 +84,7 @@ var crypto = require('crypto')
 var path = require('path')
 
 // assign our region from our environment variables
-AWS.config.region = process.env.S3_REGION
+AWS.config.region = process.env.AWS_S3_REGION
 
 /**
 * Returns data specific to our upload that we send to the front end
@@ -99,7 +99,7 @@ function upload (file, filename, callback) {
   crypto.randomBytes(8).toString('hex') +
   path.extname(filename)
   // loading our bucket name from our environment variables
-  var bucket = process.env.S3_BUCKET
+  var bucket = process.env.AWS_S3_BUCKET
   // creating a new instance of our bucket
   var s3Bucket = new AWS.S3({params: {Bucket: bucket}})
   // sets the params needed for the upload

@@ -3,10 +3,10 @@ var crypto = require('crypto')
 var path = require('path')
 var s3 = require('../generate-credentials')
 var s3Config = {
-  accessKey: process.env.S3_ACCESS_KEY,
-  secretKey: process.env.S3_SECRET_KEY,
-  bucket: process.env.S3_BUCKET,
-  region: process.env.S3_REGION
+  accessKey: process.env.AWS_S3_ACCESS_KEY,
+  secretKey: process.env.AWS_S3_SECRET_KEY,
+  bucket: process.env.AWS_S3_BUCKET,
+  region: process.env.AWS_S3_REGION
 }
 
 module.exports = [

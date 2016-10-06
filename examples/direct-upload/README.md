@@ -379,18 +379,18 @@ following into your terminal (*you'll need your access key id and your secret
 access key that you saved when you created your user*):
 
 ```
-export S3_ACCESS_KEY=[your_iam_user_access_key]
-export S3_SECRET_KEY=[your_iam_user_secret_key]
-export S3_BUCKET=[your_bucket_name]
-export S3_REGION=[the_region_you_created_your_bucket_in]
+export AWS_S3_ACCESS_KEY=[your_iam_user_access_key]
+export AWS_S3_SECRET_KEY=[your_iam_user_secret_key]
+export AWS_S3_BUCKET=[your_bucket_name]
+export AWS_S3_REGION=[the_region_you_created_your_bucket_in]
 ```
 
 ```js
 var s3Config = {
-  accessKey: process.env.S3_ACCESS_KEY,
-  secretKey: process.env.S3_SECRET_KEY,
-  bucket: process.env.S3_BUCKET,
-  region: process.env.S3_REGION,
+  accessKey: process.env.AWS_S3_ACCESS_KEY,
+  secretKey: process.env.AWS_S3_SECRET_KEY,
+  bucket: process.env.AWS_S3_BUCKET,
+  region: process.env.AWS_S3_REGION,
 }
 ```
 

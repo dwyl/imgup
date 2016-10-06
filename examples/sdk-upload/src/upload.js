@@ -3,14 +3,14 @@ var AWS = require('aws-sdk')
 var crypto = require('crypto')
 var path = require('path')
 
-AWS.config.region = process.env.S3_REGION
+AWS.config.region = process.env.AWS_S3_REGION
 
 function upload (file, filename, callback) {
   var filenameHex =
   filename.split('.')[0] +
   crypto.randomBytes(8).toString('hex') +
   path.extname(filename)
-  var bucket = process.env.S3_BUCKET
+  var bucket = process.env.AWS_S3_BUCKET
   console.log(bucket)
   var s3Bucket = new AWS.S3({params: {Bucket: bucket}})
   var params = {Bucket: bucket, Key: filenameHex, Body: file}
