@@ -82,6 +82,8 @@ var AWS = require('aws-sdk')
 var crypto = require('crypto')
 // we use path to add the relative file extension
 var path = require('path')
+// hapi-error to handle our errors
+var handleError = require('hapi-error').handleError
 
 // assign our region from our environment variables
 AWS.config.region = process.env.AWS_S3_REGION
@@ -105,7 +107,7 @@ function upload (file, filename, callback) {
   var params = {Bucket: bucket, Key: filenameHex, Body: file}
   // SDK upload to S3
   s3Bucket.upload(params, function (err, data) {
-    if (err) console.log(err, data)
+    handleError(err, data)
     // callback with the data that gets returned from S3
     else callback(null, data)
   })
