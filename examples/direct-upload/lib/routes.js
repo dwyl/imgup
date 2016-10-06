@@ -22,10 +22,9 @@ module.exports = [
     path: '/s3_credentials',
     handler: function (request, reply) {
       if (request.query.filename) {
-        var filename =
-        request.query.filename.split('.')[0] +
-        crypto.randomBytes(8).toString('hex') +
-        path.extname(request.query.filename)
+        var ext = '.' + path.extname(request.query.filename)
+        var filename = request.query.filename.replace(ext, '') +
+          crypto.randomBytes(8).toString('hex') + ext
         return reply(s3.getS3Credentials(s3Config, filename))
       } else {
         return reply('Filename required').code(400)

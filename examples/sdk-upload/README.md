@@ -94,10 +94,9 @@ AWS.config.region = process.env.AWS_S3_REGION
 **/
 function upload (file, filename, callback) {
   // creating our new filename
-  var filenameHex =
-  filename.split('.')[0] +
-  crypto.randomBytes(8).toString('hex') +
-  path.extname(filename)
+  var ext = '.' + path.extname(filename);
+  var filenameHex = filename.replace(ext, '') +
+   crypto.randomBytes(8).toString('hex') + ext;
   // loading our bucket name from our environment variables
   var bucket = process.env.AWS_S3_BUCKET
   // creating a new instance of our bucket
