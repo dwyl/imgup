@@ -71,7 +71,28 @@ following into the CORS field
 (*it's basically saying that we are allowing GET,
  POST and PUT requests from any Allowed Origin with any Allowed Header*)  
 
++ Finally we need to add a policy to the bucket to make it public readable. It makes
+the files uploaded to the bucket viewable in browsers. Click on the 'Add bucket
+policy' button and then add the following to the input field:
+
+```
+{
+	"Version": "2008-10-17",
+	"Statement": [
+		{
+			"Sid": "AllowPublicRead",
+			"Effect": "Allow",
+			"Principal": {
+				"AWS": "*"
+			},
+			"Action": "s3:GetObject",
+			"Resource": "arn:aws:s3:::[YOUR_BUCKET_NAME]/*"
+		}
+	]
+}
+```
 + Then click ***save***
+
 
 ![save CORS](https://cloud.githubusercontent.com/assets/12450298/18393882/359e3bf6-76af-11e6-90da-bcd993d035ff.png)
 
@@ -337,7 +358,7 @@ module.exports = {
 and the generated signing key from the previous step. We're going to use [hapi.js](http://hapijs.com/)
 so before we get started, run the following command in your terminal:  
 
-`$ npm install hapi --save`
+`npm install hapi --save`
 
 Next add the following to your newly created server file:
 
@@ -358,18 +379,18 @@ following into your terminal (*you'll need your access key id and your secret
 access key that you saved when you created your user*):
 
 ```
-export S3_ACCESS_KEY=[your_iam_user_access_key]
-export S3_SECRET_KEY=[your_iam_user_secret_key]
-export S3_BUCKET=[your_bucket_name]
-export S3_REGION=[the_region_you_created_your_bucket_in]
+export AWS_S3_ACCESS_KEY=[your_iam_user_access_key]
+export AWS_S3_SECRET_KEY=[your_iam_user_secret_key]
+export AWS_S3_BUCKET=[your_bucket_name]
+export AWS_S3_REGION=[the_region_you_created_your_bucket_in]
 ```
 
 ```js
 var s3Config = {
-  accessKey: process.env.S3_ACCESS_KEY,
-  secretKey: process.env.S3_SECRET_KEY,
-  bucket: process.env.S3_BUCKET,
-  region: process.env.S3_REGION,
+  accessKey: process.env.AWS_S3_ACCESS_KEY,
+  secretKey: process.env.AWS_S3_SECRET_KEY,
+  bucket: process.env.AWS_S3_BUCKET,
+  region: process.env.AWS_S3_REGION,
 }
 ```
 
@@ -418,9 +439,9 @@ server.register(require('inert'),
       if (request.query.filename) {
         // if  you upload two items with the same name to the same bucket, the second
         // will overwrite the first. These random hashes prevent that from happening
-        var filename =
-        crypto.randomBytes(8).toString('hex') +
-        path.extname(request.query.filename)
+        var ext = '.' + path.extname(request.query.filename)
+        var filename = request.query.filename.replace(ext, '') +
+          crypto.randomBytes(8).toString('hex') + ext
         reply(s3.getS3Credentials(s3Config, filename))
       } else {
         reply('Filename required')
@@ -447,7 +468,7 @@ server.start((err) => {
   if (err) {
     throw err
   }
-  console.log(`✅ Server running at: ${server.info.uri}`)
+  console.log(`✅ Server running at: {server.info.uri}`)
 ```
 
 #### We now have a server that can our index.html can communicate with!
@@ -526,7 +547,7 @@ var uploadDemo = (function () {
         // link to image
         var successMessage = document.createElement('h4')
         successMessage.innerHTML = 'Image Successfully Uploaded at: '
-        var link = `https://<your_bucket_name>.s3.amazonaws.com/${filename}`
+        var link = `https://<your_bucket_name>.s3.amazonaws.com/{filename}`
         var imageATag = document.querySelector('a')
         imageATag.setAttribute('href', link)
         var imageLink = document.createElement('h4')
@@ -537,7 +558,7 @@ var uploadDemo = (function () {
       }
     }
     // open the GET request to our endpoint with our filename attached
-    xhttp.open('GET', `/s3_credentials?filename=${filename}`, true)
+    xhttp.open('GET', `/s3_credentials?filename={filename}`, true)
     // send the GET request
     xhttp.send()
   }
@@ -556,7 +577,7 @@ var uploadDemo = (function () {
     // set its name attribute to key
     keyInput.setAttribute('name', 'key')
     // set its value attribute to our filename
-    keyInput.setAttribute('value', `${filename}`)
+    keyInput.setAttribute('value', `{filename}`)
     // set the method of the form to POST
     form.setAttribute('method', 'post')
     // set the action attribute to be our endpoint_url from our server
@@ -586,7 +607,7 @@ var uploadDemo = (function () {
 ### Take it for a spin!
 
 + In your terminal run the following command to start the server:  
-`$ node lib/index.js`
+` node lib/index.js`
 
 + Navigate to localhost:8000. You should see the following screen. Click on **Choose File**:
 

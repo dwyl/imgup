@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>S3 SDK Upload Demo</title>
+    <link rel="icon" href="http://downloadicons.net/sites/default/files/upload-icon-46097.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flat-ui/2.2.2/css/flat-ui.min.css">
+    <script type="text/javascript" src="client.js"></script>
+  </head>
+  <body>
+    <h1>S3 SDK Upload Demo</h1>
+    <br/>
+    <form>
+      <input class="form-control input-sm" id="fileInput" type="file" name="file" onchange="sdkDemo.saveFile(this.files)"/>
+    </form>
+    <br/>
+    <button class="btn btn-embossed btn-primary" id="submit" onclick="sdkDemo.submitFile()">Submit</button>
+    <div class="successMessageContainer">
+      <a class="imageLink"></a>
+    </div>
+  </body>
+</html>

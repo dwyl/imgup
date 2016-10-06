@@ -8,8 +8,10 @@
     "test": "test"
   },
   "dependencies": {
+    "aws-sdk": "^2.6.5",
     "env2": "^2.1.1",
     "hapi": "^15.0.3",
+    "hapi-error": "^1.4.1",
     "inert": "^4.0.2"
   },
   "devDependencies": {
@@ -20,8 +22,10 @@
     "tape": "^4.6.0"
   },
   "scripts": {
-    "test": "istanbul cover tape examples/direct-upload/test/**/*.js",
-    "coverage": "istanbul cover tape examples/direct-upload/test/**/*.js && codecov"
+    "direct-upload-test": "istanbul cover tape examples/direct-upload/test/**/*.js",
+    "direct-upload-coverage": "istanbul cover tape examples/direct-upload/test/**/*.js && codecov",
+    "sdk-upload-test": "istanbul cover tape examples/sdk-upload/test/**/*.js",
+    "sdk-upload-coverage": "istanbul cover tape examples/sdk-upload/test/**/*.js && codecov"
   },
   "repository": {
     "type": "git",
