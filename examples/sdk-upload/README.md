@@ -39,6 +39,7 @@ Next we'll need to configure our AWS SDK. You can do this in a number of ways.
 We're going to create a credentials file at `~/.aws/credentials`. To do this we
 take the following steps:
 
+* open a new terminal window
 * ` cd` this takes us back to the root of our file system
 * ` mkdir .aws` creates a folder that will hold our credentials file
 * ` cd mkdir` navigate to our `.aws` directory
@@ -50,6 +51,7 @@ aws_access_key_id = your_access_key_id
 aws_secret_access_key = your_secret_key
 ```
 * save the file
+* close the terminal window
 
 The credentials should be the ones associated with the IAM user you created in
 [Step 2]((#step-2---creating-an-iam-user-with-s3-permissions)).
