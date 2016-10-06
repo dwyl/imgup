@@ -1,14 +1,11 @@
 var sdkDemo = (function () {
-  var file
-  var filename
-
   function saveFile (uploadFile) {
-    file = uploadFile[0]
-    filename = file.name
+    this.file = uploadFile[0]
+    this.filename = this.file.name
   }
 
   function submitFile () {
-    sendFileToServer(file, filename)
+    sendFileToServer(this.file, this.filename)
   }
 
   function sendFileToServer (file, filename) {
