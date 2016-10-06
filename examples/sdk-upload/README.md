@@ -33,16 +33,16 @@ and again follow the steps.
 In order to upload to our S3 bucket, we have to use the AWS SDK. Install it using
 the following command:
 
-`$ npm install aws-sdk --save`
+` npm install aws-sdk --save`
 
 Next we'll need to configure our AWS SDK. You can do this in a number of ways.
 We're going to create a credentials file at `~/.aws/credentials`. To do this we
 take the following steps:
 
-* `$ cd` this takes us back to the root of our file system
-* `$ mkdir .aws` creates a folder that will hold our credentials file
-* `$ cd mkdir` navigate to our `.aws` directory
-* `$ touch credentials` creates our credentials file
+* ` cd` this takes us back to the root of our file system
+* ` mkdir .aws` creates a folder that will hold our credentials file
+* ` cd mkdir` navigate to our `.aws` directory
+* ` touch credentials` creates our credentials file
 * Open your credentials file in your text editor and add the following:
 ```
 [default]
@@ -59,9 +59,15 @@ The credentials should be the ones associated with the IAM user you created in
 ### Step 4 - Implement the SDK
 
 First you'll need to set some environment variables. These are as follows:
+> If you are new to Environment Variables see:
+[github.com/dwyl/**learn-environment-variables**](https://github.com/dwyl/learn-environment-variables/)
 
 `export S3_REGION=<YOUR_REGION>`
 `export S3_BUCKET=<YOUR_BUCKET_NAME>`
+
+Alternatively you could store your environment variables in a `.env` file and load
+them in. We've written a module that can help you do this called
+[env2](https://github.com/dwyl/env2).
 
 Create a `src` directory in the root of your project. Create a file within this
 directory called `upload.js`. This file will contain our SDK functionality.
@@ -309,7 +315,7 @@ var sdkDemo = (function () {
 ### Take it for a spin
 
 + In your terminal run the following command to start the server:  
-`$ node lib/index.js`
+` node lib/index.js`
 
 + Navigate to localhost:8000. You should see the following screen. Click on **Choose File**:
 
