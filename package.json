@@ -11,8 +11,9 @@
     "aws-sdk": "^2.6.5",
     "env2": "^2.1.1",
     "hapi": "^15.0.3",
-    "hapi-error": "^1.4.1",
-    "inert": "^4.0.2"
+    "hapi-error": "^1.5.0",
+    "inert": "^4.0.2",
+    "mime-types": "^2.1.12"
   },
   "devDependencies": {
     "codecov": "^1.0.1",
