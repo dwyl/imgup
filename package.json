@@ -8,7 +8,7 @@
     "test": "test"
   },
   "dependencies": {
-    "aws-sdk": "^2.6.5",
+    "aws-sdk": "^2.344.0",
     "env2": "^2.1.1",
     "hapi": "^15.0.3",
     "hapi-error": "^1.4.1",

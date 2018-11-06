@@ -29,32 +29,30 @@ via a POST request from the browser.
 
 ![create bucket](https://cloud.githubusercontent.com/assets/12450298/18392672/8d5a14be-76aa-11e6-896b-e31dd4f9c1f7.png)
 
-+ Enter your bucket name and the region you wish to create the bucket under
++ Enter your bucket name and the region you wish to create the bucket under. Then
+click next past the 'Configure options' page.
 
-![region](https://cloud.githubusercontent.com/assets/12450298/18393367/f65abc0a-76ac-11e6-9242-67209b9e8802.png)
+![name and region](https://user-images.githubusercontent.com/16775804/47728474-52d83780-dc56-11e8-8f0b-a5cf98fccefc.png)
+
++ On the 'Set your permissions' page grant public read access under 'Manage public permissions' and grant write access under 'Manage system permissions'.
+
+![permissions](https://user-images.githubusercontent.com/16775804/47728326-0987e800-dc56-11e8-90f4-767a452dd440.png)
+
++ Your review screen should now look like this:
+
+![review](https://user-images.githubusercontent.com/16775804/47728576-87e48a00-dc56-11e8-8f04-f549637520b4.png)
 
 + Your bucket should now appear in your list of buckets. Click on it
 
-![bucket created](https://cloud.githubusercontent.com/assets/12450298/18393331/db497442-76ac-11e6-90e4-08aa31d8d53b.png)
+![bucket created](https://user-images.githubusercontent.com/16775804/47728698-c417ea80-dc56-11e8-9d05-b2eca2fcfca4.png)
 
 + When you open your bucket it should be empty. We need to add some permission
 configuration to the bucket so that it is can be accessed remotely. Click on the
-properties tab in the top right
+***Permissions*** tab and then on 'CORS configuration'
 
-![properties](https://cloud.githubusercontent.com/assets/12450298/18393302/bd0fcfd0-76ac-11e6-90a3-7a3d12705470.png)
+![permissions](https://user-images.githubusercontent.com/16775804/47731648-6f776e00-dc5c-11e8-996b-223fc9562f9b.png)
 
-+ Click on the ***Permissions*** tab on the right hand side and then click on the
-'+ Add more permissions' button.
-
-![add more permissions](https://cloud.githubusercontent.com/assets/12450298/18393713/64bde9be-76ae-11e6-81e1-c6f7e90811a3.png)
-
-+ Add the word 'Everyone' to your ***Grantee*** input box and then check all of
-the check boxes. Then press ***save***
-
-![grantee](https://cloud.githubusercontent.com/assets/12450298/18393684/3f83b17e-76ae-11e6-830c-de9010469e2b.png)
-
-+ Click on the '+ Add CORS Configuration' button in the same tab. Then enter the
-following into the CORS field
++ Then enter paste the following into the CORS configuration editor:
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -71,9 +69,8 @@ following into the CORS field
 (*it's basically saying that we are allowing GET,
  POST and PUT requests from any Allowed Origin with any Allowed Header*)  
 
-+ Finally we need to add a policy to the bucket to make it public readable. It makes
-the files uploaded to the bucket viewable in browsers. Click on the 'Add bucket
-policy' button and then add the following to the input field:
++ Finally we need to add a policy to the bucket to make it public readable. It
+makes the files uploaded to the bucket viewable in browsers. So click on 'Bucket Policy' and paste in the following code. Make sure you replace the `[YOUR_BUCKET_NAME]` text with the name of your bucket and then click save.
 
 ```
 {
@@ -91,55 +88,28 @@ policy' button and then add the following to the input field:
 	]
 }
 ```
-+ Then click ***save***
-
-
-![save CORS](https://cloud.githubusercontent.com/assets/12450298/18393882/359e3bf6-76af-11e6-90da-bcd993d035ff.png)
 
 #### Our bucket is now completely set up so that it will accept our POST request images!
 
 ### Step 2 - Creating an IAM user with S3 permissions
 
-+ Navigate to the IAM console. This is where you can create users and give them
-permissions to access certain AWS services by attaching the relevant policies.
++ Before you set up an IAM user, you must create the permission policy that you
+will give them. To do this navigate to the IAM console and then select the 'Policies' tab on the left:
 
 ![iam console](https://cloud.githubusercontent.com/assets/12450298/18394421/ddd725f6-76b1-11e6-8688-ef9b8e4029b6.png)
 
-+ Click on the ***Users*** tab on the left
-
-![users](https://cloud.githubusercontent.com/assets/12450298/18394479/1c9fd31e-76b2-11e6-90e2-84b138e53596.png)
-
-+ Click on the ***Create New Users*** button
-
-![create new users](https://cloud.githubusercontent.com/assets/12450298/18394551/6d5ba9b8-76b2-11e6-87a6-5f818368743c.png)
-
-+ Type the name of the user into an empty field and ensure that the 'Generate an
-access key for each user' check box is selected. Then click ***Create***
-
-![create user](https://cloud.githubusercontent.com/assets/12450298/18394660/d832c424-76b2-11e6-9a2f-05c0d820fe3d.png)
-
-+ It should say that your new user has been created. Click on the 'Show User Security
-Credentials' to view your keys. This is the only time you'll be able to see both
-of these together so make a note of them! We'd recommend that you download them by
-clicking the button in the bottom right and storing them in a safe place
-
-![save credentials](https://cloud.githubusercontent.com/assets/12450298/18394743/5a549cac-76b3-11e6-9bba-dff5d8f3409c.png)
-
-+ Navigate back to the IAM console and then select the 'Policies' tab on the left
-
 ![iam policies](https://cloud.githubusercontent.com/assets/12450298/18394896/fe61d62a-76b3-11e6-8e54-bd66bc13bb3f.png)
 
-+ Here we can create a policy that we can then attach to our newly created user
-so that they can have access to S3 services
++ Click on the ***Create Policy*** button because we are going to create a minimal-privilege policy for our user
 
 ![create policy](https://cloud.githubusercontent.com/assets/12450298/18394990/5f33f3f2-76b4-11e6-914e-443f894c817f.png)
 
-+ Click on the ***Create Your Own Policy*** 'select' button because we are going
-to create a minimal-privilege policy for our user
++ Without editing anything on the 'Visual editor' tab go straight to the JSON tab
+(this will be automatically updated by what we'll put in the JSON tab).
 
-![custom policy](https://cloud.githubusercontent.com/assets/12450298/18395067/be5ede32-76b4-11e6-817d-1d3a920e6862.png)
+![Visual editor tab](https://user-images.githubusercontent.com/16775804/48076803-eb823080-e1dd-11e8-92c7-88cf85a4e804.png)
 
-+ Add the following policy giving it a descriptive name and a descrition that tells
++ Add the following policy giving it a descriptive name and a description that tells
 you exactly what it allows (*remember to put your bucket name in the placeholder
   in the 'Resource' section*). Then click ***Create Policy***
 
@@ -160,28 +130,54 @@ you exactly what it allows (*remember to put your bucket name in the placeholder
     ]
 }
 ```
+![s3 policy](https://user-images.githubusercontent.com/16775804/48077073-782cee80-e1de-11e8-9de9-e5939c2bdfbe.png)
 
-![s3 policy](https://cloud.githubusercontent.com/assets/12450298/18395222/92b51d0e-76b5-11e6-931f-e77956440781.png)
++ Your 'visual editor' tab should now look like this, then click ***Review policy***:
 
-+ You should receive a message saying that your policy has been successfully
-created
+![updated visual editor](https://user-images.githubusercontent.com/16775804/48077187-b7f3d600-e1de-11e8-9a29-e6779fb17aed.png)
 
-![success](https://cloud.githubusercontent.com/assets/12450298/18395473/506be288-76b6-11e6-9c20-886697427e3d.png)
++ Now enter the name and a short description for your policy. Once you're done
+then click ***Create policy***
 
-+ Now we have to attach the policy to our user. Go to the user tab again and then
-click on the user that we created earlier. Then click on the ***Attach Policy***
-button
+![Review policy](https://user-images.githubusercontent.com/16775804/48077385-2173e480-e1df-11e8-9d4f-fdcc113134b2.png)
 
-![attach policy](https://cloud.githubusercontent.com/assets/12450298/18395513/918334a6-76b6-11e6-8eda-1a7b0ed328c2.png)
++ You should see a confirmation saying that your policy has been successfully
+created:
 
-+ Search for the policy we created, select it and then press the ***Attach Policy***
-button
+![success](https://user-images.githubusercontent.com/16775804/48077552-79125000-e1df-11e8-94c4-db99433db78a.png)
 
-![attach s3 policy](https://cloud.githubusercontent.com/assets/12450298/18395587/ea2db4b4-76b6-11e6-9ab1-64ddc924de40.png)
++ Now we have created our policy we can create our IAM user. Navigate back to the IAM console and select the ***Users*** tab on the left. This is where you can create
+users and give them permissions to access certain AWS services by attaching the relevant policies.
 
-+ You should then be able to see it in your user's list of policies
+![users](https://cloud.githubusercontent.com/assets/12450298/18394479/1c9fd31e-76b2-11e6-90e2-84b138e53596.png)
 
-![user policies](https://cloud.githubusercontent.com/assets/12450298/18395646/33a6a7f4-76b7-11e6-9efa-6b1849c8b6b6.png)
++ Click on the ***Add user*** button
+
++ Enter the name of the user into the 'User name' field.
+
+![user name](https://user-images.githubusercontent.com/16775804/48075782-dc9a7e80-e1db-11e8-8b22-4c5141dee18e.png)
+
++ Ensure that the 'Programmatic access' check box is selected. Then click ***Next***
+
+![access checkbox](https://user-images.githubusercontent.com/16775804/48075861-fb991080-e1db-11e8-81a2-67a04e041c0a.png)
+
++ Now you need to set permissions for the user. As you've just created a policy
+you should click on the ***Attach existing policies directly*** button.
+
++ Search for the policy you created, select it and then press ***Next***
+
+![attach policy](https://user-images.githubusercontent.com/16775804/48077995-83811980-e1e0-11e8-8618-6ac17faeeb39.png)
+
++ You should then be able to see it in your user's list of policies, so now you
+can click ***Create user*** to complete the process!
+
+![user policies](https://user-images.githubusercontent.com/16775804/48078236-e672b080-e1e0-11e8-9bab-a32dae28a3d2.png)
+
++ It should say that your new user has been created. Click ***Show*** under
+'Secret access key' to view your key. Record this as well as your 'Access key ID'.
+ This is the only time you'll be able to see both of these together so make a note of them! We'd recommend that you download them by clicking the ***Download .csv*** button and storing them in a safe place.
+
+![success](https://user-images.githubusercontent.com/16775804/48078997-63eaf080-e1e2-11e8-9ec1-d02250e349a6.png)
 
 #### Our user is now set up with the correct permissions in order to access S3!
 
@@ -376,7 +372,8 @@ var s3 = require('./generate-credentials')
 Now we'll create our S3 configuration that our `getS3Credentials` function can
 use. Before we do this we have to export some environment variables. Type the
 following into your terminal (*you'll need your access key id and your secret
-access key that you saved when you created your user*):
+access key that you saved when you created your user*). Look up the format to
+write your region key in here: https://docs.aws.amazon.com/general/latest/gr/rande.html:
 
 ```
 export AWS_S3_ACCESS_KEY=[your_iam_user_access_key]
