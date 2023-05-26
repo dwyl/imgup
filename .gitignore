@@ -23,7 +23,7 @@ erl_crash.dump
 /tmp/
 
 # Ignore package tarball (built via "mix hex.build").
-img-*.tar
+app-*.tar
 
 # Ignore assets that are produced by build tools.
 /priv/static/assets/
@@ -34,3 +34,4 @@ img-*.tar
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/
+

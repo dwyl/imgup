@@ -1,4 +1,4 @@
-# Img
+# App
 
 To start your Phoenix server:
 

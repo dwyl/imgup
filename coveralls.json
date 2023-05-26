@@ -4,11 +4,11 @@
   },
   "skip_files": [
     "test/",
-    "lib/img/application.ex",
-    "lib/img/release.ex",
-    "lib/img_web.ex",
-    "lib/img_web/telemetry.ex",
-    "lib/img_web/components/core_components.ex",
-    "lib/img_web/channels/user_socket.ex"
+    "lib/app/application.ex",
+    "lib/app/release.ex",
+    "lib/app_web.ex",
+    "lib/app_web/telemetry.ex",
+    "lib/app_web/components/core_components.ex",
+    "lib/app_web/channels/user_socket.ex"
   ]
 }

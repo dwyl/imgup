@@ -1,11 +1,11 @@
-defmodule ImgWeb.Router do
-  use ImgWeb, :router
+defmodule AppWeb.Router do
+  use AppWeb, :router
 
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :put_root_layout, {ImgWeb.Layouts, :root}
+    plug :put_root_layout, {AppWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -14,14 +14,14 @@ defmodule ImgWeb.Router do
   #   plug :accepts, ["json"]
   # end
 
-  scope "/", ImgWeb do
+  scope "/", AppWeb do
     pipe_through :browser
 
     get "/", PageController, :home
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", ImgWeb do
+  # scope "/api", AppWeb do
   #   pipe_through :api
   # end
 end

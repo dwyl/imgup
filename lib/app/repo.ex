@@ -1,5 +1,5 @@
-defmodule Img.Repo do
+defmodule App.Repo do
   use Ecto.Repo,
-    otp_app: :img,
+    otp_app: :app,
     adapter: Ecto.Adapters.Postgres
 end

@@ -1,4 +1,4 @@
-defmodule Img.Application do
+defmodule App.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -9,20 +9,20 @@ defmodule Img.Application do
   def start(_type, _args) do
     children = [
       # Start the Telemetry supervisor
-      ImgWeb.Telemetry,
+      AppWeb.Telemetry,
       # Start the Ecto repository
-      Img.Repo,
+      App.Repo,
       # Start the PubSub system
-      {Phoenix.PubSub, name: Img.PubSub},
+      {Phoenix.PubSub, name: App.PubSub},
       # Start the Endpoint (http/https)
-      ImgWeb.Endpoint
-      # Start a worker by calling: Img.Worker.start_link(arg)
-      # {Img.Worker, arg}
+      AppWeb.Endpoint
+      # Start a worker by calling: App.Worker.start_link(arg)
+      # {App.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Img.Supervisor]
+    opts = [strategy: :one_for_one, name: App.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
@@ -30,7 +30,7 @@ defmodule Img.Application do
   # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
-    ImgWeb.Endpoint.config_change(changed, removed)
+    AppWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

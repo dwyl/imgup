@@ -1,11 +1,11 @@
 import Config
 
 # Configure your database
-config :img, Img.Repo,
+config :app, App.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "img_dev",
+  database: "app_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -16,14 +16,14 @@ config :img, Img.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with esbuild to bundle .js and .css sources.
-config :img, ImgWeb.Endpoint,
+config :app, AppWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [ip: {127, 0, 0, 1}, port: 4000],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "0ho7Rf3luf5JIO1DbahqgeYbiEq1Bjf8ycvSfyXGRLQ1V1i8xK2U30A36LvlRPOK",
+  secret_key_base: "yK9K0maMhGbQ1FHCpq+Rv6pV6vXpaswkmH48iYy5FVu2CBugSr2JOB1OwlWUEXMj",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
@@ -53,16 +53,16 @@ config :img, ImgWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :img, ImgWeb.Endpoint,
+config :app, AppWeb.Endpoint,
   live_reload: [
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
-      ~r"lib/img_web/(controllers|live|components)/.*(ex|heex)$"
+      ~r"lib/app_web/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
 
 # Enable dev routes for dashboard and mailbox
-config :img, dev_routes: true
+config :app, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

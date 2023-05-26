@@ -1,12 +1,12 @@
-defmodule ImgWeb.ErrorHTML do
-  use ImgWeb, :html
+defmodule AppWeb.ErrorHTML do
+  use AppWeb, :html
 
   # If you want to customize your error pages,
   # uncomment the embed_templates/1 call below
   # and add pages to the error directory:
   #
-  #   * lib/img_web/controllers/error_html/404.html.heex
-  #   * lib/img_web/controllers/error_html/500.html.heex
+  #   * lib/app_web/controllers/error_html/404.html.heex
+  #   * lib/app_web/controllers/error_html/500.html.heex
   #
   # embed_templates "error_html/*"
 

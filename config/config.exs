@@ -7,18 +7,18 @@
 # General application configuration
 import Config
 
-config :img,
-  ecto_repos: [Img.Repo]
+config :app,
+  ecto_repos: [App.Repo]
 
 # Configures the endpoint
-config :img, ImgWeb.Endpoint,
+config :app, AppWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [
-    formats: [html: ImgWeb.ErrorHTML, json: ImgWeb.ErrorJSON],
+    formats: [html: AppWeb.ErrorHTML, json: AppWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: Img.PubSub,
-  live_view: [signing_salt: "AQ9KYD+o"]
+  pubsub_server: App.PubSub,
+  live_view: [signing_salt: "nMHdEa6r"]
 
 # Configure esbuild (the version is required)
 config :esbuild,

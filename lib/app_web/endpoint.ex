@@ -1,13 +1,13 @@
-defmodule ImgWeb.Endpoint do
-  use Phoenix.Endpoint, otp_app: :img
+defmodule AppWeb.Endpoint do
+  use Phoenix.Endpoint, otp_app: :app
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
   @session_options [
     store: :cookie,
-    key: "_img_key",
-    signing_salt: "fy/rlEkr",
+    key: "_app_key",
+    signing_salt: "q1FMRhzN",
     same_site: "Lax"
   ]
 
@@ -19,9 +19,9 @@ defmodule ImgWeb.Endpoint do
   # when deploying your static files in production.
   plug Plug.Static,
     at: "/",
-    from: :img,
+    from: :app,
     gzip: false,
-    only: ImgWeb.static_paths()
+    only: AppWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -29,7 +29,7 @@ defmodule ImgWeb.Endpoint do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
     plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
-    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :img
+    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :app
   end
 
   plug Plug.RequestId
@@ -43,5 +43,5 @@ defmodule ImgWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  plug ImgWeb.Router
+  plug AppWeb.Router
 end
