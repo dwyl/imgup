@@ -4,7 +4,7 @@ defmodule App.MixProject do
   def project do
     [
       app: :app,
-      version: "0.1.0",
+      version: "1.0.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -58,7 +58,7 @@ defmodule App.MixProject do
       {:plug_cowboy, "~> 2.5"},
 
       # Track test coverage: github.com/parroty/excoveralls
-      {:excoveralls, "~> 0.15", only: [:test, :dev]},
+      {:excoveralls, "~> 0.15", only: [:test, :dev]}
 
     ]
   end

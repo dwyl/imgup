@@ -1,1 +1,1 @@
-call "%~dp0\img" eval Img.Release.migrate
+call "%~dp0\app" eval App.Release.migrate
