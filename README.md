@@ -138,7 +138,7 @@ defmodule AppWeb.ImgupLive do
     {:ok,
      socket
      |> assign(:uploaded_files, [])
-     |> allow_upload(:exhibit, accept: ~w(video/* image/*), max_entries: 6, chunk_size: 64_000)}
+     |> allow_upload(:image_list, accept: ~w(video/* image/*), max_entries: 6, chunk_size: 64_000)}
   end
 end
 ```
@@ -233,6 +233,8 @@ We can now start implementing file uploads! 🗳️
 
 
 ## 2. File upload and preview
+
+
 
 
 
