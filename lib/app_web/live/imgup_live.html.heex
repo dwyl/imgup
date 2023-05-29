@@ -1,12 +1,13 @@
 <div class="px-4 py-10 flex justify-center sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
   <div class="mx-auto max-w-xl w-[50vw] lg:mx-0">
 
-
     <div class="space-y-12">
       <div class="border-gray-900/10 pb-12">
         <h2 class="text-base font-semibold leading-7 text-gray-900">Image Upload</h2>
         <p class="mt-1 text-sm leading-6 text-gray-600">Drag your images and they'll be uploaded to the cloud! ☁️</p>
+        <p class="mt-1 text-sm leading-6 text-gray-600">You may add up to <%= @uploads.image_list.max_entries %> exhibits at a time.</p>
 
+        <!-- File upload section -->
         <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 
           <div class="col-span-full">
@@ -57,7 +58,7 @@
               <div class="min-w-0 flex-auto">
                 <p class="text-sm font-semibold leading-6 break-all text-gray-900">
                   <span class="absolute inset-x-0 -top-px bottom-0"></span>
-                  filename.png
+                  <%= entry.client_name %>
                 </p>
               </div>
             </div>

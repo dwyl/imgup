@@ -6,17 +6,12 @@ defmodule AppWeb.ImgupLive do
     {:ok,
      socket
      |> assign(:uploaded_files, [])
-     |> allow_upload(:image_list, accept: ~w(video/* image/*), max_entries: 6, chunk_size: 64_000)}
+     |> allow_upload(:image_list, accept: ~w(image/*), max_entries: 6, chunk_size: 64_000)}
   end
 
   @impl true
   def handle_event("validate", _params, socket) do
     {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("cancel-upload", %{"ref" => ref}, socket) do
-    {:noreply, cancel_upload(socket, :exhibit, ref)}
   end
 
   @impl true
