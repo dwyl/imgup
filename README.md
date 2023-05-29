@@ -22,6 +22,7 @@ and have it saved in a reliable place like `AWS S3`!
   - [Prerequisites](#prerequisites)
   - [0. Creating a fresh `Phoenix` project](#0-creating-a-fresh-phoenix-project)
   - [1. Adding `LiveView` capabilities to our project](#1-adding-liveview-capabilities-to-our-project)
+  - [2. File upload and preview](#2-file-upload-and-preview)
 
 
 <br />
@@ -227,6 +228,11 @@ This means we've successfully added `LiveView`
 and changed our view!
 We can now start implementing file uploads! 🗳️
 
+> If you want to see the changes made to the project,
+> check [b414b11](https://github.com/dwyl/imgup/pull/55/commits).
+
+
+## 2. File upload and preview
 
 
 
