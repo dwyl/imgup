@@ -15,6 +15,11 @@ defmodule AppWeb.ImgupLive do
   end
 
   @impl true
+  def handle_event("remove-selected", %{"ref" => ref}, socket) do
+    {:noreply, cancel_upload(socket, :image_list, ref)}
+  end
+
+  @impl true
   def handle_event("save", _params, socket) do
     {:noreply, socket}
   end

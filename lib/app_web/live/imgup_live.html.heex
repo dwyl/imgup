@@ -62,7 +62,10 @@
                 </p>
               </div>
             </div>
-            <div class="flex items-center gap-x-4 cursor-pointer z-10">
+            <div
+              class="flex items-center gap-x-4 cursor-pointer z-10"
+              phx-click="remove-selected" phx-value-ref={entry.ref}
+            >
               <svg fill="#cfcfcf" height="10" width="10" version="1.1" id={"close_pic-#{entry.ref}"} xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                 viewBox="0 0 460.775 460.775" xml:space="preserve">
                 <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55
