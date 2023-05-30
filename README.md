@@ -305,7 +305,10 @@ to the following piece of code.
                 </p>
               </div>
             </div>
-            <div class="flex items-center gap-x-4 cursor-pointer z-10">
+            <div
+              class="flex items-center gap-x-4 cursor-pointer z-10"
+              phx-click="remove-selected" phx-value-ref={entry.ref}
+            >
               <svg fill="#cfcfcf" height="10" width="10" version="1.1" id={"close_pic-#{entry.ref}"} xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                 viewBox="0 0 460.775 460.775" xml:space="preserve">
                 <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55
@@ -340,6 +343,13 @@ For this,
 we're using 
 [`live_img_preview/1`](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#live_img_preview/1)
 to generate an image preview on the client.
+- the person using the app can remove entries that they've uploaded
+to the web app.
+We are adding an `X` icon that, once clicked,
+creates a `remove-selected` event,
+which passes the entry reference to the event handler.
+The latter makes use of the 
+[`cancel_upload/3`](https://hexdocs.pm/phoenix_live_view/0.18.16/Phoenix.LiveView.html#cancel_upload/3) function.
 
 Because `<.live_file_input/>` is being used,
 we need to annotate its wrapping element
@@ -366,6 +376,11 @@ defmodule AppWeb.ImgupLive do
   @impl true
   def handle_event("validate", _params, socket) do
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("remove-selected", %{"ref" => ref}, socket) do
+    {:noreply, cancel_upload(socket, :image_list, ref)}
   end
 
   @impl true
