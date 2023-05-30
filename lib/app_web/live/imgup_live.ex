@@ -23,4 +23,17 @@ defmodule AppWeb.ImgupLive do
   def handle_event("save", _params, socket) do
     {:noreply, socket}
   end
+
+
+  @doc """
+  Checks if files are uploadable. If there's no files or there are errors, it returns false.
+  """
+  def are_files_uploadable?(image_list) do
+    error_list = Map.get(image_list, :errors)
+    Enum.empty?(error_list) and length(image_list.entries) > 0
+  end
+
+  def error_to_string(:too_large), do: "Too large"
+  def error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
+
 end

@@ -23,6 +23,7 @@ and have it saved in a reliable place like `AWS S3`!
   - [0. Creating a fresh `Phoenix` project](#0-creating-a-fresh-phoenix-project)
   - [1. Adding `LiveView` capabilities to our project](#1-adding-liveview-capabilities-to-our-project)
   - [2. Local file upload and preview](#2-local-file-upload-and-preview)
+  - [3. File validation](#3-file-validation)
 
 
 <br />
@@ -401,9 +402,172 @@ you should see the following screen.
 </p>
 
 
+## 3. File validation
+
+Let's block the user to upload invalid files.
+Validation occurs automatically based on the conditions
+that we specified in `allow_upload/3` in the `mount/3` function.
+
+Entries for files that do not match the `allow_upload/3` spec
+*will* contain errors.
+Luckily, we can leverage
+[`upload_errors/2`](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#upload_errors/2)
+helper function to render an error message pertaining to each entry.
+
+By defining `allow_upload/3`,
+the object is defined in the socket assigns.
+We can find an array of errors pertaining to all of the entries/files that were selected
+inside the `@uploads` socket assigns 
+under the `:errors` key.
+
+With this, we can block the user to upload the files if:
+- there aren't any.
+- any of the files/entries have errors.
+
+Let's implement this useful function to then use in our view.
+Open `lib/app_web/live/imgup_live.ex`
+and add the following functions.
+
+```elixir
+  def are_files_uploadable?(image_list) do
+    error_list = Map.get(image_list, :errors)
+    Enum.empty?(error_list) and length(image_list.entries) > 0
+  end
+
+  def error_to_string(:too_large), do: "Too large"
+  def error_to_string(:not_accepted), do: "You have selected an unacceptable file type"
+```
+
+Next, open `lib/app_web/live/imgup_live.html.heex`
+and change it to:
+
+```html
+<div class="px-4 py-10 flex justify-center sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
+  <div class="mx-auto max-w-xl w-[50vw] lg:mx-0">
+
+    <div class="space-y-12">
+      <div class="border-gray-900/10 pb-12">
+        <h2 class="text-base font-semibold leading-7 text-gray-900">Image Upload</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-600">Drag your images and they'll be uploaded to the cloud! ☁️</p>
+        <p class="mt-1 text-sm leading-6 text-gray-600">You may add up to <%= @uploads.image_list.max_entries %> exhibits at a time.</p>
+
+        <!-- File upload section -->
+        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+          <div class="col-span-full">
+            <div
+              class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+              phx-drop-target={@uploads.image_list.ref}
+            >
+              <div class="text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                </svg>
+                <div class="mt-4 flex text-sm leading-6 text-gray-600">
+                  <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
+                    <form phx-change="validate" phx-submit="save">
+                      <label class="cursor-pointer">
+                        <.live_file_input upload={@uploads.image_list} class="hidden" />
+                        Upload
+                      </label>
+                    </form>
+                  </label>
+                  <p class="pl-1">or drag and drop</p>
+                </div>
+                <p class="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- File upload form -->
+    <div class="mt-6 flex items-center justify-end gap-x-6">
+      <button type="button" class="text-sm font-semibold leading-6 text-gray-900">Cancel</button>
+      <button
+        type="submit"
+        class={"rounded-md
+              #{if are_files_uploadable?(@uploads.image_list) do "bg-indigo-600" else "bg-indigo-200" end}
+              px-3 py-2 text-sm font-semibold text-white shadow-sm
+              #{if are_files_uploadable?(@uploads.image_list) do "hover:bg-indigo-500" end}
+              focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"}
+        disabled={!are_files_uploadable?(@uploads.image_list)}
+      >
+        Upload
+      </button>
+    </div>
+
+    <!-- Selected files preview section -->
+    <div class="mt-12">
+      <h2 class="text-base font-semibold leading-7 text-gray-900">Selected files</h2>
+      <ul role="list" class="divide-y divide-gray-100">
+
+        <%= for entry <- @uploads.image_list.entries do %>
+
+          <!-- Entry information -->
+          <li class="relative flex justify-between gap-x-6 py-5" id={"entry-#{entry.ref}"}>
+            <div class="flex gap-x-4">
+              <.live_img_preview entry={entry} class="h-auto w-12 flex-none bg-gray-50" />
+              <div class="min-w-0 flex-auto">
+                <p class="text-sm font-semibold leading-6 break-all text-gray-900">
+                  <span class="absolute inset-x-0 -top-px bottom-0"></span>
+                  <%= entry.client_name %>
+                </p>
+              </div>
+            </div>
+            <div
+              class="flex items-center gap-x-4 cursor-pointer z-10"
+              phx-click="remove-selected" phx-value-ref={entry.ref}
+            >
+              <svg fill="#cfcfcf" height="10" width="10" version="1.1" id={"close_pic-#{entry.ref}"} xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                viewBox="0 0 460.775 460.775" xml:space="preserve">
+                <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55
+                  c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55
+                  c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505
+                  c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55
+                  l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719
+                  c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z"/>
+              </svg>
+            </div>
+          </li>
+
+          <!-- Entry errors -->
+          <div>
+            <%= for err <- upload_errors(@uploads.image_list, entry) do %>
+              <div class="rounded-md bg-red-50 p-4 mb-2">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800"><%= error_to_string(err) %></h3>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>
+```
+
+We've made two modifications:
+- the "Upload" button now calls `are_files_uploadable/0`
+to check if it should be disabled or not.
+- for each file, 
+we are rendering an error using `error_to_string/1`
+if it's invalid.
+
+If you run `mix phx.server` 
+and try to upload invalid files,
+you will see an error on the entry.
 
 
-
-
-
-
+<p align="center">
+  <img src="https://github.com/dwyl/imgup/assets/17494745/f36d49c6-1744-4615-9380-72c657204ee0">
+</p>
