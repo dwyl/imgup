@@ -1211,3 +1211,265 @@ Awesome job! 🎉
 
 
 ## 5. Feedback on progress of upload
+
+We've got ourselves a working app!
+But, unfortunately, the person using it
+doesn't have any feedback when they successfully upload the image files 😔.
+
+Let's fix this!
+
+First, we ought to change the view.
+First, open `lib/app_web/components/layouts/app.html.heex`
+and change it.
+
+```html
+<main class="px-4 sm:px-6 lg:px-8">
+  <div class="mx-auto">
+    <.flash_group flash={@flash} />
+    <%= @inner_content %>
+  </div>
+</main>
+```
+
+We've basically made the app wrapper make use of the full width.
+This is just so everything looks better on mobile devices 📱.
+
+Next, head over to `lib/app_web/live/imgup_live.html.heex`
+and change it to the following piece of code:
+
+```html
+<div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
+  <div class="flex flex-col justify-around md:flex-row">
+    <div class="flex flex-col flex-1 md:mr-4">
+
+      <!-- Drag and drop -->
+      <div class="space-y-12">
+        <div class="border-gray-900/10 pb-12">
+          <h2 class="text-base font-semibold leading-7 text-gray-900">Image Upload</h2>
+          <p class="mt-1 text-sm leading-6 text-gray-600">Drag your images and they'll be uploaded to the cloud! ☁️</p>
+          <p class="mt-1 text-sm leading-6 text-gray-600">You may add up to <%= @uploads.image_list.max_entries %> exhibits at a time.</p>
+
+          <!-- File upload section -->
+          <form class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8" phx-change="validate" phx-submit="save">
+
+            <div class="col-span-full">
+              <div
+                class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+                phx-drop-target={@uploads.image_list.ref}
+              >
+                <div class="text-center">
+                  <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                  </svg>
+                  <div class="mt-4 flex text-sm leading-6 text-gray-600">
+                    <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
+                      <div>
+                        <label class="cursor-pointer">
+                          <.live_file_input upload={@uploads.image_list} class="hidden" />
+                          Upload
+                        </label>
+                      </div>
+                    </label>
+                    <p class="pl-1">or drag and drop</p>
+                  </div>
+                  <p class="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end gap-x-6">
+              <button
+                type="submit"
+                class={"rounded-md
+                      #{if are_files_uploadable?(@uploads.image_list) do "bg-indigo-600" else "bg-indigo-200" end}
+                      px-3 py-2 text-sm font-semibold text-white shadow-sm
+                      #{if are_files_uploadable?(@uploads.image_list) do "hover:bg-indigo-500" end}
+                      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"}
+                disabled={!are_files_uploadable?(@uploads.image_list)}
+              >
+                Upload
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Selected files preview section -->
+      <div class="mt-12">
+        <h2 class="text-base font-semibold leading-7 text-gray-900">Selected files</h2>
+        <ul role="list" class="divide-y divide-gray-100">
+
+          <%= for entry <- @uploads.image_list.entries do %>
+
+            <progress value={entry.progress} max="100" class="w-full h-1"> <%= entry.progress %>% </progress>
+
+            <!-- Entry information -->
+            <li class="relative flex justify-between gap-x-6 py-5" id={"entry-#{entry.ref}"}>
+              <div class="flex gap-x-4">
+                <.live_img_preview entry={entry} class="h-auto w-12 flex-none bg-gray-50" />
+                <div class="min-w-0 flex-auto">
+                  <p class="text-sm font-semibold leading-6 break-all text-gray-900">
+                    <span class="absolute inset-x-0 -top-px bottom-0"></span>
+                    <%= entry.client_name %>
+                  </p>
+                </div>
+              </div>
+              <div
+                class="flex items-center gap-x-4 cursor-pointer z-10"
+                phx-click="remove-selected" phx-value-ref={entry.ref}
+              >
+                <svg fill="#cfcfcf" height="10" width="10" version="1.1" id={"close_pic-#{entry.ref}"} xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                  viewBox="0 0 460.775 460.775" xml:space="preserve">
+                  <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55
+                    c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55
+                    c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505
+                    c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55
+                    l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719
+                    c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z"/>
+                </svg>
+              </div>
+            </li>
+
+            <!-- Entry errors -->
+            <div>
+              <%= for err <- upload_errors(@uploads.image_list, entry) do %>
+                <div class="rounded-md bg-red-50 p-4 mb-2">
+                  <div class="flex">
+                    <div class="flex-shrink-0">
+                      <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                    <div class="ml-3">
+                      <h3 class="text-sm font-medium text-red-800"><%= error_to_string(err) %></h3>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class='flex flex-col flex-1 mt-10 md:mt-0 md:ml-4'>
+        <h2 class="text-base font-semibold leading-7 text-gray-900">Uploaded files</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-600">Your uploaded images will appear here below!</p>
+        <p class="mt-1 text-sm leading-6 text-gray-600">These images are located in the S3 bucket! 🪣</p>
+
+        <ul role="list" class="divide-y divide-gray-100">
+          <%= for file <- @uploaded_files do %>
+
+            <!-- Entry information -->
+            <li class="relative flex justify-between gap-x-6 py-5" id={"uploaded-#{file.key}"}>
+              <div class="flex gap-x-4">
+                <img class="block max-w-12 max-h-12 w-auto h-auto flex-none bg-gray-50" src={file.public_url}>
+                <div class="min-w-0 flex-auto">
+                  <a
+                    class="text-sm font-semibold leading-6 break-all text-gray-900"
+                    href={file.public_url}
+                    target="_blank" rel="noopener noreferrer"
+                  >
+                    <%= file.public_url %>
+                  </a>
+                </div>
+              </div>
+            </li>
+
+          <% end %>
+        </ul>
+
+    </div>
+  </div>
+</div>
+```
+
+Let's go over the changes we've made:
+
+- the app now has two responsive columns:
+one for **selected image files**
+and another one for the **uploaded image files**.
+The latter will have a list of the uploaded files,
+with the image preview
+and the public URL they're currently being stored - 
+our `S3` instance.
+The list of uploaded files pertain to the `:uploaded_files` socket assign
+we've defined on the `mount/3` function in our LiveView
+`lib/a--Web/live/imgup_live.ex` file.
+- removed the "Cancel" button.
+- added a `<progress>` HTML element
+that uses the `entry.progress` value.
+This value is updated in real-time 
+because of the uploader hook we've implemented in 
+`assets/js/app.js`.
+
+If you run `mix phx.server`,
+you should see the following screen.
+
+<p align="center">
+  <img src="https://github.com/dwyl/imgup/assets/17494745/f5b6d280-bc33-4b74-bb63-76f751291010">
+</p>
+
+If we click the "Upload" button,
+we can see the progress bar progress, 
+indicating that the file is being uploaded.
+
+> If your image is small in size, 
+> this might not be discernable.
+> Try to upload a `5 Mb` file 
+> and you should see it more clearly.
+
+However, nothing else changes.
+We need to **consume** our file entries
+to be displayed in the "Uploaded files" column we've just created!
+
+For this, head over to `lib/app_web/live/imgup_live.ex`,
+locate the `"save"` event handler
+and change it to the following.
+
+```elixir
+  def handle_event("save", _params, socket) do
+
+    uploaded_files = consume_uploaded_entries(socket, :image_list, fn %{uploader: _} = meta, _entry ->
+      public_url = meta.url <> "/#{meta.key}"
+      meta = Map.put(meta, :public_url, public_url)
+      {:ok, meta}
+    end)
+
+    {:noreply, update(socket, :uploaded_files, &(&1 ++ uploaded_files))}
+  end
+```
+
+We are using the
+[`consume_uploaded_entries/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#consume_uploaded_entries/3)
+for this goal.
+This function **consumes the selected file entries**.
+For form submissions (which is our case),
+we are guaranteed that all entries have been "completed"
+before the submit event is invoked, 
+meaning they are *ready to be uploaded*.
+Once file entries are consumed, 
+they are **removed from the selected files list**.
+
+In the third parameter,
+we pass a function that iterates over the files.
+We use this function to attach a `public_url` metadata 
+to the file that is used in our view, 
+more specifically the "Uploaded files" column.
+
+Each list item of this "Uploaded files" column
+prints this public URL and previews the image.
+
+You can see this behaviour if you run `mix phx.server`.
+
+<p align="center">
+  <img src="https://github.com/dwyl/imgup/assets/17494745/8f1a32d6-496f-407f-8642-097224c07202">
+</p>
+
+Awesome! 🥳
+
+Now the person has proper feedback to what is going on!
+Great job!
+

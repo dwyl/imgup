@@ -34,9 +34,7 @@ defmodule AppWeb.ImgupLive do
     {:ok, meta, socket}
   end
 
-  #TODO progress event handler
-  #TOD use Phoenix.LiveView.consume_uploaded_entries/3 to process the completed uploads
-
+  
   # Event handlers -------
 
   @impl true
@@ -51,7 +49,14 @@ defmodule AppWeb.ImgupLive do
 
   @impl true
   def handle_event("save", _params, socket) do
-    {:noreply, socket}
+
+    uploaded_files = consume_uploaded_entries(socket, :image_list, fn %{uploader: _} = meta, _entry ->
+      public_url = meta.url <> "/#{meta.key}"
+      meta = Map.put(meta, :public_url, public_url)
+      {:ok, meta}
+    end)
+
+    {:noreply, update(socket, :uploaded_files, &(&1 ++ uploaded_files))}
   end
 
   # View utilities -------
