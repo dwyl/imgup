@@ -32,6 +32,7 @@ and have it saved in a reliable place like `AWS S3`!
     - [4.4 Getting our credentials](#44-getting-our-credentials)
     - [4.5 Changing view to upload files](#45-changing-view-to-upload-files)
   - [5. Feedback on progress of upload](#5-feedback-on-progress-of-upload)
+  - [6. Unique file names](#6-unique-file-names)
 
 
 <br />
@@ -1473,3 +1474,60 @@ Awesome! 🥳
 Now the person has proper feedback to what is going on!
 Great job!
 
+
+## 6. Unique file names
+
+Currently, we are uploading the file images 
+to the `S3` bucket with the original file name.
+To have more control over our resources
+and avoid overriding images 
+(when we upload images with the same name to our bucket, 
+it gets overridden),
+we are going to assign a 
+**unique `content ID` to each file**.
+
+Luckily for us, this is fairly simple!
+
+We first need to install the 
+[`cid`](https://github.com/dwyl/cid) package.
+Open `mix.exs`
+and add the following line to the `deps` section.
+
+```elixir
+ {:excid, "~> 0.1.0"}
+```
+
+And then run `mix deps.get` to install this new dependency.
+
+To change the name of the file,
+open `lib/app_web/live/imgup_live.ex`
+and locate the `presign_upload/2`.
+Change the `key` variable to the following:
+
+```elixir
+    key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
+```
+
+We are creating a 
+[`CID`](https://docs.ipfs.tech/concepts/content-addressing/)
+from a string with the format 
+`currentdate_filename`.
+This is the new filename. 
+
+If you run `mix phx.server`
+and upload a file,
+you will see that this new `CID`
+is present in the `URL` 
+and in the uploaded file in the `S3` bucket.
+
+<p align="center">
+  <img src="https://github.com/dwyl/imgup/assets/17494745/f0ee7a56-c297-400e-a7d0-2195f7d77fbb">
+</p>
+
+And here's the bucket!
+
+<p align="center">
+  <img src="https://github.com/dwyl/imgup/assets/17494745/2511cfe2-610f-4726-8a01-d1397c03bdab">
+</p>
+
+Now we don't have conflicts between the files each person uploads!

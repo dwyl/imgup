@@ -14,7 +14,7 @@ defmodule AppWeb.ImgupLive do
   defp presign_upload(entry, socket) do
     uploads = socket.assigns.uploads
     bucket = "dwyl-imgup"
-    key = "public/#{entry.client_name}"
+    key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
 
     config = %{
       region: "eu-west-3",
@@ -34,7 +34,7 @@ defmodule AppWeb.ImgupLive do
     {:ok, meta, socket}
   end
 
-  
+
   # Event handlers -------
 
   @impl true
