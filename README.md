@@ -959,6 +959,45 @@ This will make our images accessible.
   <img src="https://github.com/dwyl/imgup/assets/17494745/ce8e7874-e7de-411a-8a6c-efdada442aa7">
 </p>
 
+At last, 
+we need to change the `CORS` settings
+at the bottom of the page.
+We are going to open the bucket to the public, 
+so anyone can check it.
+**However**, once deployed,
+change the `AllowedOrigins` to the domain 
+in which your site is deployed.
+
+Paste the following and save.
+
+```
+[
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "POST",
+            "GET",
+            "PUT",
+            "DELETE",
+            "HEAD"
+        ],
+        "AllowedOrigins": [
+            "*"
+        ],
+        "ExposeHeaders": []
+    }
+]
+```
+
+> **Warning**
+>
+> Again, don't forget to change the `AllowedOrigins`
+> to the domain of your site.
+> If you don't, all the contents of the bucket 
+> is **publicly accessible to *anyone***.
+
 And those are all the changes we need!
 If you're lost with these,
 please visit https://stackoverflow.com/questions/71080354/getting-the-bucket-does-not-allow-acls-error.
