@@ -68,6 +68,6 @@ defmodule AppWeb.ImgupLive do
 
   def error_to_string(:too_large), do: "Too large."
   def error_to_string(:not_accepted), do: "You have selected an unacceptable file type."
-  def error_to_string(:external_client_failure), do: "Couldn't upload files to S3. Open an issue on Github and contact the repo owner."
+  #def error_to_string(:external_client_failure), do: "Couldn't upload files to S3. Open an issue on Github and contact the repo owner."
 
 end
