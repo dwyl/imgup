@@ -630,7 +630,7 @@ parameter of `allow_upload/3`.
         expires_in: :timer.hours(1)
       )
 
-    meta = %{uploader: "S3", key: key, url: "http://#{bucket}.s3-#{config.region}.amazonaws.com", fields: fields}
+    meta = %{uploader: "S3", key: key, url: "https://#{bucket}.s3-#{config.region}.amazonaws.com", fields: fields}
     {:ok, meta, socket}
   end
 ```
