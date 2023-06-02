@@ -6,15 +6,15 @@ defmodule AppWeb.ImgupLive do
     {:ok,
      socket
      |> assign(:uploaded_files, [])
-     |> allow_upload(:image_list, accept: ~w(image/*), max_entries: 6, chunk_size: 64_000, external: &presign_upload/2)}
+     |> allow_upload(:image_list, accept: ~w(image/*), max_entries: 6, chunk_size: 64_000, max_file_size: 5_000_000, external: &presign_upload/2)}
   end
 
   # Adding presign for each entry for S3 upload --------
 
   defp presign_upload(entry, socket) do
     uploads = socket.assigns.uploads
-    bucket_original = "imgup-original-test2"
-    bucket_compressed = "imgup-compressed-test2"
+    bucket_original = "imgup-original"
+    bucket_compressed = "imgup-compressed"
     key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
 
     config = %{
@@ -78,6 +78,8 @@ defmodule AppWeb.ImgupLive do
 
   def error_to_string(:too_large), do: "Too large."
   def error_to_string(:not_accepted), do: "You have selected an unacceptable file type."
-  #def error_to_string(:external_client_failure), do: "Couldn't upload files to S3. Open an issue on Github and contact the repo owner."
+  # coveralls-ignore-start
+  def error_to_string(:external_client_failure), do: "Couldn't upload files to S3. Open an issue on Github and contact the repo owner."
+  # coveralls-ignore-stop
 
 end

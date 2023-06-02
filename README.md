@@ -43,6 +43,7 @@ and have it saved in a reliable place like `AWS S3`!
       - [7.5.1 What if I want to make changes to the function?](#751-what-if-i-want-to-make-changes-to-the-function)
     - [7.6 Refactoring the `Phoenix` app to use image compression](#76-refactoring-the-phoenix-app-to-use-image-compression)
     - [7.7 Run it!](#77-run-it)
+  - [8 A note when deploying online](#8-a-note-when-deploying-online)
 - [Star the repo! ⭐️](#star-the-repo-️)
 
 
@@ -976,8 +977,8 @@ at the bottom of the page.
 We are going to open the bucket to the public, 
 so anyone can check it.
 **However**, once deployed,
-change the `AllowedOrigins` to the domain 
-in which your site is deployed.
+you should change the `AllowedOrigins` 
+to restrict what domains can view the bucket contents.
 
 Paste the following and save.
 
@@ -1008,6 +1009,8 @@ Paste the following and save.
 > to the domain of your site.
 > If you don't, all the contents of the bucket 
 > is **publicly accessible to *anyone***.
+> Unless you want anyone to see them,
+> you should change this setting.
 
 And those are all the changes we need!
 If you're lost with these,
@@ -2408,6 +2411,22 @@ and are publicly accessible!
 Awesome job! 
 You've just added image compression to your web app! 🎉
 
+
+## 8 A note when deploying online
+
+If you want people
+to access your bucket publicly,
+it is wise to not let it be abused
+(it can be quite costly for you!).
+
+We recommend *deleting files after X days*
+so you don't pay high amounts of storage.
+
+For this, 
+please follow 
+https://repost.aws/knowledge-center/s3-empty-bucket-lifecycle-rule
+to **set lifecycle rules on both of your buckets**.
+This will *delete all the files of the bucket every X days*.
 
 
 # Star the repo! ⭐️

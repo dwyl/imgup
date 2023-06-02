@@ -19,7 +19,7 @@ confirm_changeset = true
 resolve_s3 = true
 s3_prefix = "imgup-compressor"
 region = "eu-west-3"
-parameter_overrides = "UncompressedBucketName=\"imgup-original-test2\" CompressedBucketName=\"imgup-compressed-test2\""
+parameter_overrides = "UncompressedBucketName=\"imgup-original\" CompressedBucketName=\"imgup-compressed\""
 image_repositories = []
 disable_rollback = true
 
