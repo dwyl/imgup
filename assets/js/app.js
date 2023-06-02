@@ -32,7 +32,7 @@ Uploaders.S3 = function(entries, onViewError){
     let formData = new FormData()
     let {url, fields} = entry.meta
 
-    // Getting each image entry and appenting it to the form data
+    // Getting each image entry and appending it to the form data
     Object.entries(fields).forEach(([key, val]) => formData.append(key, val))
     formData.append("file", entry.file)
 

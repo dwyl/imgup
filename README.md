@@ -844,7 +844,7 @@ Uploaders.S3 = function(entries, onViewError){
     let formData = new FormData()
     let {url, fields} = entry.meta
 
-    // Getting each image entry and appenting it to the form data
+    // Getting each image entry and appending it to the form data
     Object.entries(fields).forEach(([key, val]) => formData.append(key, val))
     formData.append("file", entry.file)
 
@@ -931,7 +931,7 @@ within our bucket.
 
 After this,
 in `Block Public Access settings for this bucket`,
-**untoggle `Block all public access`**.
+**un-toggle `Block all public access`**.
 We need to do this because our app needs to be able to upload images to our file.
 
 After this, 
@@ -1685,7 +1685,7 @@ Now we're ready to create our `AWS SAM` project!
 
 Open a terminal window 
 and navigate to your project's directory.
-This processs will create a folder within it.
+This process will create a folder within it.
 Type:
 
 ```sh
@@ -2042,7 +2042,7 @@ CREATE_COMPLETE                                             AWS::CloudFormation:
 Successfully created/updated stack - imgup-compressor in eu-west-3
 ```
 
-If everything has gon to polan,
+If everything has gone according to plan,
 you should be able to see this new deployment
 in your `AWS` console!
 
