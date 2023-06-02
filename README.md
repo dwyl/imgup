@@ -2095,6 +2095,12 @@ Click on it and click on "Delete".
 This will initiate a rollback process
 that will delete the created resources.
 
+> **Warning**
+>
+> Make sure the `S3` buckets **are empty** 
+> before trying to rollback.
+> If they aren't empty, the rollback process *will fail*. 
+
 
 <p align="center">
   <img src="https://github.com/dwyl/imgup/assets/17494745/b7f5ec06-ba6a-4387-8453-1eb95c637586">
