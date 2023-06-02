@@ -43,6 +43,7 @@ and have it saved in a reliable place like `AWS S3`!
       - [7.5.1 What if I want to make changes to the function?](#751-what-if-i-want-to-make-changes-to-the-function)
     - [7.6 Refactoring the `Phoenix` app to use image compression](#76-refactoring-the-phoenix-app-to-use-image-compression)
     - [7.7 Run it!](#77-run-it)
+- [Star the repo! ⭐️](#star-the-repo-️)
 
 
 <br />
@@ -2403,3 +2404,7 @@ You've just added image compression to your web app! 🎉
 
 
 
+# Star the repo! ⭐️
+If you find this package/repo useful, please star on GitHub, so that we know! ⭐
+
+Thank you! 🙏
