@@ -13,7 +13,8 @@ defmodule AppWeb.ImgupLive do
 
   defp presign_upload(entry, socket) do
     uploads = socket.assigns.uploads
-    bucket = "dwyl-imgup"
+    bucket_original = "imgup-original-test2"
+    bucket_compressed = "imgup-compressed-test2"
     key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
 
     config = %{
@@ -23,14 +24,19 @@ defmodule AppWeb.ImgupLive do
     }
 
     {:ok, fields} =
-      SimpleS3Upload.sign_form_upload(config, bucket,
+      SimpleS3Upload.sign_form_upload(config, bucket_original,
         key: key,
         content_type: entry.client_type,
         max_file_size: uploads[entry.upload_config].max_file_size,
         expires_in: :timer.hours(1)
       )
 
-    meta = %{uploader: "S3", key: key, url: "https://#{bucket}.s3-#{config.region}.amazonaws.com", fields: fields}
+    meta = %{
+      uploader: "S3",
+      key: key,
+      url: "https://#{bucket_original}.s3-#{config.region}.amazonaws.com",
+      compressed_url: "https://#{bucket_compressed}.s3-#{config.region}.amazonaws.com",
+      fields: fields}
     {:ok, meta, socket}
   end
 
@@ -52,7 +58,11 @@ defmodule AppWeb.ImgupLive do
 
     uploaded_files = consume_uploaded_entries(socket, :image_list, fn %{uploader: _} = meta, _entry ->
       public_url = meta.url <> "/#{meta.key}"
+      compressed_url = meta.compressed_url <> "/#{meta.key}"
+
       meta = Map.put(meta, :public_url, public_url)
+      meta = Map.put(meta, :compressed_url, compressed_url)
+
       {:ok, meta}
     end)
 

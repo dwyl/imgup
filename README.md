@@ -33,6 +33,16 @@ and have it saved in a reliable place like `AWS S3`!
     - [4.5 Changing view to upload files](#45-changing-view-to-upload-files)
   - [5. Feedback on progress of upload](#5-feedback-on-progress-of-upload)
   - [6. Unique file names](#6-unique-file-names)
+  - [7. Resizing/compressing files](#7-resizingcompressing-files)
+    - [7.1 Installing `AWS CLI` and `AWS SAM CLI`](#71-installing-aws-cli-and-aws-sam-cli)
+    - [7.2 Creating a new `AWS SAM` project](#72-creating-a-new-aws-sam-project)
+    - [7.3 Changing the `AWS SAM` project files](#73-changing-the-aws-sam-project-files)
+      - [7.3.1 Implementing the `src/index.js` handler](#731-implementing-the-srcindexjs-handler)
+    - [7.4 Deploying our `AWS SAM` project](#74-deploying-our-aws-sam-project)
+    - [7.5 Testing the deployed `SAM` project in `AWS Console`](#75-testing-the-deployed-sam-project-in-aws-console)
+      - [7.5.1 What if I want to make changes to the function?](#751-what-if-i-want-to-make-changes-to-the-function)
+    - [7.6 Refactoring the `Phoenix` app to use image compression](#76-refactoring-the-phoenix-app-to-use-image-compression)
+    - [7.7 Run it!](#77-run-it)
 
 
 <br />
@@ -1572,3 +1582,824 @@ And here's the bucket!
 </p>
 
 Now we don't have conflicts between the files each person uploads!
+
+
+## 7. Resizing/compressing files
+
+We've set a hard limit on the image file size
+one person can upload.
+Because we're using cloud storage and doing so at a reduced scale,
+it's easy to dismiss any concerns about hosting data and their size.
+But if we think at scale,
+we ought to be careful when estimating our cloud storage budget.
+Those megabytes can stack up easily *and quite fast*.
+
+So, it's good practice to implement 
+**image resizing/compression**.
+Every time a person uploads an image,
+we want to save the *original image in a bucket*,
+compress it and 
+*save the compressed version in another bucket*.
+The latter is what what will serve the client.
+
+<p align="center">
+  <img src="https://github.com/dwyl/imgup/assets/17494745/bd61d716-8a4e-445f-a643-8f5d13a00510">
+</p>
+
+
+You may be wondering:
+why do we need two buckets?
+Besides decoupling resources,
+we want to mitigate the possibility of recursive event loops.
+For example,
+if we had everything in the same bucket,
+when a person uploads an *original image*,
+the lambda function *would compress it and send it to the bucket*.
+This new upload *would trigger another compression*,
+and so on.
+
+This, of course,
+is not desirable and can become **quite costly**!
+This is why we'll create *two buckets*.
+
+Now let's
+**build our image compression pipeline**
+following the architecture we've just detailed.
+
+
+### 7.1 Installing `AWS CLI` and `AWS SAM CLI` 
+
+To make the setup and tear down of our pipeline easier,
+we'll be using 
+[`AWS SAM`](https://aws.amazon.com/serverless/sam/).
+This will allow us to create serverless applications,
+combining multiple resources.
+Our `SAM` project will create the needed resources 
+([`S3`](https://aws.amazon.com/s3/) buckets
+and [`Lambda Function`](https://aws.amazon.com/lambda/))
+and `IAM` roles necessary to execute image compression
+and read/write files to our `S3` buckets.
+
+With `SAM`, we can define and deploy
+our `AWS` resources with a easy-to-read `YAML` template.
+
+To create a `SAM` project,
+you need to install the **`SAM CLI`**.
+But, before this,
+you need to fulfil the prerequisites named in 
+https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/prerequisites.html.
+Essentially, you need:
+- a **`IAM` user account**.
+- an **access key ID** and **secret access key**.
+- **`AWS CLI`**.
+
+Because you've already created your credentials
+to upload files to the buckets earlier,
+you probably only need to install the `AWS CLI`.
+
+Therefore, follow https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html 
+to install `AWS CLI`
+**and then**
+https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/prerequisites.html#prerequisites-configure-credentials
+to *configure it with your `AWS` credentials*.
+
+After this,
+simply follow https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html
+to install the `AWS SAM CLI`.
+
+After following these guides,
+you should be all set to create a new project!
+
+
+### 7.2 Creating a new `AWS SAM` project
+
+Now we're ready to create our `AWS SAM` project!
+
+> If you're lazy,
+> you can just use the `an_aws_sam_imgup-compressor`
+> folder and run the commands needed to deploy there.
+> We'll deploy the pipeline in the next section,
+> so feel free to skip this one 
+> if you want to skip creating the project folder,
+> and go to [7.4 Deploying our `AWS SAM` project](#74-deploying-our-aws-sam-project).
+
+Open a terminal window 
+and navigate to your project's directory.
+This processs will create a folder within it.
+Type:
+
+```sh
+sam init
+```
+
+Step through the init options like so:
+
+```sh
+Which template source would you like to use?
+	1 - AWS Quick Start Templates
+
+Choose an AWS Quick Start application template
+	1 - Hello World Example
+
+Use the most popular runtime and package type? (Python and zip) [y/N]: N
+
+Which runtime would you like to use?
+	13 - nodejs14.x
+
+What package type would you like to use?
+	1 - Zip
+
+Select your starter template
+	1 - Hello World Example
+
+Would you like to enable X-Ray tracing on the function(s) in your application?  [y/N]: N
+
+Would you like to enable monitoring using CloudWatch Application Insights?
+For more info, please view https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch-application-insights.html [y/N]: N
+
+Project name: your_project_name
+```
+
+Give your project name whatever you like.
+We gave ours `imgup-compressor`.
+
+
+### 7.3 Changing the `AWS SAM` project files
+
+Now it's time to define
+our `SAM` template!
+Navigate to the project directory
+that was just created
+and locate the `template.yaml` file.
+Change it to the following:
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: DWYL-Imgup image compression pipeline
+
+Parameters:
+  UncompressedBucketName:
+    Type: String
+    Description: "Bucket for storing full resolution images"
+
+  CompressedBucketName:
+    Type: String
+    Description: "Bucket for storing compressed images"
+
+Resources:
+  UncompressedBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref UncompressedBucketName
+
+  CompressedBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref CompressedBucketName
+
+  ImageCompressorLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/index.handler
+      Runtime: nodejs14.x
+      MemorySize: 1536
+      Timeout: 60
+      Environment:
+        Variables:
+          UNCOMPRESSED_BUCKET: !Ref UncompressedBucketName
+          COMPRESSED_BUCKET: !Ref CompressedBucketName
+      Policies:
+        - S3ReadPolicy:
+           BucketName: !Ref UncompressedBucketName
+        - S3WritePolicy:
+            BucketName: !Ref CompressedBucketName
+      Events:
+        CompressImageEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref UncompressedBucket
+            Events: s3:ObjectCreated:*
+```
+
+Let's walk through the template:
+- the `Parameters` block will allow us to pass in some names for our `S3` buckets
+when deploying our `SAM` template.
+- the `Resources` block has all the resources needed.
+In our case, we have the `UncompressedBucket` and
+`CompressedBucket`, which are both self-explanatory.
+Both buckets then have their respective bucket names set from the parameters
+we previously defined.
+The `ImageCompressorLambda` is the Lambda Function,
+which uses the `Node.js` runtime 
+and points to `src/index.handler` location.
+Under the `Policies` section,
+we give the Lambda function the appropriate permissions
+to read data from the `UncompressedBucket`
+and write to `CompressedBucket`.
+And lastly, we configure the event trigger for the Lambda function.
+The event is fired any time an object is created in the
+`UncompressedBucket`.
+
+
+#### 7.3.1 Implementing the `src/index.js` handler
+
+We are going to be using 
+[`sharp`](https://github.com/lovell/sharp)
+to do the image compression and manipulation. 
+Although we'll only shrink our images,
+you can do much more with this library,
+so we encourage you to peruse through the documentation.
+
+To setup our Lambda function,
+we'll add `sharp` as as a dependency.
+According to https://sharp.pixelplumbing.com/install#aws-lambda,
+we need to run extra commands to make sure the binaries
+present within the `node_modules` are targeted for a Linux x64 platform.
+So, run the following commands in the project directory:
+
+```sh
+# windows users
+rmdir /s /q node_modules/sharp
+npm install --arch=x64 --platform=linux sharp
+
+# mac users
+rm -rf node_modules/sharp
+SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --arch=x64 --platform=linux sharp
+```
+
+This will remove `sharp` from the `node_modules`
+and install the dedicated Linux x64 dependency,
+which is best suited for Lambda Functions.
+
+Now, we're ready to setup the Lambda Function logic!
+So, clear the `src` directory (you may delete the `__tests__` directory as well),
+and add `index.js` within it.
+Then add the following code 
+to `src/index.js`.
+
+```js
+const AWS = require('aws-sdk');
+const S3 = new AWS.S3();
+const sharp = require('sharp');
+
+exports.handler = async (event) => {
+
+    // Collect the object key from the S3 event record
+    const { key } = event.Records[0].s3.object;
+
+    console.log({ triggerObject: key });
+
+    // Collect the full resolution image from s3 using the object key
+    const uncompressedImage = await S3.getObject({
+        Bucket: process.env.UNCOMPRESSED_BUCKET,
+        Key: key,
+    }).promise();
+
+    // Compress the image to a 200x200 avatar square as a buffer, without stretching
+    const compressedImageBuffer = await sharp(uncompressedImage.Body)
+    .resize({ 
+        width: 200, 
+        height: 200, 
+        fit: 'contain'
+    })
+    .toBuffer();
+
+    // Upload the compressed image buffer to the Compressed Images bucket
+    await S3.putObject({
+        Bucket: process.env.COMPRESSED_BUCKET,
+        Key: key,
+        Body: compressedImageBuffer,
+        ContentType: "image",
+        ACL: 'public-read'
+    }).promise();
+
+    console.log(`Compressing ${key} complete!`)
+
+}
+```
+
+In this code, we are:
+- **extracting the image object key from the event that triggered**
+the Lambda Function's execution.
+- using the `aws sdk` to **download the image to our lambda function**.
+Because we've defined the env variables in `template.yaml`,
+we can use them in our function.
+(e.g. `process.env.UNCOMPRESSED_BUCKET`).
+- with the downloaded image,
+**we use `sharp` to resize it**.
+We're resizing it to `200x200` 
+and containing it so the aspect ratio remains intact.
+You can add more steps here if you want bigger compression,
+or just want to compress the image and not resize it.
+- with the response from the `sharp` object,
+we **save it in the `CompressedBucket`**
+with the same key as the original.
+
+
+### 7.4 Deploying our `AWS SAM` project
+
+Now we are ready to deploy the project!
+Let's run the following command first,
+to validate our `template.yaml` file looks good!
+
+```sh
+sam validate
+```
+
+You should see `.../template.yaml is a valid SAM Template`.
+
+Now run:
+
+```sh
+sam build --use-container
+```
+
+> You will need `Docker` for this step.
+> Install it and make sure you are running it
+> in your computer.
+> This is necessary for this step to work,
+> or else it will err.
+
+Once that's complete,
+we can push our build 
+(located in `.aws-sam` folder that was generated with the previous command)
+by running this command:
+
+```sh
+sam deploy --guided
+```
+
+Stepping through the guided deployment options,
+you will be given some options
+to specify the application stack name, region, 
+the parameters we've defined 
+and other questions.
+Here's how it might look like.
+
+**Make sure the name of the buckets are new**.
+The deploy won't work if you are referencing
+pre-existing buckets.
+
+```sh
+Configuring SAM deploy
+======================
+
+	Looking for config file [samconfig.toml] :  Found
+	Reading default arguments  :  Success
+
+	Setting default arguments for 'sam deploy'
+	=========================================
+	Stack Name: imgup-compressor
+	AWS Region: eu-west-3
+	Parameter UncompressedBucketName: imgup-original
+	Parameter CompressedBucketName: imgup-compressed
+	#Shows you resources changes to be deployed and require a 'Y' to initiate deploy
+	Confirm changes before deploy [Y/n]: y
+	#SAM needs permission to be able to create roles to connect to the resources in your template
+	Allow SAM CLI IAM role creation [Y/n]: y
+	#Preserves the state of previously provisioned resources when an operation fails
+	Disable rollback [Y/n]:y
+	Save arguments to configuration file [Y/n]:y
+	SAM configuration file [samconfig.toml]:
+	SAM configuration environment [default]:
+
+	Looking for resources needed for deployment:
+
+	Managed S3 bucket: YOUR_ARN
+	A different default S3 bucket can be set in samconfig.toml and auto resolution of buckets turned off by setting resolve_s3=False
+
+        Parameter "stack_name=imgup-compressor" in [default.deploy.parameters] is defined as a global parameter [default.global.parameters].
+        This parameter will be only saved under [default.global.parameters] in SAMCONFIG.TOML_DIRECTORY
+
+	Saved arguments to config file
+	Running 'sam deploy' for future deployments will use the parameters saved above.
+	The above parameters can be changed by modifying samconfig.toml
+	Learn more about samconfig.toml syntax at
+	https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html
+
+	Uploading to imgup-compressor/d8c6387871515182264b3216514aa5ee  19584628 / 19584628  (100.00%)
+
+	Deploying with following values
+	===============================
+	Stack name                   : imgup-compressor
+	Region                       : eu-west-3
+	Confirm changeset            : False
+	Disable rollback             : True
+	Deployment s3 bucket         : YOUR_S3_BUCKET_DEPLOYMENT_HERE
+	Capabilities                 : ["CAPABILITY_IAM"]
+	Parameter overrides          : {"UncompressedBucketName": "imgup-original", "CompressedBucketName": "imgup-compressed"}
+	Signing Profiles             : {}
+
+Initiating deployment
+=====================
+
+	Uploading to imgup-compressor/4c6644481fa7648c72204db9979bf585.template  1590 / 1590  (100.00%)
+
+
+Waiting for changeset to be created..
+
+CloudFormation stack changeset
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Operation                                                   LogicalResourceId                                           ResourceType                                                Replacement
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
++ Add                                                       CompressedBucket                                            AWS::S3::Bucket                                             N/A
++ Add                                                       ImageCompressorLambdaCompressImageEventPermission           AWS::Lambda::Permission                                     N/A
++ Add                                                       ImageCompressorLambdaRole                                   AWS::IAM::Role                                              N/A
++ Add                                                       ImageCompressorLambda                                       AWS::Lambda::Function                                       N/A
++ Add                                                       UncompressedBucket                                          AWS::S3::Bucket                                             N/A
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Changeset created successfully on YOUR_ARN
+
+
+2023-06-01 18:05:03 - Waiting for stack create/update to complete
+
+CloudFormation events from stack operations (refresh every 5.0 seconds)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ResourceStatus                                              ResourceType                                                LogicalResourceId                                           ResourceStatusReason
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE_IN_PROGRESS                                          AWS::IAM::Role                                              ImageCompressorLambdaRole                                   -
+CREATE_IN_PROGRESS                                          AWS::S3::Bucket                                             CompressedBucket                                            -
+CREATE_IN_PROGRESS                                          AWS::IAM::Role                                              ImageCompressorLambdaRole                                   Resource creation Initiated
+CREATE_IN_PROGRESS                                          AWS::S3::Bucket                                             CompressedBucket                                            Resource creation Initiated
+CREATE_COMPLETE                                             AWS::S3::Bucket                                             CompressedBucket                                            -
+CREATE_COMPLETE                                             AWS::IAM::Role                                              ImageCompressorLambdaRole                                   -
+CREATE_IN_PROGRESS                                          AWS::Lambda::Function                                       ImageCompressorLambda                                       -
+CREATE_IN_PROGRESS                                          AWS::Lambda::Function                                       ImageCompressorLambda                                       Resource creation Initiated
+CREATE_COMPLETE                                             AWS::Lambda::Function                                       ImageCompressorLambda                                       -
+CREATE_IN_PROGRESS                                          AWS::Lambda::Permission                                     ImageCompressorLambdaCompressImageEventPermission           -
+CREATE_IN_PROGRESS                                          AWS::Lambda::Permission                                     ImageCompressorLambdaCompressImageEventPermission           Resource creation Initiated
+CREATE_COMPLETE                                             AWS::Lambda::Permission                                     ImageCompressorLambdaCompressImageEventPermission           -
+CREATE_IN_PROGRESS                                          AWS::S3::Bucket                                             UncompressedBucket                                          -
+CREATE_IN_PROGRESS                                          AWS::S3::Bucket                                             UncompressedBucket                                          Resource creation Initiated
+CREATE_COMPLETE                                             AWS::S3::Bucket                                             UncompressedBucket                                          -
+CREATE_COMPLETE                                             AWS::CloudFormation::Stack                                  imgup-compressor                                            -
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Successfully created/updated stack - imgup-compressor in eu-west-3
+```
+
+If everything has gon to polan,
+you should be able to see this new deployment
+in your `AWS` console!
+
+
+### 7.5 Testing the deployed `SAM` project in `AWS Console`
+
+If you visit https://console.aws.amazon.com/cloudformation/home,
+you will see a `CloudFormation Stack` has been created.
+
+> From https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacks.html:
+>
+> A stack is a collection of AWS resources that you can manage as a single unit. 
+> In other words, you can create, update, or delete a collection of resources by creating, updating, or deleting stacks. 
+> All the resources in a stack are defined by the stack's AWS CloudFormation template. 
+> A stack, for instance, can include all the resources required to run a web application, such as a web server, a database, and networking rules. 
+> If you no longer require that web application, 
+> you can simply delete the stack, and all of its related resources are deleted.
+
+
+<p align="center">
+  <img src="https://github.com/dwyl/imgup/assets/17494745/58c7789b-b463-4804-9854-6330ddff59d2">
+</p>
+
+If you check your `S3` buckets,
+you will see that the two buckets have been created as well.
+**It is important that you follow the steps in**
+[4.3.1 Changing the bucket permissions](#431-changing-the-bucket-permissions).
+We need the buckets to be public so they are accessible.
+***Again***, make sure the `CORS` definition points
+to the domain of the deployed web app. 
+Or else anyone can read your bucket directly.
+
+Additionally, 
+a Lamdda Function should also have been created.
+Check https://console.aws.amazon.com/lambda/home
+and you should see it!
+
+
+#### 7.5.1 What if I want to make changes to the function?
+
+If you want to make changes to the Lambda Function,
+you will have to **rollback the deployment of the resources**
+and **re-build and re-deploy**.
+
+You can rollback by going to the `CloudFormation Stack` 
+in https://console.aws.amazon.com/cloudformation/home
+with the name of the project we've created.
+Click on it and click on "Delete".
+This will initiate a rollback process
+that will delete the created resources.
+
+
+<p align="center">
+  <img src="https://github.com/dwyl/imgup/assets/17494745/b7f5ec06-ba6a-4387-8453-1eb95c637586">
+</p>
+
+
+### 7.6 Refactoring the `Phoenix` app to use image compression
+
+Now that we've deployed our awesome image compression pipeline,
+we need to make changes to our `LiveView` application
+to make use of this newly deployed pipeline.
+
+Open `lib/app_web/live/imgup_live.ex`
+and locate the `presign_upload/2` function.
+Change it like so:
+
+```elixir
+  defp presign_upload(entry, socket) do
+    uploads = socket.assigns.uploads
+    bucket_original = "imgup-original-test2"
+    bucket_compressed = "imgup-compressed-test2"
+    key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
+
+    config = %{
+      region: "eu-west-3",
+      access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
+      secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY")
+    }
+
+    {:ok, fields} =
+      SimpleS3Upload.sign_form_upload(config, bucket_original,
+        key: key,
+        content_type: entry.client_type,
+        max_file_size: uploads[entry.upload_config].max_file_size,
+        expires_in: :timer.hours(1)
+      )
+
+    meta = %{
+      uploader: "S3",
+      key: key,
+      url: "https://#{bucket_original}.s3-#{config.region}.amazonaws.com",
+      compressed_url: "https://#{bucket_compressed}.s3-#{config.region}.amazonaws.com",
+      fields: fields}
+    {:ok, meta, socket}
+  end
+```
+
+We are now detailing `bucket_original` and `bucket_compressed`,
+pertaining to the bucket where original files are stored
+and compressed ones are stored, respectively. 
+These buckets are used to *create the public URLs*,
+one for the original bucket and another one for the compressed one.
+This will be used to show to the person both URLs.
+
+In the same file,
+we also need to change the `"save"` handler 
+to contain the `compressed_url` as well.
+
+```elixir
+  def handle_event("save", _params, socket) do
+
+    uploaded_files = consume_uploaded_entries(socket, :image_list, fn %{uploader: _} = meta, _entry ->
+      public_url = meta.url <> "/#{meta.key}"
+      compressed_url = meta.compressed_url <> "/#{meta.key}"
+
+      meta = Map.put(meta, :public_url, public_url)
+      meta = Map.put(meta, :compressed_url, compressed_url)
+
+      {:ok, meta}
+    end)
+
+    {:noreply, update(socket, :uploaded_files, &(&1 ++ uploaded_files))}
+  end
+```
+
+Now let's change our view to show both URLs.
+The uploaded files thumbnail will also be changed
+to be sourced from the bucket with compressed images.
+Open `lib/app_web/live/imgup_live.html.heex`
+and change it to the following:
+
+```html
+<div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
+  <div class="flex flex-col justify-around md:flex-row">
+    <div class="flex flex-col flex-1 md:mr-4">
+
+      <!-- Drag and drop -->
+      <div class="space-y-12">
+        <div class="border-gray-900/10 pb-12">
+          <h2 class="text-base font-semibold leading-7 text-gray-900">Image Upload</h2>
+          <p class="mt-1 text-sm leading-6 text-gray-600">Drag your images and they'll be uploaded to the cloud! ☁️</p>
+          <p class="mt-1 text-sm leading-6 text-gray-600">You may add up to <%= @uploads.image_list.max_entries %> exhibits at a time.</p>
+
+          <!-- File upload section -->
+          <form class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8" phx-change="validate" phx-submit="save" id="upload-form">
+
+            <div class="col-span-full">
+              <div
+                class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+                phx-drop-target={@uploads.image_list.ref}
+              >
+                <div class="text-center">
+                  <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                  </svg>
+                  <div class="mt-4 flex text-sm leading-6 text-gray-600">
+                    <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
+                      <div>
+                        <label class="cursor-pointer">
+                          <.live_file_input upload={@uploads.image_list} class="hidden" />
+                          Upload
+                        </label>
+                      </div>
+                    </label>
+                    <p class="pl-1">or drag and drop</p>
+                  </div>
+                  <p class="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end gap-x-6">
+              <button
+                id="submit_button"
+                type="submit"
+                class={"rounded-md
+                      #{if are_files_uploadable?(@uploads.image_list) do "bg-indigo-600" else "bg-indigo-200" end}
+                      px-3 py-2 text-sm font-semibold text-white shadow-sm
+                      #{if are_files_uploadable?(@uploads.image_list) do "hover:bg-indigo-500" end}
+                      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"}
+                disabled={!are_files_uploadable?(@uploads.image_list)}
+              >
+                Upload
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Selected files preview section -->
+      <div class="mt-12">
+        <h2 class="text-base font-semibold leading-7 text-gray-900">Selected files</h2>
+        <ul role="list" class="divide-y divide-gray-100">
+
+          <%= for entry <- @uploads.image_list.entries do %>
+
+            <progress value={entry.progress} max="100" class="w-full h-1"> <%= entry.progress %>% </progress>
+
+            <!-- Entry information -->
+            <li class="pending-upload-item relative flex justify-between gap-x-6 py-5" id={"entry-#{entry.ref}"}>
+              <div class="flex gap-x-4">
+                <.live_img_preview entry={entry} class="h-auto w-12 flex-none bg-gray-50" />
+                <div class="min-w-0 flex-auto">
+                  <p class="text-sm font-semibold leading-6 break-all text-gray-900">
+                    <span class="absolute inset-x-0 -top-px bottom-0"></span>
+                    <%= entry.client_name %>
+                  </p>
+                </div>
+              </div>
+              <div
+                class="flex items-center gap-x-4 cursor-pointer z-10"
+                phx-click="remove-selected" phx-value-ref={entry.ref}
+                id={"close_pic-#{entry.ref}"}
+              >
+                <svg fill="#cfcfcf" height="10" width="10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                  viewBox="0 0 460.775 460.775" xml:space="preserve">
+                  <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55
+                    c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55
+                    c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505
+                    c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55
+                    l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719
+                    c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z"/>
+                </svg>
+              </div>
+            </li>
+
+            <!-- Entry errors -->
+            <div>
+              <%= for err <- upload_errors(@uploads.image_list, entry) do %>
+                <div class="rounded-md bg-red-50 p-4 mb-2">
+                  <div class="flex">
+                    <div class="flex-shrink-0">
+                      <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                    <div class="ml-3">
+                      <h3 class="text-sm font-medium text-red-800"><%= error_to_string(err) %></h3>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class='flex flex-col flex-1 mt-10 md:mt-0 md:ml-4'>
+        <h2 class="text-base font-semibold leading-7 text-gray-900">Uploaded files</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-600">Your uploaded images will appear here below!</p>
+        <p class="mt-1 text-sm leading-6 text-gray-600">These images are located in the S3 bucket! 🪣</p>
+
+        <ul role="list" class="divide-y divide-gray-100">
+          <%= for file <- @uploaded_files do %>
+
+            <!-- Entry information -->
+            <li class="uploaded-item relative flex justify-between gap-x-6 py-5" id={"uploaded-#{file.key}"}>
+              <div class="flex gap-x-4">
+                <!--
+                Try to load the compressed image from S3. This is because the compression might take some time, so we retry until it's available
+                See https://stackoverflow.com/questions/19673254/js-jquery-retry-img-load-after-1-second.
+                -->
+                <img class="block max-w-12 max-h-12 w-auto h-auto flex-none bg-gray-50" src={file.compressed_url} onerror="imgError(this);" >
+                <div class="min-w-0 flex-auto">
+                  <p>
+                    <span class="text-sm font-semibold leading-6 break-all text-gray-900">Original URL:</span>
+                    <a
+                      class="text-sm leading-6 break-all underline text-indigo-600"
+                      href={file.public_url}
+                      target="_blank" rel="noopener noreferrer"
+                    >
+                      <%= file.public_url %>
+                    </a>
+                  </p>
+                  <p>
+                    <span class="text-sm font-semibold leading-6 break-all text-gray-900">Compressed URL:</span>
+                    <a
+                      class="text-sm leading-6 break-all underline text-indigo-600"
+                      href={file.compressed_url}
+                      target="_blank" rel="noopener noreferrer"
+                    >
+                      <%= file.compressed_url %>
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </li>
+
+          <% end %>
+        </ul>
+    </div>
+
+  </div>
+</div>
+```
+
+Now the uploaded image's item shows both URLs.
+Additionally, 
+we have defined an `onerror` callback
+on the thumbnail.
+This is mainly because the compressed image might not be available
+right off the bat (it's still being compressed),
+so we define `imgError` function to
+retry loading the image every second.
+
+To define `imgError`, open `lib/app_web/components/layouts/root.html.heex`
+and add the function to the script.
+
+```html
+<!DOCTYPE html>
+<html lang="en" style="scrollbar-gutter: stable;">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title suffix=" · Phoenix Framework">
+      <%= assigns[:page_title] || "App" %>
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+  </head>
+  <body class="bg-white antialiased">
+    <%= @inner_content %>
+
+    <script>
+      function imgError(image) {
+        image.onerror = null;
+        setTimeout(function (){
+            image.src += '?' + +new Date;
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>
+```
+
+### 7.7 Run it! 
+
+Now let's run it!
+If you run `mix phx.server`
+and upload a file,
+you'll see the following screen.
+
+<p align="center">
+  <img src="https://github.com/dwyl/imgup/assets/17494745/74f27733-402d-4597-bd33-f6f6663eb802">
+</p>
+
+Both buckets now have the file with the same key 
+and are publicly accessible!
+
+Awesome job! 
+You've just added image compression to your web app! 🎉
+
+
+

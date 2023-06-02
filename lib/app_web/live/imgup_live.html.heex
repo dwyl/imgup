@@ -127,15 +127,32 @@
             <!-- Entry information -->
             <li class="uploaded-item relative flex justify-between gap-x-6 py-5" id={"uploaded-#{file.key}"}>
               <div class="flex gap-x-4">
-                <img class="block max-w-12 max-h-12 w-auto h-auto flex-none bg-gray-50" src={file.public_url}>
+                <!--
+                Try to load the compressed image from S3. This is because the compression might take some time, so we retry until it's available
+                See https://stackoverflow.com/questions/19673254/js-jquery-retry-img-load-after-1-second.
+                -->
+                <img class="block max-w-12 max-h-12 w-auto h-auto flex-none bg-gray-50" src={file.compressed_url} onerror="imgError(this);" >
                 <div class="min-w-0 flex-auto">
-                  <a
-                    class="text-sm font-semibold leading-6 break-all text-gray-900"
-                    href={file.public_url}
-                    target="_blank" rel="noopener noreferrer"
-                  >
-                    <%= file.public_url %>
-                  </a>
+                  <p>
+                    <span class="text-sm font-semibold leading-6 break-all text-gray-900">Original URL:</span>
+                    <a
+                      class="text-sm leading-6 break-all underline text-indigo-600"
+                      href={file.public_url}
+                      target="_blank" rel="noopener noreferrer"
+                    >
+                      <%= file.public_url %>
+                    </a>
+                  </p>
+                  <p>
+                    <span class="text-sm font-semibold leading-6 break-all text-gray-900">Compressed URL:</span>
+                    <a
+                      class="text-sm leading-6 break-all underline text-indigo-600"
+                      href={file.compressed_url}
+                      target="_blank" rel="noopener noreferrer"
+                    >
+                      <%= file.compressed_url %>
+                    </a>
+                  </p>
                 </div>
               </div>
             </li>
@@ -143,6 +160,6 @@
           <% end %>
         </ul>
     </div>
-    
+
   </div>
 </div>
