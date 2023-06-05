@@ -44,6 +44,7 @@ and have it saved in a reliable place like `AWS S3`!
     - [7.6 Refactoring the `Phoenix` app to use image compression](#76-refactoring-the-phoenix-app-to-use-image-compression)
     - [7.7 Run it!](#77-run-it)
   - [8 A note when deploying online](#8-a-note-when-deploying-online)
+  - [9. (Optional) Uploading files from API](#9-optional-uploading-files-from-api)
 - [Star the repo! ⭐️](#star-the-repo-️)
 
 
@@ -2428,6 +2429,20 @@ https://repost.aws/knowledge-center/s3-empty-bucket-lifecycle-rule
 to **set lifecycle rules on both of your buckets**.
 This will *delete all the files of the bucket every X days*.
 
+
+## 9. (Optional) Uploading files from API
+
+This demo showcases how to upload files
+from a `Phoenix Liveview`.
+However, 
+what if we wanted to create an API with `Phoenix`
+to upload a file to `S3`,
+regardless if the client is a `Javascript`-based client
+or a `Flutter` app.
+
+For this use case,
+we've created a document in 
+[`api.md`](./api.md) to guide you through implementing this.
 
 # Star the repo! ⭐️
 If you find this package/repo useful, please star on GitHub, so that we know! ⭐

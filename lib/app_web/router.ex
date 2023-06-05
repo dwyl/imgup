@@ -1,4 +1,5 @@
 defmodule AppWeb.Router do
+  alias AppWeb.HomeController
   use AppWeb, :router
 
   pipeline :browser do
@@ -17,7 +18,8 @@ defmodule AppWeb.Router do
   scope "/", AppWeb do
     pipe_through :browser
 
-    live "/", ImgupLive
+    get "/", PageController, :home
+    live "/liveview", ImgupLive
   end
 
   # Other scopes may use custom stacks.
