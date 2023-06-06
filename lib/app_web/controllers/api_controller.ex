@@ -33,7 +33,7 @@ defmodule AppWeb.ApiController do
   end
 
   def create(conn, _params) do
-    render(conn |> put_status(400), :bad_request)
+    render(conn |> put_status(400), :field_error)
   end
 
 end

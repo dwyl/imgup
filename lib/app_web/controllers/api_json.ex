@@ -13,7 +13,7 @@ defmodule AppWeb.ApiJSON do
     %{url: "Some URL"}
   end
 
-  def render("bad_request.json", _assigns) do
+  def render("field_error.json", _assigns) do
     %{errors: %{detail: "No \'image'\ field provided."}}
   end
 
