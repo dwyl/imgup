@@ -1,0 +1,17 @@
+{
+  "name": "aws-s3-compressor",
+  "description": "Resizing and compressing image files with Sharp in Lambda AWS",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "aws-sdk": "^2.799.0",
+    "sharp": "^0.32.1"
+  },
+  "devDependencies": {
+    "aws-sdk-mock": "^5.1.0",
+    "jest": "^26.6.3"
+  },
+  "scripts": {
+    "test": "jest"
+  }
+}

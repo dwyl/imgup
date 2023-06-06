@@ -13,5 +13,14 @@
   </head>
   <body class="bg-white antialiased">
     <%= @inner_content %>
+
+    <script>
+      function imgError(image) {
+        image.onerror = null;
+        setTimeout(function (){
+            image.src += '?' + +new Date;
+        }, 3000);
+      }
+    </script>
   </body>
 </html>
