@@ -61,7 +61,12 @@ defmodule App.MixProject do
       {:excoveralls, "~> 0.15", only: [:test, :dev]},
 
       # Cid
-      {:excid, "~> 0.1.0"}
+      {:excid, "~> 0.1.0"},
+
+      # AWS-related packages
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:sweet_xml, "~> 0.7"}
 
     ]
   end
