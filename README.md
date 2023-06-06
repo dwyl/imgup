@@ -26,12 +26,12 @@ using `Phoenix + LiveView`.
     - [2. Get your `AWS` Keys and Export as Environment Variables](#2-get-your-aws-keys-and-export-as-environment-variables)
     - [3. Download the Dependencies and Run the App!](#3-download-the-dependencies-and-run-the-app)
 - [Build It! 👩‍💻](#build-it-)
-  - [0. Creating a fresh `Phoenix` project](#0-creating-a-fresh-phoenix-project)
+  - [0. Create a `Phoenix` project](#0-create-a-phoenix-project)
   - [1. Adding `LiveView` capabilities to our project](#1-adding-liveview-capabilities-to-our-project)
   - [2. Local file upload and preview](#2-local-file-upload-and-preview)
   - [3. File validation](#3-file-validation)
-  - [4. Uploading image to `AWS S3` bucket](#4-uploading-image-to-aws-s3-bucket)
-    - [4.1 Adding multipart form data for images to be uploaded to the bucket](#41-adding-multipart-form-data-for-images-to-be-uploaded-to-the-bucket)
+  - [4. Upload `images` to `AWS S3` 🪣](#4-upload-images-to-aws-s3-)
+    - [4.1 Add multipart form data for images to be uploaded to the bucket](#41-add-multipart-form-data-for-images-to-be-uploaded-to-the-bucket)
     - [4.2 Implementing the `S3` `JavaScript` client uploader](#42-implementing-the-s3-javascript-client-uploader)
     - [4.3 Creating the `AWS S3` bucket](#43-creating-the-aws-s3-bucket)
       - [4.3.1 Changing the bucket permissions](#431-changing-the-bucket-permissions)
@@ -49,7 +49,7 @@ using `Phoenix + LiveView`.
       - [7.5.1 What if I want to make changes to the function?](#751-what-if-i-want-to-make-changes-to-the-function)
     - [7.6 Refactoring the `Phoenix` app to use image compression](#76-refactoring-the-phoenix-app-to-use-image-compression)
     - [7.7 Run it!](#77-run-it)
-  - [8 A note when deploying online](#8-a-note-when-deploying-online)
+  - [8. A note when deploying online](#8-a-note-when-deploying-online)
 - [_Please_ Star the repo! ⭐️](#please-star-the-repo-️)
 
 
@@ -167,14 +167,21 @@ and start uploading!
 
 # Build It! 👩‍💻
 
-## 0. Creating a fresh `Phoenix` project
+This is a step-by-step tutorial
+for how we built the `image upload` App. 
+Follow along at your own pace. 
 
-Let's create a fresh `Phoenix` project.
-Run the following command in a given folder:
+## 0. Create a `Phoenix` project
+
+Create a fresh `Phoenix` project by
+running the following command 
+in your terminal:
 
 ```sh
 mix phx.new . --app app --no-dashboard --no-mailer
 ```
+
+> **Note**: this will create the project in your current working directory. 
 
 We're running [`mix phx.new`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.New.html)
 to generate a new project without a dashboard
@@ -199,7 +206,7 @@ our project is not using `LiveView`.
 Let's fix this.
 
 In `lib/app_web/router.ex`,
-change the `scope "/"` to the following.
+change the `scope "/"` to the following:
 
 ```elixir
   scope "/", AppWeb do
@@ -217,7 +224,7 @@ Let's create our `LiveView` files.
 Inside `lib/app_web`, 
 create a folder called `live`
 and create the following file 
-`imgup_live.ex`.
+`imgup_live.ex`:
 
 ```elixir
 defmodule AppWeb.ImgupLive do
@@ -242,7 +249,7 @@ which is needed to allow file uploads in `LiveView`.
 
 In the same `live` folder,
 create a file called `imgup_live.html.heex`
-and use the following code.
+and use the following code:
 
 ```html
 <.flash_group flash={@flash} />
@@ -286,9 +293,9 @@ and use the following code.
 </div>
 ```
 
-This is a simple HTML form that uses 
+This is a simple `HTML` form that uses 
 [`Tailwind CSS`](https://github.com/dwyl/learn-tailwind)
-to enhance the presentation of the upload form. 
+to enhance the layout/presentation. 
 We'll also remove the unused header of the page layout,
 while we're at it.
 
@@ -320,7 +327,7 @@ and changed our view!
 We can now start implementing file uploads! 🗳️
 
 > If you want to see the changes made to the project,
-> check [b414b11](https://github.com/dwyl/imgup/pull/55/commits).
+> check [b414b11](https://github.com/dwyl/imgup/tree/b414b11fec55b2560433f7cbd81b9ac15ed2a9a4/lib/app_web/live).
 
 
 ## 2. Local file upload and preview
@@ -495,7 +502,7 @@ you should see the following screen.
 
 ## 3. File validation
 
-Let's block the person to upload invalid files.
+Let's prevent `people` from uploading invalid files.
 Validation occurs automatically based on the conditions
 that we specified in `allow_upload/3` in the `mount/3` function.
 
@@ -511,8 +518,8 @@ We can find an array of errors pertaining to all of the entries/files that were 
 inside the `@uploads` socket assigns 
 under the `:errors` key.
 
-With this, we can block the person to upload the files if:
-- there aren't any.
+With this, we can block uploading if:
+- there aren't any files
 - any of the files/entries have errors.
 
 Let's implement this useful function to then use in our view.
@@ -664,7 +671,7 @@ you will see an error on the entry.
 </p>
 
 
-## 4. Uploading image to `AWS S3` bucket
+## 4. Upload `images` to `AWS S3` 🪣
 
 Now that the person is loading the images to our app,
 let's allow them to upload it to the cloud! ☁️
@@ -741,7 +748,7 @@ In our case, it's called `S3`.
 All of this is needed to correctly upload the images to our `S3` bucket.
 
 
-### 4.1 Adding multipart form data for images to be uploaded to the bucket
+### 4.1 Add multipart form data for images to be uploaded to the bucket
 
 You might have noticed the previous function
 is using a module called `SimpleS3Upload`
@@ -752,7 +759,7 @@ For this, we are using the zero-dependency module
 in https://gist.github.com/chrismccord/37862f1f8b1f5148644b75d20d1cb073.
 Therefore, inside `lib/app_web/`,
 create a file called `s3_upload.ex`
-and post the following snippet of code.
+and paste the following snippet of code:
 
 ```elixir
 defmodule SimpleS3Upload do
@@ -1046,7 +1053,7 @@ so anyone can check it.
 you should change the `AllowedOrigins` 
 to restrict what domains can view the bucket contents.
 
-Paste the following and save.
+Paste the following and save:
 
 ```
 [
@@ -1656,15 +1663,8 @@ Now we don't have conflicts between the files each person uploads!
 
 ## 7. Resizing/compressing files
 
-We've set a hard limit on the image file size
-one person can upload.
-Because we're using cloud storage and doing so at a reduced scale,
-it's easy to dismiss any concerns about hosting data and their size.
-But if we think at scale,
-we ought to be careful when estimating our cloud storage budget.
-Those megabytes can stack up easily *and quite fast*.
-
-So, it's good practice to implement 
+Image hosting costs can be considerable,
+so, it's good practice to implement 
 **image resizing/compression**.
 Every time a person uploads an image,
 we want to save the *original image in a bucket*,
@@ -1700,8 +1700,10 @@ following the architecture we've just detailed.
 ### 7.1 Installing `AWS CLI` and `AWS SAM CLI` 
 
 To make the setup and tear down of our pipeline easier,
-we'll be using 
-[`AWS SAM`](https://aws.amazon.com/serverless/sam/).
+we'll be using the
+`AWS`
+Serverless Application Model 
+or [`SAM`](https://aws.amazon.com/serverless/sam/).
 This will allow us to create serverless applications,
 combining multiple resources.
 Our `SAM` project will create the needed resources 
@@ -1727,7 +1729,8 @@ Because you've already created your credentials
 to upload files to the buckets earlier,
 you probably only need to install the `AWS CLI`.
 
-Therefore, follow https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html 
+Therefore, follow: 
+https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html 
 to install `AWS CLI`
 **and then**
 https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/prerequisites.html#prerequisites-configure-credentials
@@ -2478,7 +2481,7 @@ Awesome job!
 You've just added image compression to your web app! 🎉
 
 
-## 8 A note when deploying online
+## 8. A note when deploying online
 
 If you want people
 to access your bucket publicly,
