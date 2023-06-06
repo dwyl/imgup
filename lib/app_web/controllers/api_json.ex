@@ -9,15 +9,15 @@ defmodule AppWeb.ApiJSON do
   # By default, Phoenix returns the status message from
   # the template name. For example, "404.json" becomes
   # "Not Found".
-  def render("success.json", _assigns) do
-    %{url: "Some URL"}
+  def render("success.json", assigns) do
+    %{url: assigns.url}
   end
 
   def render("field_error.json", _assigns) do
     %{errors: %{detail: "No \'image'\ field provided."}}
   end
 
-  def render(template, assigns) do
+  def render(_template, assigns) do
     body = Map.get(assigns, :body, "Internal server error.")
     %{errors: %{detail: body}}
   end

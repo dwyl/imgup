@@ -125,7 +125,7 @@ defmodule AppWeb.ApiController do
     # Upload to S3
     upload = image.path
     |> ExAws.S3.Upload.stream_file()
-    |> ExAws.S3.upload("imgup-original", image.filename)
+    |> ExAws.S3.upload("imgup-original", image.filename, acl: :public_read)
     |> ExAws.request
 
     # Check if upload was successful
@@ -236,7 +236,7 @@ to:
       # Upload to S3
       upload = image.path
       |> ExAws.S3.Upload.stream_file()
-      |> ExAws.S3.upload("imgup-original", image.filename)
+      |> ExAws.S3.upload("imgup-original", image.filename, acl: :public_read)
       |> ExAws.request
 
       # Check if upload was successful
@@ -261,3 +261,98 @@ to:
 Now we are checking the filetype of the uploaded file
 and providing feedback *back to the person*!
 
+
+# 4 Returning the URL to the person
+
+On success,
+it might be useful for the person using the API
+to get the public link where the image is stored.
+For this,
+we simply need to **parse the XML response from the `S3` upload**.
+For this, visit `lib/app_web/controllers/api_controller.ex`
+and change the `def create(conn, %{"image" => image})`
+to this:
+
+```elixir
+  def create(conn, %{"image" => image}) do
+
+    # Check if file is an image
+    fileIsAnImage = String.contains?(image.content_type, "image")
+
+    if fileIsAnImage do
+
+      # Upload to S3
+      upload = image.path
+      |> ExAws.S3.Upload.stream_file()
+      |> ExAws.S3.upload("imgup-original", image.filename, acl: :public_read)
+      |> ExAws.request
+
+      # Check if upload was successful
+      case upload do
+        {:ok, body} ->
+          url = body.body |> xpath(~x"//text()") |> List.to_string()
+          render(conn, :success, %{url: url})
+
+        {:error, error} ->
+
+          {_error_atom, http_code, body} = error
+          render(conn |> put_status(http_code), body)
+      end
+
+    # If it's not an image, return 400
+    else
+      render(conn |> put_status(400), %{body: "File is not an image."})
+    end
+
+  end
+```
+
+We are using
+[`sweet_xml`](https://github.com/kbrw/sweet_xml)
+we've imported earlier in our dependencies list.
+This will allow us to parse the output from the `S3` upload,
+which is in `XML` format.
+It has a `<Location>` tag,
+which is the URl we are interested in returning to the user.
+
+We then pass this URL to the `render/3` function.
+All we need to do is change it 
+to *return this URL to the person*.
+
+Open `lib/app_web/controllers/api_json.ex` 
+and change to.
+
+```elixir
+  def render("success.json", assigns) do
+    %{url: assigns.url}
+  end
+```
+
+Awesome!
+Now if you run `mix phx.server`
+and make a `multipart/form-data` request
+(we recommend using a tool like 
+[`Postman`](https://www.postman.com/) or [`Hoppscotch`](https://hoppscotch.io/) - which is open-source!),
+you should see a public URL after loading an image file!
+
+```json
+{
+  "url": "https://s3.eu-west-3.amazonaws.com/imgup-original/115faa2f5cbe273cfc9fbcffd44b7eab.1000x1000x1.jpg"
+}
+```
+
+If the person makes an invalid input,
+he should see error details.
+For example,
+if you try to upload another file other than an image:
+
+```json
+{
+  "errors": {
+    "detail": "File is not an image."
+  }
+}
+```
+
+Or an image size that's too large,
+you'll get an `413 Request Entity Too Large` error.

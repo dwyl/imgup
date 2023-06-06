@@ -1,5 +1,6 @@
 defmodule AppWeb.ApiController do
   use AppWeb, :controller
+  import SweetXml
 
   def create(conn, %{"image" => image}) do
 
@@ -11,13 +12,14 @@ defmodule AppWeb.ApiController do
       # Upload to S3
       upload = image.path
       |> ExAws.S3.Upload.stream_file()
-      |> ExAws.S3.upload("imgup-original", image.filename)
+      |> ExAws.S3.upload("imgup-original", image.filename, acl: :public_read)
       |> ExAws.request
 
       # Check if upload was successful
       case upload do
-        {:ok, _body} ->
-          render(conn, :success)
+        {:ok, body} ->
+          url = body.body |> xpath(~x"//text()") |> List.to_string()
+          render(conn, :success, %{url: url})
 
         {:error, error} ->
 
