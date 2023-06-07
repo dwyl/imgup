@@ -7,8 +7,9 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/imgup/issues)
 [![HitCount](https://hits.dwyl.com/dwyl/imgup.svg?style=flat-square&show=unique)](https://hits.dwyl.com/dwyl/imgup)
 
-Learn how to do image uploads seamlessly with any type of image
-and have it saved in a reliable place like `AWS S3`!
+Effortlessly **upload `images`** 
+to **`AWS S3`**
+using `Phoenix + LiveView`. 
 
 </div>
 
@@ -20,6 +21,11 @@ and have it saved in a reliable place like `AWS S3`!
 - [Who? 👤](#who-)
 - [How? 💻](#how-)
   - [Prerequisites](#prerequisites)
+  - [Run the App!](#run-the-app)
+    - [1. Clone the Repo](#1-clone-the-repo)
+    - [2. Get your `AWS` Keys and Export as Environment Variables](#2-get-your-aws-keys-and-export-as-environment-variables)
+    - [3. Download the Dependencies and Run the App!](#3-download-the-dependencies-and-run-the-app)
+- [Build It! 👩‍💻](#build-it-)
   - [0. Creating a fresh `Phoenix` project](#0-creating-a-fresh-phoenix-project)
   - [1. Adding `LiveView` capabilities to our project](#1-adding-liveview-capabilities-to-our-project)
   - [2. Local file upload and preview](#2-local-file-upload-and-preview)
@@ -44,30 +50,33 @@ and have it saved in a reliable place like `AWS S3`!
     - [7.6 Refactoring the `Phoenix` app to use image compression](#76-refactoring-the-phoenix-app-to-use-image-compression)
     - [7.7 Run it!](#77-run-it)
   - [8 A note when deploying online](#8-a-note-when-deploying-online)
-  - [9. (Optional) Uploading files from API](#9-optional-uploading-files-from-api)
-- [Star the repo! ⭐️](#star-the-repo-️)
+- [_Please_ Star the repo! ⭐️](#please-star-the-repo-️)
 
 
 <br />
 
 # Why? 🤷
 
-As we're building our 
+Building our 
 [app](https://github.com/dwyl/app),
-we are interested in allowing people
-to upload their own images to better manage their daily tasks.
+we consider `images` an _essential_ 
+medium of communication.
+
+> "_An Image is Worth 16x16 Words ..._" 😉
 
 By adding support for interactive file uploads,
 we can leverage this feature and easily apply it 
-any client app that wishes to upload their images
-in a secure place.
+any client app that wishes to upload their `images`
+to a reliable & secure place.
 
 # What? 💭
 
 This run-through will create a simple
-`LiveView` web application
+`Phoenix LiveView` web application
 that will allow you to choose/drag an image
-and upload it to your own [`AWS S3`](https://aws.amazon.com/s3/) bucket.
+and upload it to your own 
+[`AWS S3`](https://aws.amazon.com/s3/) 
+bucket.
 
 
 # Who? 👤
@@ -98,11 +107,65 @@ We assume you know the basics of `Phoenix`
 and have *some* knowledge of how it works.
 If you don't, 
 we *highly suggest* you follow our other tutorials first.
+e.g: 
+[github.com/dwyl/**phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example)
 
 In addition to this,
-we assume you have *some* knowledge of `AWS` - 
-what it is, what an `S3` bucket is/does.
+**_some_ knowledge of `AWS`** - 
+what it is, what an `S3` bucket is/does -
+**is assumed**. 
 
+> **Note**: if you have questions or get stuck,
+> please open an issue! 
+> [/dwyl/imgup/issues](https://github.com/dwyl/imgup/issues)
+
+
+## Run the App!
+
+You can easily see the App in action on Fly.io: 
+[imgup.fly.dev](https://imgup.fly.dev/)
+
+But if you want to _run_ it on your `localhost`, 
+follow these 3 easy steps:
+
+### 1. Clone the Repo
+
+Clone the latest code:
+```sh
+git clone git@github.com:dwyl/imgup.git && cd imgup
+```
+
+### 2. Get your `AWS` Keys and Export as Environment Variables
+
+Create an `.env` file e.g:
+
+```sh
+vi .env
+```
+
+and add your credentials to it:
+
+```sh
+export AWS_ACCESS_KEY_ID='YOUR_KEY'
+export AWS_SECRET_ACCESS_KEY='YOUR_KEY'
+```
+
+In your terminal, run `source .env` to export the keys.
+
+
+### 3. Download the Dependencies and Run the App!
+
+Run the commands:
+
+```sh
+mix setup && mix s
+```
+
+Then open your web browser to: 
+[localhost:4000](http://localhost:4000)
+and start uploading! 
+
+# Build It! 👩‍💻
 
 ## 0. Creating a fresh `Phoenix` project
 
@@ -115,7 +178,7 @@ mix phx.new . --app app --no-dashboard --no-mailer
 
 We're running [`mix phx.new`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.New.html)
 to generate a new project without a dashboard
-and mailer service,
+and mailer (email) service,
 since we don't need those in our project.
 
 After this,
@@ -175,7 +238,7 @@ with the `mount/3` function
 where we use the 
 [`allow_upload/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#allow_upload/3)
 function,
-which is needed to allow file uploads in our `LiveView`.
+which is needed to allow file uploads in `LiveView`.
 
 In the same `live` folder,
 create a file called `imgup_live.html.heex`
@@ -223,14 +286,15 @@ and use the following code.
 </div>
 ```
 
-This is a simple HTML form that uses `TailwindCSS`
-to allow the people to upload a file.
-We'll also remove the header of the page layout,
+This is a simple HTML form that uses 
+[`Tailwind CSS`](https://github.com/dwyl/learn-tailwind)
+to enhance the presentation of the upload form. 
+We'll also remove the unused header of the page layout,
 while we're at it.
 
 Locate the file `lib/app_web/components/layouts/app.html.heex`
 and remove the `<header>` class.
-The file should only have the following code.
+The file should only have the following code:
 
 ```html
 <main class="px-4 py-20 sm:px-6 lg:px-8">
@@ -245,7 +309,7 @@ Now you can safely delete the `lib/app_web/controllers` folder,
 which is no longer used.
 
 If you run `mix phx.server`,
-you should see the following screen.
+you should see the following screen:
 
 <p align="center">
   <img src="https://github.com/dwyl/imgup/assets/17494745/5a3438fe-fa45-47f9-8cb2-9d6d405f55a0">
@@ -262,10 +326,11 @@ We can now start implementing file uploads! 🗳️
 ## 2. Local file upload and preview
 
 Let's add the ability for people to upload their images
-in our `LiveView` app and preview them *before* uploading to `AWS S3`.
+in our `LiveView` app and preview them 
+*before* uploading to `AWS S3`.
 
 Change `lib/app_web/live/imgup_live.html.heex` 
-to the following piece of code.
+to the following piece of code:
 
 ```html
 <div class="px-4 py-10 flex justify-center sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
@@ -2430,21 +2495,9 @@ to **set lifecycle rules on both of your buckets**.
 This will *delete all the files of the bucket every X days*.
 
 
-## 9. (Optional) Uploading files from API
+# _Please_ Star the repo! ⭐️
 
-This demo showcases how to upload files
-from a `Phoenix Liveview`.
-However, 
-what if we wanted to create an API with `Phoenix`
-to upload a file to `S3`,
-regardless if the client is a `Javascript`-based client
-or a `Flutter` app.
-
-For this use case,
-we've created a document in 
-[`api.md`](./api.md) to guide you through implementing this.
-
-# Star the repo! ⭐️
-If you find this package/repo useful, please star on GitHub, so that we know! ⭐
+If you find this package/repo useful, 
+please star on GitHub, so that we know! ⭐
 
 Thank you! 🙏
