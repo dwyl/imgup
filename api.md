@@ -95,7 +95,7 @@ to the `deps` section in `mix.exs`.
 Run `mix deps.get` to download the dependencies.
 
 Next, we need to add configuration
-of this newly added dependencies
+of these newly added dependencies
 in `config/config.ex`.
 Open it and add these lines.
 
