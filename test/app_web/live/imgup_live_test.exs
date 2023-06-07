@@ -3,7 +3,7 @@ defmodule AppWeb.ImgupLiveTest do
   import Phoenix.LiveViewTest
 
   test "connected mount", %{conn: conn} do
-    conn = get(conn, "/")
+    conn = get(conn, "/liveview")
     assert html_response(conn, 200) =~ "Image Upload"
 
     {:ok, _view, _html} = live(conn)
@@ -11,7 +11,7 @@ defmodule AppWeb.ImgupLiveTest do
 
   test "file input and remove it from selected entries", %{conn: conn} do
     # Connect to LiveView
-    {:ok, live_view, _html} = live(conn, ~p"/")
+    {:ok, live_view, _html} = live(conn, ~p"/liveview")
 
     # Build the upload input
     upload =
@@ -38,7 +38,7 @@ defmodule AppWeb.ImgupLiveTest do
 
   test "file input errors - file too large", %{conn: conn} do
     # Connect to LiveView
-    {:ok, live_view, _html} = live(conn, ~p"/")
+    {:ok, live_view, _html} = live(conn, ~p"/liveview")
 
     # Build the upload input
     upload =
@@ -55,7 +55,7 @@ defmodule AppWeb.ImgupLiveTest do
 
   test "file input errors - unnaceptable file type", %{conn: conn} do
     # Connect to LiveView
-    {:ok, live_view, _html} = live(conn, ~p"/")
+    {:ok, live_view, _html} = live(conn, ~p"/liveview")
 
     # Build the upload input
     upload =
@@ -74,7 +74,7 @@ defmodule AppWeb.ImgupLiveTest do
   import AppWeb.UploadSupport
 
   test "uploading a file", %{conn: conn} do
-    {:ok, lv, html} = live(conn, ~p"/")
+    {:ok, lv, html} = live(conn, ~p"/liveview")
     assert html =~ "Image Upload"
 
     # Get file and add it to the form

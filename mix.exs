@@ -66,8 +66,10 @@ defmodule App.MixProject do
       # AWS-related packages
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
-      {:sweet_xml, "~> 0.7"}
+      {:sweet_xml, "~> 0.7"},
 
+      # Mocking tests
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 

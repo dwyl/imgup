@@ -9,11 +9,14 @@ defmodule AppWeb.ApiController do
 
     if fileIsAnImage do
 
+
       # Upload to S3
       upload = image.path
       |> ExAws.S3.Upload.stream_file()
       |> ExAws.S3.upload("imgup-original", image.filename, acl: :public_read)
-      |> ExAws.request
+      |> ExAws.request(get_ex_aws_request_config_override())
+
+      dbg(upload)
 
       # Check if upload was successful
       case upload do
@@ -37,5 +40,8 @@ defmodule AppWeb.ApiController do
   def create(conn, _params) do
     render(conn |> put_status(400), :field_error)
   end
+
+  def get_ex_aws_request_config_override,
+    do: Application.get_env(:ex_aws, :request_config_override)
 
 end

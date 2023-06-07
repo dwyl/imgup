@@ -1,5 +1,4 @@
 defmodule AppWeb.Router do
-  alias AppWeb.HomeController
   use AppWeb, :router
 
   pipeline :browser do
