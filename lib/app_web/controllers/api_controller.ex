@@ -9,14 +9,16 @@ defmodule AppWeb.ApiController do
 
     if fileIsAnImage do
 
+      # Create `CID` from file contents
+      {:ok, file_binary} = File.read(image.path)
+      file_cid = Cid.cid(file_binary)
+      file_name = "#{file_cid}.#{Enum.at(MIME.extensions(image.content_type), 0)}"
 
       # Upload to S3
       upload = image.path
       |> ExAws.S3.Upload.stream_file()
-      |> ExAws.S3.upload("imgup-original", image.filename, acl: :public_read)
+      |> ExAws.S3.upload("imgup-original", file_name, acl: :public_read)
       |> ExAws.request(get_ex_aws_request_config_override())
-
-      dbg(upload)
 
       # Check if upload was successful
       case upload do

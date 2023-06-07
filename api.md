@@ -356,3 +356,37 @@ if you try to upload another file other than an image:
 
 Or an image size that's too large,
 you'll get an `413 Request Entity Too Large` error.
+
+
+# 5 Saving the image with the `CID` of its contents
+
+Similarly to what we've done to the `LiveView`,
+we want our images to have its name
+**as the `CID` of the image's contents**.
+
+To do this, it's quite simple!
+Visit `lib/app_web/controllers/api_controller.ex`
+and change the `create` function like so:
+
+```elixir
+    if fileIsAnImage do
+
+      # Create `CID` from file contents
+      {:ok, file_binary} = File.read(image.path)
+      file_cid = Cid.cid(file_binary)
+      file_name = "#{file_cid}.#{Enum.at(MIME.extensions(image.content_type), 0)}"
+
+      # Upload to S3
+      upload = image.path
+      |> ExAws.S3.Upload.stream_file()
+      |> ExAws.S3.upload("imgup-original", file_name, acl: :public_read)
+      |> ExAws.request(get_ex_aws_request_config_override())
+```
+
+We are creating a `cid` from the contents of the image.
+We then use this `cid` and concatenate with the extension of the 
+*content type of the image*.
+This way, we'll have a cid with the correct format,
+e.g. `zb2rhhPShfsYqzqYPG8wxnsb4zNe2HxDrqKRxU6wSWQQWMHsZ.jpg`.
+
+
