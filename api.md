@@ -103,7 +103,7 @@ Open it and add these lines.
 config :ex_aws,
   access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
   secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY"),
-  region: "eu-west-3"
+  region: System.fetch_env!("AWS_REGION")
 ```
 
 This configuration is quite self-explanatory.

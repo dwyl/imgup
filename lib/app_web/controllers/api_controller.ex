@@ -23,6 +23,9 @@ defmodule AppWeb.ApiController do
       # Check if upload was successful
       case upload do
         {:ok, body} ->
+          # We fetch the contents of the returned XML string from `ex_aws`.
+          # This XML is parsed with `sweet_xml`.
+          # Check https://github.com/kbrw/sweet_xml#the-x-sigil for more info about how the XML is parsing.
           url = body.body |> xpath(~x"//text()") |> List.to_string()
           render(conn, :success, %{url: url})
 

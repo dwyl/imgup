@@ -39,6 +39,7 @@ jobs:
     - name: Run Tests
       run: mix coveralls.json
       env:
+        AWS_REGION: eu-west-3
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MIX_ENV: test
         AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
