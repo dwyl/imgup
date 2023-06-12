@@ -15,7 +15,10 @@ defmodule AppWeb.ImgupLive do
     uploads = socket.assigns.uploads
     bucket_original = "imgup-original"
     bucket_compressed = "imgup-compressed"
-    key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
+
+    # Create `CID` from file content metadata
+    file_cid = Cid.cid(%{name: entry.client_name, path: entry.client_relative_path, size: entry.client_size, type: entry.client_type})
+    key = "#{file_cid}.#{Enum.at(MIME.extensions(entry.client_type), 0)}"
 
     config = %{
       region: "eu-west-3",

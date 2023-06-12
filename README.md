@@ -1626,14 +1626,14 @@ and locate the `presign_upload/2`.
 Change the `key` variable to the following:
 
 ```elixir
-    key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
+    # Create `CID` from file content metadata
+    file_cid = Cid.cid(%{name: entry.client_name, path: entry.client_relative_path, size: entry.client_size, type: entry.client_type})
+    key = "#{file_cid}.#{Enum.at(MIME.extensions(entry.client_type), 0)}"
 ```
 
 We are creating a 
 [`CID`](https://docs.ipfs.tech/concepts/content-addressing/)
-from a string with the format 
-`currentdate_filename`.
-This is the new filename. 
+from the upload entry metadata of the uploaded file.
 
 If you run `mix phx.server`
 and upload a file,
