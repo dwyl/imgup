@@ -1,39 +1,25 @@
 defmodule AppWeb.ApiController do
   use AppWeb, :controller
-  import SweetXml
+  require Logger
 
-  def create(conn, %{"image" => image}) do
-
-    # Check if file is an image
-    fileIsAnImage = String.contains?(image.content_type, "image")
-
-    if fileIsAnImage do
-
-      upload = App.Upload.upload(image)
-
-      # Check if upload was successful
-      case upload do
-        {:ok, body} ->
-          # We fetch the contents of the returned XML string from `ex_aws`.
-          # This XML is parsed with `sweet_xml`.
-          # Check https://github.com/kbrw/sweet_xml#the-x-sigil for more info about how the XML is parsing.
-          url = body.body |> xpath(~x"//text()") |> List.to_string()
-          render(conn, :success, %{url: url})
-
-        {:error, error} ->
-
-          {_error_atom, http_code, body} = error
-          render(conn |> put_status(http_code), body)
+  def create(conn, %{"" => params}) do
+    # check if content_type e.g: "image/png"
+    if String.contains?(params.content_type, "image") do
+      try do
+        {:ok, body} = App.Upload.upload(params)
+        render(conn, :success, body)
+      rescue
+        e ->
+          Logger.error(Exception.format(:error, e, __STACKTRACE__))
+          render(conn |> put_status(400), %{body: "Error uploading file #26"})
       end
-
-    # If it's not an image, return 400
     else
-      render(conn |> put_status(400), %{body: "File is not an image."})
+      render(conn |> put_status(400), %{body: "Uploaded file is not a valid image."})
     end
-
   end
 
-  def create(conn, _params) do
-    render(conn |> put_status(400), :field_error)
+  # preserve backward compatibility with "image" keyword:
+  def create(conn, %{"image" => image}) do
+    create(conn, %{"" => image})
   end
 end

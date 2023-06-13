@@ -10,11 +10,7 @@ defmodule AppWeb.ApiJSON do
   # the template name. For example, "404.json" becomes
   # "Not Found".
   def render("success.json", assigns) do
-    %{url: assigns.url}
-  end
-
-  def render("field_error.json", _assigns) do
-    %{errors: %{detail: "No \'image'\ field provided."}}
+    %{url: assigns.url, compressed_url: assigns.compressed_url}
   end
 
   def render(_template, assigns) do

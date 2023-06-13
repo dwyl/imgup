@@ -1,5 +1,5 @@
 defmodule App.UploadTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   # @valid_aws_access_key_id System.fetch_env!("AWS_ACCESS_KEY_ID")
   # @invalid_aws_access_key "AKIAIOSFODNN7EXAMPLE"
@@ -12,8 +12,10 @@ defmodule App.UploadTest do
     }
 
     expected_response = %{
-      compressed_url: "https://s3.eu-west-3.amazonaws.com/imgup-compressed/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png",
-      url: "https://s3.eu-west-3.amazonaws.com/imgup-original/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png"
+      compressed_url:
+        "https://s3.eu-west-3.amazonaws.com/imgup-compressed/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png",
+      url:
+        "https://s3.eu-west-3.amazonaws.com/imgup-original/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png"
     }
 
     assert App.Upload.upload(image) == {:ok, expected_response}

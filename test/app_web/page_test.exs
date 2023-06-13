@@ -5,5 +5,4 @@ defmodule AppWeb.PageTest do
     conn = get(conn, "/")
     assert html_response(conn, 200) =~ "Simple file upload"
   end
-
 end

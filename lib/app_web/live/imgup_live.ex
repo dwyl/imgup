@@ -6,7 +6,13 @@ defmodule AppWeb.ImgupLive do
     {:ok,
      socket
      |> assign(:uploaded_files, [])
-     |> allow_upload(:image_list, accept: ~w(image/*), max_entries: 6, chunk_size: 64_000, max_file_size: 5_000_000, external: &presign_upload/2)}
+     |> allow_upload(:image_list,
+       accept: ~w(image/*),
+       max_entries: 6,
+       chunk_size: 64_000,
+       max_file_size: 5_000_000,
+       external: &presign_upload/2
+     )}
   end
 
   # Adding presign for each entry for S3 upload --------
@@ -31,19 +37,16 @@ defmodule AppWeb.ImgupLive do
         expires_in: :timer.hours(1)
       )
 
-    dbg(fields)
-
     meta = %{
       uploader: "S3",
       key: key,
       url: "https://#{bucket_original}.s3-#{config.region}.amazonaws.com",
       compressed_url: "https://#{bucket_compressed}.s3-#{config.region}.amazonaws.com",
-      fields: fields}
+      fields: fields
+    }
 
-    dbg(meta)
     {:ok, meta, socket}
   end
-
 
   # Event handlers -------
 
@@ -59,16 +62,16 @@ defmodule AppWeb.ImgupLive do
 
   @impl true
   def handle_event("save", _params, socket) do
+    uploaded_files =
+      consume_uploaded_entries(socket, :image_list, fn %{uploader: _} = meta, _entry ->
+        public_url = meta.url <> "/#{meta.key}"
+        compressed_url = meta.compressed_url <> "/#{meta.key}"
 
-    uploaded_files = consume_uploaded_entries(socket, :image_list, fn %{uploader: _} = meta, _entry ->
-      public_url = meta.url <> "/#{meta.key}"
-      compressed_url = meta.compressed_url <> "/#{meta.key}"
+        meta = Map.put(meta, :public_url, public_url)
+        meta = Map.put(meta, :compressed_url, compressed_url)
 
-      meta = Map.put(meta, :public_url, public_url)
-      meta = Map.put(meta, :compressed_url, compressed_url)
-
-      {:ok, meta}
-    end)
+        {:ok, meta}
+      end)
 
     {:noreply, update(socket, :uploaded_files, &(&1 ++ uploaded_files))}
   end
@@ -83,7 +86,8 @@ defmodule AppWeb.ImgupLive do
   def error_to_string(:too_large), do: "Too large."
   def error_to_string(:not_accepted), do: "You have selected an unacceptable file type."
   # coveralls-ignore-start
-  def error_to_string(:external_client_failure), do: "Couldn't upload files to S3. Open an issue on Github and contact the repo owner."
-  # coveralls-ignore-stop
+  def error_to_string(:external_client_failure),
+    do: "Couldn't upload files to S3. Open an issue on Github and contact the repo owner."
 
+  # coveralls-ignore-stop
 end

@@ -26,9 +26,9 @@ config :logger, level: :warning
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :ex_aws,
-  request_config_override: %{
-    http_client: ExAws.Request.HttpMock,
-    access_key_id: "AKIAIOSFODNN7EXAMPLE",
-    secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-  }
+# config :ex_aws,
+#   request_config_override: %{
+#     # http_client: ExAws.Request.HttpMock,
+#     # access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
+#     # secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+#   }

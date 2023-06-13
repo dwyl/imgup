@@ -15,6 +15,10 @@ defmodule App.Upload do
     filename: "my-awesome-image.png"
   }
   Uploads to `AWS S3` using `ExAws.S3.upload` and returns the result.
+  Note: this function follows the "Let it crash" philosophy.
+  Hence the "try rescue" block in the ApiController.
+  If the upload fails it will throw an error; we *want* that.
+  Log it and address it when it arises.
   """
   def upload(image) do
     # Create `CID` from file contents so filenames are unique
@@ -24,18 +28,18 @@ defmodule App.Upload do
     file_name = "#{file_cid}.#{Enum.at(MIME.extensions(image.content_type), 0)}"
 
     # Upload to S3
-    {:ok, body} = image.path
+    {:ok, body} =
+      image.path
       |> ExAws.S3.Upload.stream_file()
       |> ExAws.S3.upload("imgup-original", file_name, acl: :public_read)
       |> ExAws.request(get_ex_aws_request_config_override())
-      # |> dbg()
 
     # Sample response:
     # %{
     #   body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n
     #    <CompleteMultipartUploadResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">
-    #    <Location>https://s3.eu-west-3.amazonaws.com/imgup-original/zb2rhcoyUPqvWtbC7WaT.jpg</Location>
-    #    <Bucket>imgup-original</Bucket><Key>zb2rhco5pVyouQGX1FQFfYtiA89QswquLbcsyUPqvWtbC7WaT.jpg</Key>
+    #    <Location>https://s3.eu-west-3.amazonaws.com/imgup-original/qvWtbC7WaT.jpg</Location>
+    #    <Bucket>imgup-original</Bucket><Key>qvWtbC7WaT.jpg</Key>
     #    <ETag>\"4ecd62951576b7e5b4a3e869e5e98a0f-1\"</ETag></CompleteMultipartUploadResult>",
     #   headers: [
     #     {"x-amz-id-2",
@@ -51,19 +55,13 @@ defmodule App.Upload do
     #   ],
     #   status_code: 200
     # }
-    # case upload do
-    #   {:ok, body} ->
-        # Fetch the contents of the returned XML string from `ex_aws`.
-        # This XML is parsed with `sweet_xml`:
-        # github.com/kbrw/sweet_xml#the-x-sigil
-        url = body.body |> xpath(~x"//text()") |> List.to_string()
-        compressed_url = "#{@compressed_baseurl}#{file_name}"
-        {:ok, %{url: url, compressed_url: compressed_url}}
 
-      # return the error for handling in the controller
-    #   {:error, error} ->
-    #     {:error, error}
-    # end
+    # Fetch the contents of the returned XML string from `ex_aws`.
+    # This XML is parsed with `sweet_xml`:
+    # github.com/kbrw/sweet_xml#the-x-sigil
+    url = body.body |> xpath(~x"//text()") |> List.to_string()
+    compressed_url = "#{@compressed_baseurl}#{file_name}"
+    {:ok, %{url: url, compressed_url: compressed_url}}
   end
 
   def get_ex_aws_request_config_override,

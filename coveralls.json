@@ -7,8 +7,6 @@
     "lib/app/application.ex",
     "lib/app/release.ex",
     "lib/app_web.ex",
-    "lib/app_web/controllers/api_controller.ex",
-    "lib/app_web/controllers/api_json.ex",
     "lib/app_web/telemetry.ex",
     "lib/app_web/components/core_components.ex",
     "lib/app_web/channels/user_socket.ex"
