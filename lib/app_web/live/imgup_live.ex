@@ -31,12 +31,16 @@ defmodule AppWeb.ImgupLive do
         expires_in: :timer.hours(1)
       )
 
+    dbg(fields)
+
     meta = %{
       uploader: "S3",
       key: key,
       url: "https://#{bucket_original}.s3-#{config.region}.amazonaws.com",
       compressed_url: "https://#{bucket_compressed}.s3-#{config.region}.amazonaws.com",
       fields: fields}
+
+    dbg(meta)
     {:ok, meta, socket}
   end
 
