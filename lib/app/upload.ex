@@ -24,11 +24,11 @@ defmodule App.Upload do
     file_name = "#{file_cid}.#{Enum.at(MIME.extensions(image.content_type), 0)}"
 
     # Upload to S3
-    upload =
-      image.path
+    {:ok, body} = image.path
       |> ExAws.S3.Upload.stream_file()
       |> ExAws.S3.upload("imgup-original", file_name, acl: :public_read)
       |> ExAws.request(get_ex_aws_request_config_override())
+      # |> dbg()
 
     # Sample response:
     # %{
@@ -50,20 +50,20 @@ defmodule App.Upload do
     #     {"Server", "AmazonS3"}
     #   ],
     #   status_code: 200
-    # }}
-    case upload do
-      {:ok, body} ->
+    # }
+    # case upload do
+    #   {:ok, body} ->
         # Fetch the contents of the returned XML string from `ex_aws`.
         # This XML is parsed with `sweet_xml`:
-        # https://github.com/kbrw/sweet_xml#the-x-sigil
+        # github.com/kbrw/sweet_xml#the-x-sigil
         url = body.body |> xpath(~x"//text()") |> List.to_string()
         compressed_url = "#{@compressed_baseurl}#{file_name}"
         {:ok, %{url: url, compressed_url: compressed_url}}
 
       # return the error for handling in the controller
-      {:error, error} ->
-        {:error, error}
-    end
+    #   {:error, error} ->
+    #     {:error, error}
+    # end
   end
 
   def get_ex_aws_request_config_override,
