@@ -24,9 +24,9 @@ defmodule AppWeb.ImgupLive do
     key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
 
     config = %{
-      region: System.fetch_env!("AWS_REGION"),
-      access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
-      secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY")
+      region: System.get_env("AWS_REGION"),
+      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
     }
 
     {:ok, fields} =
