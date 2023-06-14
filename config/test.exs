@@ -31,5 +31,5 @@ config :ex_aws,
     || System.get_env("CI_AWS_ACCESS_KEY_ID"),
   secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
     || System.get_env("CI_AWS_SECRET_ACCESS_KEY"),
-  region: System.fetch_env!("AWS_REGION"),
+  region: System.get_env("AWS_REGION"),
   request_config_override: %{}
