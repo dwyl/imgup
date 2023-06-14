@@ -1,32 +1,49 @@
 <div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
   <div class="flex flex-col justify-around md:flex-row">
     <div class="flex flex-col flex-1 md:mr-4">
-
       <!-- Drag and drop -->
       <div class="space-y-12">
         <div class="border-gray-900/10 pb-12">
           <h2 class="text-base font-semibold leading-7 text-gray-900">Image Upload</h2>
-          <p class="mt-1 text-sm leading-6 text-gray-600">Drag your images and they'll be uploaded to the cloud! ☁️</p>
-          <p class="mt-1 text-sm leading-6 text-gray-600">You may add up to <%= @uploads.image_list.max_entries %> exhibits at a time.</p>
-
+          <p class="mt-1 text-sm leading-6 text-gray-600">
+            Drag your images and they'll be uploaded to the cloud! ☁️
+          </p>
+          <p class="mt-1 text-sm leading-6 text-gray-600">
+            You may add up to <%= @uploads.image_list.max_entries %> exhibits at a time.
+          </p>
           <!-- File upload section -->
-          <form class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8" phx-change="validate" phx-submit="save" id="upload-form">
-
+          <form
+            class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8"
+            phx-change="validate"
+            phx-submit="save"
+            id="upload-form"
+          >
             <div class="col-span-full">
               <div
                 class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
                 phx-drop-target={@uploads.image_list.ref}
               >
                 <div class="text-center">
-                  <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                  <svg
+                    class="mx-auto h-12 w-12 text-gray-300"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                   <div class="mt-4 flex text-sm leading-6 text-gray-600">
-                    <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
+                    <label
+                      for="file-upload"
+                      class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                    >
                       <div>
                         <label class="cursor-pointer">
-                          <.live_file_input upload={@uploads.image_list} class="hidden" />
-                          Upload
+                          <.live_file_input upload={@uploads.image_list} class="hidden" /> Upload
                         </label>
                       </div>
                     </label>
@@ -51,22 +68,22 @@
                 Upload
               </button>
             </div>
-
           </form>
         </div>
       </div>
-
       <!-- Selected files preview section -->
       <div class="mt-12">
         <h2 class="text-base font-semibold leading-7 text-gray-900">Selected files</h2>
         <ul role="list" class="divide-y divide-gray-100">
-
           <%= for entry <- @uploads.image_list.entries do %>
-
-            <progress value={entry.progress} max="100" class="w-full h-1"> <%= entry.progress %>% </progress>
-
+            <progress value={entry.progress} max="100" class="w-full h-1">
+              <%= entry.progress %>%
+            </progress>
             <!-- Entry information -->
-            <li class="pending-upload-item relative flex justify-between gap-x-6 py-5" id={"entry-#{entry.ref}"}>
+            <li
+              class="pending-upload-item relative flex justify-between gap-x-6 py-5"
+              id={"entry-#{entry.ref}"}
+            >
               <div class="flex gap-x-4">
                 <.live_img_preview entry={entry} class="h-auto w-12 flex-none bg-gray-50" />
                 <div class="min-w-0 flex-auto">
@@ -78,33 +95,52 @@
               </div>
               <div
                 class="flex items-center gap-x-4 cursor-pointer z-10"
-                phx-click="remove-selected" phx-value-ref={entry.ref}
+                phx-click="remove-selected"
+                phx-value-ref={entry.ref}
                 id={"close_pic-#{entry.ref}"}
               >
-                <svg fill="#cfcfcf" height="10" width="10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                  viewBox="0 0 460.775 460.775" xml:space="preserve">
+                <svg
+                  fill="#cfcfcf"
+                  height="10"
+                  width="10"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  viewBox="0 0 460.775 460.775"
+                  xml:space="preserve"
+                >
                   <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55
                     c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55
                     c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505
                     c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55
                     l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719
-                    c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z"/>
+                    c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z" />
                 </svg>
               </div>
             </li>
-
             <!-- Entry errors -->
             <div>
               <%= for err <- upload_errors(@uploads.image_list, entry) do %>
                 <div class="rounded-md bg-red-50 p-4 mb-2">
                   <div class="flex">
                     <div class="flex-shrink-0">
-                      <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                      <svg
+                        class="h-5 w-5 text-red-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                          clip-rule="evenodd"
+                        />
                       </svg>
                     </div>
                     <div class="ml-3">
-                      <h3 class="text-sm font-medium text-red-800"><%= error_to_string(err) %></h3>
+                      <h3 class="text-sm font-medium text-red-800">
+                        <%= error_to_string(err) %>
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -113,53 +149,66 @@
           <% end %>
         </ul>
       </div>
-
     </div>
 
-    <div class='flex flex-col flex-1 mt-10 md:mt-0 md:ml-4'>
-        <h2 class="text-base font-semibold leading-7 text-gray-900">Uploaded files</h2>
-        <p class="mt-1 text-sm leading-6 text-gray-600">Your uploaded images will appear here below!</p>
-        <p class="mt-1 text-sm leading-6 text-gray-600">These images are located in the S3 bucket! 🪣</p>
+    <div class="flex flex-col flex-1 mt-10 md:mt-0 md:ml-4">
+      <h2 class="text-base font-semibold leading-7 text-gray-900">Uploaded files</h2>
+      <p class="mt-1 text-sm leading-6 text-gray-600">
+        Your uploaded images will appear here below!
+      </p>
+      <p class="mt-1 text-sm leading-6 text-gray-600">
+        These images are located in the S3 bucket! 🪣
+      </p>
 
-        <ul role="list" class="divide-y divide-gray-100">
-          <%= for file <- @uploaded_files do %>
-
-            <!-- Entry information -->
-            <li class="uploaded-item relative flex justify-between gap-x-6 py-5" id={"uploaded-#{file.key}"}>
-              <div class="flex gap-x-4">
-                <!--
+      <ul role="list" class="divide-y divide-gray-100">
+        <%= for file <- @uploaded_files do %>
+          <!-- Entry information -->
+          <li
+            class="uploaded-item relative flex justify-between gap-x-6 py-5"
+            id={"uploaded-#{file.key}"}
+          >
+            <div class="flex gap-x-4">
+              <!--
                 Try to load the compressed image from S3. This is because the compression might take some time, so we retry until it's available
                 See https://stackoverflow.com/questions/19673254/js-jquery-retry-img-load-after-1-second.
                 -->
-                <img class="block max-w-12 max-h-12 w-auto h-auto flex-none bg-gray-50" src={file.compressed_url} onerror="imgError(this);" >
-                <div class="min-w-0 flex-auto">
-                  <p>
-                    <span class="text-sm font-semibold leading-6 break-all text-gray-900">Original URL:</span>
-                    <a
-                      class="text-sm leading-6 break-all underline text-indigo-600"
-                      href={file.public_url}
-                      target="_blank" rel="noopener noreferrer"
-                    >
-                      <%= file.public_url %>
-                    </a>
-                  </p>
-                  <p>
-                    <span class="text-sm font-semibold leading-6 break-all text-gray-900">Compressed URL:</span>
-                    <a
-                      class="text-sm leading-6 break-all underline text-indigo-600"
-                      href={file.compressed_url}
-                      target="_blank" rel="noopener noreferrer"
-                    >
-                      <%= file.compressed_url %>
-                    </a>
-                  </p>
-                </div>
+              <img
+                class="block max-w-12 max-h-12 w-auto h-auto flex-none bg-gray-50"
+                src={file.compressed_url}
+                onerror="imgError(this);"
+              />
+              <div class="min-w-0 flex-auto">
+                <p>
+                  <span class="text-sm font-semibold leading-6 break-all text-gray-900">
+                    Original URL:
+                  </span>
+                  <a
+                    class="text-sm leading-6 break-all underline text-indigo-600"
+                    href={file.public_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <%= file.public_url %>
+                  </a>
+                </p>
+                <p>
+                  <span class="text-sm font-semibold leading-6 break-all text-gray-900">
+                    Compressed URL:
+                  </span>
+                  <a
+                    class="text-sm leading-6 break-all underline text-indigo-600"
+                    href={file.compressed_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <%= file.compressed_url %>
+                  </a>
+                </p>
               </div>
-            </li>
-
-          <% end %>
-        </ul>
+            </div>
+          </li>
+        <% end %>
+      </ul>
     </div>
-
   </div>
 </div>

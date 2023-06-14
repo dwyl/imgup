@@ -1,6 +1,6 @@
 <div align="center">
 
-# Upload images to `AWS S3` via  `Phoenix LiveView`
+# `image uploads`
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/imgup/ci.yml?label=build&style=flat-square&branch=main)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/imgup/main.svg?style=flat-square)](https://codecov.io/github/dwyl/imgup?branch=main)
@@ -15,7 +15,7 @@ using `Phoenix + LiveView`.
 
 <br />
 
-- [Upload images to `AWS S3` via  `Phoenix LiveView`](#upload-images-to-aws-s3-via--phoenix-liveview)
+- [`image uploads`](#image-uploads)
 - [Why? 🤷](#why-)
 - [What? 💭](#what-)
 - [Who? 👤](#who-)
@@ -148,9 +148,15 @@ and add your credentials to it:
 ```sh
 export AWS_ACCESS_KEY_ID='YOUR_KEY'
 export AWS_SECRET_ACCESS_KEY='YOUR_KEY'
+export AWS_REGION='eu-west-3'
 ```
 
 In your terminal, run `source .env` to export the keys.
+We are assuming all of the resources created in your application
+will be on the same reason.
+This env variable will be used on two different occasions:
+- on our LiveView.
+- on our API (check [`api.md`](api.md)) with a package called `ex_aws`.
 
 
 ### 3. Download the Dependencies and Run the App!
@@ -695,9 +701,9 @@ parameter of `allow_upload/3`.
     key = "public/#{entry.client_name}"
 
     config = %{
-      region: "eu-west-3",
-      access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
-      secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY")
+      region: System.get_env("AWS_REGION"),
+      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
     }
 
     {:ok, fields} =
@@ -714,7 +720,7 @@ parameter of `allow_upload/3`.
 ```
 
 This function will be called
-everytime the person wants to
+every time the person wants to
 *upload the selected files to `AWS S3` bucket, 
 i.e. presses the "Upload" button.
 
@@ -2195,8 +2201,8 @@ Change it like so:
 
     config = %{
       region: "eu-west-3",
-      access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
-      secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY")
+      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
     }
 
     {:ok, fields} =

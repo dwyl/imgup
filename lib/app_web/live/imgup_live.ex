@@ -6,7 +6,13 @@ defmodule AppWeb.ImgupLive do
     {:ok,
      socket
      |> assign(:uploaded_files, [])
-     |> allow_upload(:image_list, accept: ~w(image/*), max_entries: 6, chunk_size: 64_000, max_file_size: 5_000_000, external: &presign_upload/2)}
+     |> allow_upload(:image_list,
+       accept: ~w(image/*),
+       max_entries: 6,
+       chunk_size: 64_000,
+       max_file_size: 5_000_000,
+       external: &presign_upload/2
+     )}
   end
 
   # Adding presign for each entry for S3 upload --------
@@ -18,9 +24,9 @@ defmodule AppWeb.ImgupLive do
     key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
 
     config = %{
-      region: "eu-west-3",
-      access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
-      secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY")
+      region: System.get_env("AWS_REGION"),
+      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
     }
 
     {:ok, fields} =
@@ -36,10 +42,11 @@ defmodule AppWeb.ImgupLive do
       key: key,
       url: "https://#{bucket_original}.s3-#{config.region}.amazonaws.com",
       compressed_url: "https://#{bucket_compressed}.s3-#{config.region}.amazonaws.com",
-      fields: fields}
+      fields: fields
+    }
+
     {:ok, meta, socket}
   end
-
 
   # Event handlers -------
 
@@ -55,16 +62,16 @@ defmodule AppWeb.ImgupLive do
 
   @impl true
   def handle_event("save", _params, socket) do
+    uploaded_files =
+      consume_uploaded_entries(socket, :image_list, fn %{uploader: _} = meta, _entry ->
+        public_url = meta.url <> "/#{meta.key}"
+        compressed_url = meta.compressed_url <> "/#{meta.key}"
 
-    uploaded_files = consume_uploaded_entries(socket, :image_list, fn %{uploader: _} = meta, _entry ->
-      public_url = meta.url <> "/#{meta.key}"
-      compressed_url = meta.compressed_url <> "/#{meta.key}"
+        meta = Map.put(meta, :public_url, public_url)
+        meta = Map.put(meta, :compressed_url, compressed_url)
 
-      meta = Map.put(meta, :public_url, public_url)
-      meta = Map.put(meta, :compressed_url, compressed_url)
-
-      {:ok, meta}
-    end)
+        {:ok, meta}
+      end)
 
     {:noreply, update(socket, :uploaded_files, &(&1 ++ uploaded_files))}
   end
@@ -79,7 +86,8 @@ defmodule AppWeb.ImgupLive do
   def error_to_string(:too_large), do: "Too large."
   def error_to_string(:not_accepted), do: "You have selected an unacceptable file type."
   # coveralls-ignore-start
-  def error_to_string(:external_client_failure), do: "Couldn't upload files to S3. Open an issue on Github and contact the repo owner."
-  # coveralls-ignore-stop
+  def error_to_string(:external_client_failure),
+    do: "Couldn't upload files to S3. Open an issue on Github and contact the repo owner."
 
+  # coveralls-ignore-stop
 end

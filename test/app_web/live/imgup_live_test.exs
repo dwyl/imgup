@@ -3,7 +3,7 @@ defmodule AppWeb.ImgupLiveTest do
   import Phoenix.LiveViewTest
 
   test "connected mount", %{conn: conn} do
-    conn = get(conn, "/")
+    conn = get(conn, "/liveview")
     assert html_response(conn, 200) =~ "Image Upload"
 
     {:ok, _view, _html} = live(conn)
@@ -11,7 +11,7 @@ defmodule AppWeb.ImgupLiveTest do
 
   test "file input and remove it from selected entries", %{conn: conn} do
     # Connect to LiveView
-    {:ok, live_view, _html} = live(conn, ~p"/")
+    {:ok, live_view, _html} = live(conn, ~p"/liveview")
 
     # Build the upload input
     upload =
@@ -26,19 +26,19 @@ defmodule AppWeb.ImgupLiveTest do
 
     # Assert on pending upload entry
     assert live_view
-            |> has_element?("#entry-#{entry_ref}")
+           |> has_element?("#entry-#{entry_ref}")
 
     # Click on the remove button
     live_view |> element("#close_pic-#{entry_ref}") |> render_click()
 
     # Assert that no pending images should be found
     refute live_view
-    |> has_element?("#entry-#{entry_ref}")
+           |> has_element?("#entry-#{entry_ref}")
   end
 
   test "file input errors - file too large", %{conn: conn} do
     # Connect to LiveView
-    {:ok, live_view, _html} = live(conn, ~p"/")
+    {:ok, live_view, _html} = live(conn, ~p"/liveview")
 
     # Build the upload input
     upload =
@@ -55,7 +55,7 @@ defmodule AppWeb.ImgupLiveTest do
 
   test "file input errors - unnaceptable file type", %{conn: conn} do
     # Connect to LiveView
-    {:ok, live_view, _html} = live(conn, ~p"/")
+    {:ok, live_view, _html} = live(conn, ~p"/liveview")
 
     # Build the upload input
     upload =
@@ -70,11 +70,10 @@ defmodule AppWeb.ImgupLiveTest do
     assert view =~ "You have selected an unacceptable file type."
   end
 
-
   import AppWeb.UploadSupport
 
   test "uploading a file", %{conn: conn} do
-    {:ok, lv, html} = live(conn, ~p"/")
+    {:ok, lv, html} = live(conn, ~p"/liveview")
     assert html =~ "Image Upload"
 
     # Get file and add it to the form
@@ -86,14 +85,14 @@ defmodule AppWeb.ImgupLiveTest do
     image = file_input(lv, "#upload-form", :image_list, [file])
 
     assert render_upload(image, file.name)
-      |> Floki.parse_document!()
-      |> Floki.find(".pending-upload-item")
-      |> length() == 1
+           |> Floki.parse_document!()
+           |> Floki.find(".pending-upload-item")
+           |> length() == 1
 
     # Render submit
     lv
-      |> form("#upload-form", [])
-      |> render_submit()
+    |> form("#upload-form", [])
+    |> render_submit()
 
     # We need a render for the latent changes.
     # For some reason, we need to do this to verify if the form is devoid of selected entries
@@ -101,11 +100,11 @@ defmodule AppWeb.ImgupLiveTest do
 
     # Uploaded files should show and selected should be empty
     assert doc
-      |> Floki.find(".uploaded-item")
-      |> length() == 1
+           |> Floki.find(".uploaded-item")
+           |> length() == 1
 
     assert doc
-      |> Floki.find(".pending-upload-item")
-      |> length() == 0
+           |> Floki.find(".pending-upload-item")
+           |> length() == 0
   end
 end
