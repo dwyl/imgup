@@ -39,10 +39,12 @@ jobs:
     - name: Run Tests
       run: mix coveralls.json
       env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: eu-west-3
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MIX_ENV: test
-        AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
 
