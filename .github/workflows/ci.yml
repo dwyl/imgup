@@ -22,29 +22,6 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-    # https://github.com/dwyl/imgup/issues/67
-    # - name: Set AWS Env Vars
-    #   run: |
-    #     echo "::set-env name=AWS_ACCESS_KEY_ID::${{ secrets.CI_AWS_ACCESS_KEY_ID }}"
-    #     echo "::set-env name=AWS_SECRET_ACCESS_KEY::${{ secrets.CI_AWS_SECRET_ACCESS_KEY }}"
-    # https://github.com/aws-actions/configure-aws-credentials
-    # - name: Configure AWS Credentials
-    #   uses: aws-actions/configure-aws-credentials@v2
-    #   with:
-    #     role-to-assume: arn:aws:iam::110797354241:role/github-actions-role
-    #     aws-region: us-east-3
-    #     aws-access-key-id: ${{ env.CI_AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ env.CI_AWS_SECRET_ACCESS_KEY }}
-
-    # - name: Confirm Environment Variables Available
-    #   run: |
-    #     echo "Why is this so difficult?!"
-    #   env:
-    #     AWS_ACCESS_KEY_ID: ${{ secrets.CI_AWS_ACCESS_KEY_ID }}
-    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.CI_AWS_SECRET_ACCESS_KEY }}
-    #     AWS_REGION: eu-west-3
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     MIX_ENV: test
     - uses: actions/checkout@v2
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
@@ -63,8 +40,9 @@ jobs:
       run: mix coveralls.json
       env:
         MIX_ENV: test
-        AWS_ACCESS_KEY_ID: ${{ secrets.CI_AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.CI_AWS_SECRET_ACCESS_KEY }}
+        # https://github.com/dwyl/imgup/issues/67
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: eu-west-3
 
     - name: Upload coverage to Codecov
@@ -80,8 +58,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v2
       - uses: superfly/flyctl-actions@1.1
