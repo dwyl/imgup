@@ -28,13 +28,13 @@ jobs:
     #     echo "::set-env name=AWS_ACCESS_KEY_ID::${{ secrets.CI_AWS_ACCESS_KEY_ID }}"
     #     echo "::set-env name=AWS_SECRET_ACCESS_KEY::${{ secrets.CI_AWS_SECRET_ACCESS_KEY }}"
     # https://github.com/aws-actions/configure-aws-credentials
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::110797354241:role/github-actions-role
-        aws-region: us-east-3
-        aws-access-key-id: ${{ env.CI_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.CI_AWS_SECRET_ACCESS_KEY }}
+    # - name: Configure AWS Credentials
+    #   uses: aws-actions/configure-aws-credentials@v2
+    #   with:
+    #     role-to-assume: arn:aws:iam::110797354241:role/github-actions-role
+    #     aws-region: us-east-3
+    #     aws-access-key-id: ${{ env.CI_AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ env.CI_AWS_SECRET_ACCESS_KEY }}
     - uses: actions/checkout@v2
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
