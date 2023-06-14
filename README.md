@@ -701,9 +701,9 @@ parameter of `allow_upload/3`.
     key = "public/#{entry.client_name}"
 
     config = %{
-      region: System.fetch_env!("AWS_REGION"),
-      access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
-      secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY")
+      region: System.get_env("AWS_REGION"),
+      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
     }
 
     {:ok, fields} =
@@ -2201,8 +2201,8 @@ Change it like so:
 
     config = %{
       region: "eu-west-3",
-      access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
-      secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY")
+      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
     }
 
     {:ok, fields} =
