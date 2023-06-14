@@ -33,8 +33,8 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::110797354241:role/github-actions-role
         aws-region: us-east-3
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ env.CI_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.CI_AWS_SECRET_ACCESS_KEY }}
     - uses: actions/checkout@v2
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
