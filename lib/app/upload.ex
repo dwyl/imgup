@@ -4,8 +4,7 @@ defmodule App.Upload do
   """
   import SweetXml
 
-  @region Application.get_env(:ex_aws, :region)
-  @compressed_baseurl "https://s3.#{@region}.amazonaws.com/imgup-compressed/"
+  @compressed_baseurl "https://s3.eu-west-3.amazonaws.com/imgup-compressed/"
 
   @doc """
   `upload/1` receives an `image` with the format
