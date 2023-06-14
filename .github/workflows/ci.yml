@@ -23,10 +23,10 @@ jobs:
           --health-retries 5
     steps:
     # https://github.com/dwyl/imgup/issues/67
-    - name: Set AWS Env Vars
-      run: |
-        echo "::set-env name=AWS_ACCESS_KEY_ID::${{ secrets.CI_AWS_ACCESS_KEY_ID }}"
-        echo "::set-env name=AWS_SECRET_ACCESS_KEY::${{ secrets.CI_AWS_SECRET_ACCESS_KEY }}"
+    # - name: Set AWS Env Vars
+    #   run: |
+    #     echo "::set-env name=AWS_ACCESS_KEY_ID::${{ secrets.CI_AWS_ACCESS_KEY_ID }}"
+    #     echo "::set-env name=AWS_SECRET_ACCESS_KEY::${{ secrets.CI_AWS_SECRET_ACCESS_KEY }}"
     # https://github.com/aws-actions/configure-aws-credentials
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
