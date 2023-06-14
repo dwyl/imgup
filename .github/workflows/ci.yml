@@ -35,6 +35,16 @@ jobs:
     #     aws-region: us-east-3
     #     aws-access-key-id: ${{ env.CI_AWS_ACCESS_KEY_ID }}
     #     aws-secret-access-key: ${{ env.CI_AWS_SECRET_ACCESS_KEY }}
+
+    - name: Confirm Environment Variables Available
+      run: |
+        echo "Why is this so difficult?!"
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.CI_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.CI_AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: eu-west-3
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MIX_ENV: test
     - uses: actions/checkout@v2
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
@@ -52,10 +62,6 @@ jobs:
     - name: Run Tests
       run: mix coveralls.json
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.CI_AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.CI_AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: eu-west-3
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MIX_ENV: test
 
     - name: Upload coverage to Codecov
