@@ -19,7 +19,6 @@ defmodule AppWeb.PageController do
   defp check_env(keys) do
     Enum.reduce(keys, %{}, fn key, acc ->
       src = "https://raw.githubusercontent.com/dwyl/auth/main/assets/static/images/#{Envar.is_set?(key)}.png"
-      IO.inspect(src)
       Map.put(acc, key, src)
     end)
   end
