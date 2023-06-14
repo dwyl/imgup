@@ -17,7 +17,6 @@ Learn how upload `images` via a `REST API` in a `Phoenix` App.
   - [2.2 _Use_ the `upload/1` function in `ApiController`](#22-use-the-upload1-function-in-apicontroller)
 - [3. Limiting filetype and size](#3-limiting-filetype-and-size)
 - [4. Testing the `API` from `Hoppscotch`](#4-testing-the-api-from-hoppscotch)
-- [5. Saving the image with the `CID` of its contents](#5-saving-the-image-with-the-cid-of-its-contents)
 
 
 
@@ -135,76 +134,40 @@ defmodule App.Upload do
   @region Application.compile_env(:ex_aws, :region)
   @compressed_baseurl "https://s3.#{@region}.amazonaws.com/imgup-compressed/"
 
-  @doc """
-  `upload/1` receives an `image` with the format
-  %{
-    path: "/var/folders/0n/g78kfqfx4vn65p_2kl7fmtl00000gn/T/plug-1686/multipart-1686652824",
-    content_type: "image/png",
-    filename: "my-awesome-image.png"
-  }
-  Uploads to `AWS S3` using `ExAws.S3.upload` and returns the result.
-  """
   def upload(image) do
-    # Create `CID` from file contents
+    # Create `CID` from file contents so filenames are unique
+    #
     {:ok, file_binary} = File.read(image.path)
     file_cid = Cid.cid(file_binary)
     file_name = "#{file_cid}.#{Enum.at(MIME.extensions(image.content_type), 0)}"
 
     # Upload to S3
-    response = image.path
-    |> ExAws.S3.Upload.stream_file()
-    |> ExAws.S3.upload("imgup-original", file_name, acl: :public_read)
-    |> ExAws.request(get_ex_aws_request_config_override())
+    {:ok, body} =
+      image.path
+      |> ExAws.S3.Upload.stream_file()
+      |> ExAws.S3.upload("imgup-original", file_name, acl: :public_read)
+      |> ExAws.request(get_ex_aws_request_config_override())
 
-    # Sample response:
-    # %{
-    #   body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n
-    #    <CompleteMultipartUploadResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">
-    #    <Location>https://s3.eu-west-3.amazonaws.com/imgup-original/zb2rhcoyUPqvWtbC7WaT.jpg</Location>
-    #    <Bucket>imgup-original</Bucket><Key>zb2rhco5pVyouQGX1FQFfYtiA89QswquLbcsyUPqvWtbC7WaT.jpg</Key>
-    #    <ETag>\"4ecd62951576b7e5b4a3e869e5e98a0f-1\"</ETag></CompleteMultipartUploadResult>",
-    #   headers: [
-    #     {"x-amz-id-2",
-    #      "wNTNZKt82vgnOuT1o2Tz8z3gcRzd6wXofYxQmBUkGbBGTpmv1WbwjjGiRAUtOTYIm92bh/VJHhI="},
-    #     {"x-amz-request-id", "QRENBY1MJTQWD7CZ"},
-    #     {"Date", "Tue, 13 Jun 2023 10:22:44 GMT"},
-    #     {"x-amz-expiration",
-    #      "expiry-date=\"Thu, 15 Jun 2023 00:00:00 GMT\", rule-id=\"delete-after-1-day\""},
-    #     {"x-amz-server-side-encryption", "AES256"},
-    #     {"Content-Type", "application/xml"},
-    #     {"Transfer-Encoding", "chunked"},
-    #     {"Server", "AmazonS3"}
-    #   ],
-    #   status_code: 200
-    # }}
-    case response do
-      {:ok, body} ->
-        # Fetch the contents of the returned XML string from `ex_aws`.
-        # This XML is parsed with `sweet_xml`:
-        # https://github.com/kbrw/sweet_xml#the-x-sigil
-        url = body.body |> xpath(~x"//text()") |> List.to_string()
-        compressed_url = "#{@compressed_baseurl}#{file_name}"
-        {:ok, %{url: url, compressed_url: compressed_url}}
-
-      # return the error for handling in the controller
-      {:error, error} ->
-        {:error, error}
-      end
+    # Fetch the contents of the returned XML string from `ex_aws`.
+    # This XML is parsed with `sweet_xml`:
+    # github.com/kbrw/sweet_xml#the-x-sigil
+    url = body.body |> xpath(~x"//text()") |> List.to_string()
+    compressed_url = "#{@compressed_baseurl}#{file_name}"
+    {:ok, %{url: url, compressed_url: compressed_url}}
   end
 
   def get_ex_aws_request_config_override,
     do: Application.get_env(:ex_aws, :request_config_override)
 end
+
 ```
 
 The `upload/1` function uses a `Content ID` (`cid`)
 as the filename for the uploaded `image`. 
-
-We are creating a `cid` from the contents of the image.
-We then use this `cid` and concatenate with the extension of the 
+Use the `cid` and concatenate with the extension of the 
 *content type of the image*.
 This way, we'll have a cid with the correct format,
-e.g. `zb2rhhPShfsYqzqYPG8wxnsb4zNe2HxDrqKRxU6wSWQQWMHsZ.jpg`.
+e.g: `zb2rhhPShfsYqzqYPG8wxnsb4zNe2HxDrqKRxU6wSWQQWMHsZ.jpg`.
 
 
 To parse the `XML` response returned by `AWS`,
@@ -347,51 +310,74 @@ is automatically parsed in our API.
 which we can use to check if the file is an `image`.
 
 Open `lib/app_web/controllers/api_controller.ex`
-and change the `def create(conn, %{"image" => image})` function
-to:
+and replace the contents with:
 
 ```elixir
-def create(conn, %{"image" => image}) do
-    # Check if file is an image
-    if String.contains?(image.content_type, "image") do
-      #  Upload to S3
-      case App.Upload.upload(image) do
-        {:ok, body} ->
-          render(conn, :success, body)
+defmodule AppWeb.ApiController do
+  use AppWeb, :controller
+  require Logger
 
-        {:error, error} ->
-          {_error_atom, http_code, body} = error
-          render(conn |> put_status(http_code), body)
+  def create(conn, %{"" => params}) do
+    # check if content_type e.g: "image/png"
+    if String.contains?(params.content_type, "image") do
+      try do
+        {:ok, body} = App.Upload.upload(params)
+        render(conn, :success, body)
+      rescue
+        e ->
+          Logger.error(Exception.format(:error, e, __STACKTRACE__))
+          render(conn |> put_status(400), %{body: "Error uploading file #26"})
       end
-
-      # If it's not an image, return 400
     else
-      render(conn |> put_status(400), %{body: "File is not an image."})
+      render(conn |> put_status(400), %{body: "Uploaded file is not a valid image."})
     end
   end
 
+  # preserve backward compatibility with "image" keyword:
+  def create(conn, %{"image" => image}) do
+    create(conn, %{"" => image})
+  end
+end
 ```
 
 This is checking the filetype of the uploaded file
 and providing feedback *back to the person*!
 
-
-
 # 4. Testing the `API` from `Hoppscotch` 
 
-Once you've saved 
+Once you've saved all the files, 
+run the app with the command: 
 
-Awesome!
-Now if you run `mix phx.server`
-and make a `multipart/form-data` request
-(we recommend using a tool like 
-[`Postman`](https://www.postman.com/) or [`Hoppscotch`](https://hoppscotch.io/) - which is open-source!),
-you should see a public URL after loading an image file!
+```sh
+mix s
+```
+
+Open `Hoppscotch` on your `localhost` and prepare to upload!
+
+> **Note**: if you're new to using `Hoppscotch` for `API` testing, 
+> see: 
+> [`hoppscotch.md`](https://github.com/dwyl/mvp/blob/main/lib/api/hoppscotch.md)
+> For uploading files see:
+> https://docs.hoppscotch.io/documentation/getting-started/rest/uploading-data/
+
+
+1. Create a `POST` request with the `URL`: `http://localhost:4000/api/images`.
+2. Set the `Content Type` to `multipart/form-data` and 
+3. Select a file to upload
+
+![imgup-hoppscotch-upload-via-api](https://github.com/dwyl/imgup/assets/194400/c6d529bf-effd-40b4-9a5d-e5760c199344)
+
+
+You should see a public `URL` after uploading an `image` file:
 
 ```json
 {
-  "url": "https://s3.eu-west-3.amazonaws.com/imgup-original/115faa2f5cbe273cfc9fbcffd44b7eab.1000x1000x1.jpg"
+  "compressed_url":
+    "https://s3.eu-west-3.amazonaws.com/imgup-compressed/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png",
+  "url":
+    "https://s3.eu-west-3.amazonaws.com/imgup-original/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png"
 }
+
 ```
 
 If the person makes an invalid input,
@@ -409,32 +395,6 @@ if you try to upload another file other than an image:
 
 Or an image size that's too large,
 you'll get an `413 Request Entity Too Large` error.
-
-
-# 5. Saving the image with the `CID` of its contents
-
-Similarly to what we've done to the `LiveView`,
-we want our images to have its name
-**as the `CID` of the image's contents**.
-
-To do this, it's quite simple!
-Visit `lib/app_web/controllers/api_controller.ex`
-and change the `create` function like so:
-
-```elixir
-    if fileIsAnImage do
-
-      # Create `CID` from file contents
-      {:ok, file_binary} = File.read(image.path)
-      file_cid = Cid.cid(file_binary)
-      file_name = "#{file_cid}.#{Enum.at(MIME.extensions(image.content_type), 0)}"
-
-      # Upload to S3
-      upload = image.path
-      |> ExAws.S3.Upload.stream_file()
-      |> ExAws.S3.upload("imgup-original", file_name, acl: :public_read)
-      |> ExAws.request(get_ex_aws_request_config_override())
-```
 
 
 

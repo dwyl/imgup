@@ -1,9 +1,6 @@
 defmodule App.UploadTest do
   use ExUnit.Case, async: true
 
-  # @valid_aws_access_key_id System.fetch_env!("AWS_ACCESS_KEY_ID")
-  # @invalid_aws_access_key "AKIAIOSFODNN7EXAMPLE"
-
   test "upload/1 happy path REAL Upload" do
     image = %Plug.Upload{
       content_type: "image/png",
