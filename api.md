@@ -14,7 +14,8 @@ Learn how upload `images` via a `REST API` in a `Phoenix` App.
 - [1. Add `/api` scope and pipeline and setting up controller](#1-add-api-scope-and-pipeline-and-setting-up-controller)
 - [2. Uploading to `S3` Bucket using `ex_aws_s3`](#2-uploading-to-s3-bucket-using-ex_aws_s3)
   - [2.1 Create Reusable `DRY` Upload Function](#21-create-reusable-dry-upload-function)
-  - [2.2 _Use_ the `upload/1` function in `ApiController`](#22-use-the-upload1-function-in-apicontroller)
+  - [2.2 _Test_ the `upload/1` function](#22-test-the-upload1-function)
+  - [2.3 _Use_ the `upload/1` function in `ApiController`](#23-use-the-upload1-function-in-apicontroller)
 - [3. Limiting filetype and size](#3-limiting-filetype-and-size)
 - [4. Testing the `API` from `Hoppscotch`](#4-testing-the-api-from-hoppscotch)
 
@@ -176,7 +177,46 @@ is used.
 The response has a `<Location>` tag,
 which is the `URL` we are returning.
 
-## 2.2 _Use_ the `upload/1` function in `ApiController`
+
+## 2.2 _Test_ the `upload/1` function
+
+Create a test file `test/app/upload_test.exs`
+and add the following code to it:
+
+```elixir
+defmodule App.UploadTest do
+  use ExUnit.Case, async: true
+
+  test "upload/1 happy path REAL Upload" do
+    image = %Plug.Upload{
+      content_type: "image/png",
+      filename: "phoenix.png",
+      path: [:code.priv_dir(:app), "static", "images", "phoenix.png"] |> Path.join()
+    }
+
+    expected_response = %{
+      compressed_url:
+        "https://s3.eu-west-3.amazonaws.com/imgup-compressed/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png",
+      url:
+        "https://s3.eu-west-3.amazonaws.com/imgup-original/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png"
+    }
+
+    assert App.Upload.upload(image) == {:ok, expected_response}
+  end
+end
+```
+
+Run the test with:
+
+```sh
+mix test test/app/upload_test.exs
+```
+
+> **Note**: this is an end-to-end test that uploads a _real_ file to `S3`, no "mocks".
+> So you will need to have the environment variables defined for this to work. 
+
+
+## 2.3 _Use_ the `upload/1` function in `ApiController`
 
 In `lib/app_web/controllers/api_controller.ex`, 
 change it to the following piece of code: 
@@ -184,40 +224,27 @@ change it to the following piece of code:
 ```elixir
 defmodule AppWeb.ApiController do
   use AppWeb, :controller
+  require Logger
 
-  def create(conn, %{"image" => image}) do
-    # Check if file is an image
-    if String.contains?(image.content_type, "image") do
-      #  Upload to S3
-      case App.Upload.upload(image) do
-        {:ok, body} ->
-          render(conn, :success, body)
-
-        {:error, error} ->
-          {_error_atom, http_code, body} = error
-          render(conn |> put_status(http_code), body)
-      end
-
-      # If it's not an image, return 400
-    else
-      render(conn |> put_status(400), %{body: "File is not an image."})
-    end
-  end
-
-  # handle *any* uploaded data even without "image" key
   def create(conn, %{"" => params}) do
     # check if content_type e.g: "image/png"
     if String.contains?(params.content_type, "image") do
-      create(conn, %{
-        "image" => %{
-          content_type: params.content_type,
-          path: params.path,
-          filename: params.filename
-        }
-      })
+      try do
+        {:ok, body} = App.Upload.upload(params)
+        render(conn, :success, body)
+      rescue
+        e ->
+          Logger.error(Exception.format(:error, e, __STACKTRACE__))
+          render(conn |> put_status(400), %{body: "Error uploading file #26"})
+      end
     else
-      render(conn |> put_status(400), :field_error)
+      render(conn |> put_status(400), %{body: "Uploaded file is not a valid image."})
     end
+  end
+
+  # preserve backward compatibility with "image" keyword:
+  def create(conn, %{"image" => image}) do
+    create(conn, %{"" => image})
   end
 end
 ```
@@ -309,39 +336,6 @@ is automatically parsed in our API.
 `params` has a field called `content_type`, 
 which we can use to check if the file is an `image`.
 
-Open `lib/app_web/controllers/api_controller.ex`
-and replace the contents with:
-
-```elixir
-defmodule AppWeb.ApiController do
-  use AppWeb, :controller
-  require Logger
-
-  def create(conn, %{"" => params}) do
-    # check if content_type e.g: "image/png"
-    if String.contains?(params.content_type, "image") do
-      try do
-        {:ok, body} = App.Upload.upload(params)
-        render(conn, :success, body)
-      rescue
-        e ->
-          Logger.error(Exception.format(:error, e, __STACKTRACE__))
-          render(conn |> put_status(400), %{body: "Error uploading file #26"})
-      end
-    else
-      render(conn |> put_status(400), %{body: "Uploaded file is not a valid image."})
-    end
-  end
-
-  # preserve backward compatibility with "image" keyword:
-  def create(conn, %{"image" => image}) do
-    create(conn, %{"" => image})
-  end
-end
-```
-
-This is checking the filetype of the uploaded file
-and providing feedback *back to the person*!
 
 # 4. Testing the `API` from `Hoppscotch` 
 

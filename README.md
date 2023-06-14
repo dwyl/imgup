@@ -1,6 +1,6 @@
 <div align="center">
 
-# Upload images to `AWS S3` via  `Phoenix LiveView`
+# `image uploads`
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/imgup/ci.yml?label=build&style=flat-square&branch=main)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/imgup/main.svg?style=flat-square)](https://codecov.io/github/dwyl/imgup?branch=main)
@@ -15,7 +15,7 @@ using `Phoenix + LiveView`.
 
 <br />
 
-- [Upload images to `AWS S3` via  `Phoenix LiveView`](#upload-images-to-aws-s3-via--phoenix-liveview)
+- [`image uploads`](#image-uploads)
 - [Why? 🤷](#why-)
 - [What? 💭](#what-)
 - [Who? 👤](#who-)
