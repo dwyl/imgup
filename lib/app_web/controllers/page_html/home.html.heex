@@ -48,3 +48,30 @@
     </div>
   </div>
 </div>
+
+<div class="">
+  <h1 class="">Initialization</h1>
+
+  <h2 class="">
+    <code>init</code>: <%= @init %> </h2>
+  
+  <table class="w-80 mw5 mw7-ns center">
+    <thead>
+      <tr class="bb b--silver">
+        <th class="tl pv3 f3">REQUIRED Environment Variable</th>
+        <th class="tl pv3 f3">Defined?</th>
+      </tr>
+    </thead>
+    <tbody>
+  
+  <%= for {key, val} <- @env do %>
+    <tr class="bb b--moon-gray">
+      <td class=""><pre class="mono bold"><%= key %></pre></td>
+      <td class="center pl4">
+        <img width="30px" src={"#{val}"}>
+      </td>
+    </tr>
+  <% end %>
+    </tbody>
+  </table>
+</div>

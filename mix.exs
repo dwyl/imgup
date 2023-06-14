@@ -49,6 +49,7 @@ defmodule App.MixProject do
       {:phoenix_html, "~> 3.3"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.19.0"},
+      {:phoenix_view, "~> 2.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
@@ -72,7 +73,10 @@ defmodule App.MixProject do
       {:mox, "~> 1.0", only: :test},
 
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.11.1"}
+      {:useful, "~> 1.11.1"},
+
+      # Check/get Environment Variables: github.com/dwyl/envar
+      {:envar, "~> 1.1.0"},
     ]
   end
 
