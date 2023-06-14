@@ -30,7 +30,7 @@ defmodule App.Upload do
     {:ok, body} =
       image.path
       |> ExAws.S3.Upload.stream_file()
-      |> ExAws.S3.upload("imgup-original", file_name, acl: :public_read)
+      |> ExAws.S3.upload("imgup-original", file_name, acl: :public_read, content_type: image.content_type )
       |> ExAws.request(get_ex_aws_request_config_override())
 
     # Sample response:
