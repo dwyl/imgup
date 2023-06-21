@@ -1935,10 +1935,10 @@ exports.handler = async (event) => {
     // Compress the image to a 200x200 avatar square as a buffer, without stretching
     const compressedImageBuffer = await sharp(uncompressedImage.Body)
     .resize({ 
-        width: 200, 
         height: 200, 
         fit: 'contain'
     })
+    .png()
     .toBuffer();
 
     // Upload the compressed image buffer to the Compressed Images bucket
@@ -1946,7 +1946,7 @@ exports.handler = async (event) => {
         Bucket: process.env.COMPRESSED_BUCKET,
         Key: key,
         Body: compressedImageBuffer,
-        ContentType: "image",
+        ContentType: "image/png",
         ACL: 'public-read'
     }).promise();
 
