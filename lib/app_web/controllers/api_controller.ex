@@ -3,6 +3,7 @@ defmodule AppWeb.ApiController do
   require Logger
 
   def create(conn, %{"" => params}) do
+    # dbg(params)
     # check if content_type e.g: "image/png"
     if String.contains?(params.content_type, "image") do
       try do
@@ -20,6 +21,7 @@ defmodule AppWeb.ApiController do
 
   # preserve backward compatibility with "image" keyword:
   def create(conn, %{"image" => image}) do
+    # dbg(image)
     create(conn, %{"" => image})
   end
 end

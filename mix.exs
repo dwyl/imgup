@@ -67,12 +67,16 @@ defmodule App.MixProject do
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
       {:sweet_xml, "~> 0.7"},
+      {:hackney, "~> 1.9"},
 
       # Mocking tests
       {:mox, "~> 1.0", only: :test},
 
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.11.1"}
+      {:useful, "~> 1.11.1"},
+
+      # Check/get Environment Variables: github.com/dwyl/envar
+      {:envar, "~> 1.1.0"},
     ]
   end
 
