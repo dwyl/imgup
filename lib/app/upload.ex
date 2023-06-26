@@ -4,7 +4,7 @@ defmodule App.Upload do
   """
   import SweetXml
 
-  @compressed_baseurl "https://s3.eu-west-3.amazonaws.com/imgup-compressed/"
+  @compressed_baseurl "https://s3.eu-west-3.amazonaws.com/#{Application.get_env(:ex_aws, :compressed_bucket)}/"
 
   @doc """
   `upload/1` receives an `image` with the format
@@ -30,7 +30,7 @@ defmodule App.Upload do
     {:ok, body} =
       image.path
       |> ExAws.S3.Upload.stream_file()
-      |> ExAws.S3.upload("imgup-original", file_name, acl: :public_read, content_type: image.content_type )
+      |> ExAws.S3.upload(Application.get_env(:ex_aws, :original_bucket), file_name, acl: :public_read, content_type: image.content_type )
       |> ExAws.request(get_ex_aws_request_config_override())
 
     # Sample response:
