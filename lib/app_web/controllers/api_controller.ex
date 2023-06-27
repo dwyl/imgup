@@ -7,8 +7,15 @@ defmodule AppWeb.ApiController do
     # check if content_type e.g: "image/png"
     if String.contains?(params.content_type, "image") do
       try do
-        {:ok, body} = App.Upload.upload(params)
-        render(conn, :success, body)
+
+        case App.Upload.upload(params) do
+          {:ok, body} -> render(conn, :success, body)
+          {:error, :failure_read} ->
+            render(conn |> put_status(400), %{body: "Error uploading file. Failure reading file."})
+          {:error, _reason} ->
+            render(conn |> put_status(400), %{body: "Error uploading file #26"})
+        end
+
       rescue
         e ->
           Logger.error(Exception.format(:error, e, __STACKTRACE__))

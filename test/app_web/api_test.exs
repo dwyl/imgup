@@ -73,11 +73,10 @@ defmodule AppWeb.APITest do
 
   # github.com/elixir-lang/elixir/blob/main/lib/elixir/test/elixir/kernel/raise_test.exs
   test "non existent image throws runtime error (test rescue branch)", %{conn: conn} do
-    IO.puts(" -> Don't Panic! This error stack trace is expected when file doesn't exist: ")
     conn = post(conn, ~p"/api/images", @non_existent_image)
 
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-             "detail" => "Error uploading file #26"
+             "detail" => "Error uploading file. Failure reading file."
            }
   end
 end
