@@ -44,6 +44,8 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: eu-west-3
+        AWS_ORIGINAL_BUCKET: imgup-original
+        AWS_COMPRESSED_BUCKET: imgup-compressed
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1

@@ -10,9 +10,9 @@ defmodule App.UploadTest do
 
     expected_response = %{
       compressed_url:
-        "https://s3.eu-west-3.amazonaws.com/imgup-compressed/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png",
+        "https://s3.eu-west-3.amazonaws.com/#{Application.get_env(:ex_aws, :compressed_bucket)}/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png",
       url:
-        "https://s3.eu-west-3.amazonaws.com/imgup-original/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png"
+        "https://s3.eu-west-3.amazonaws.com/#{Application.get_env(:ex_aws, :original_bucket)}/zb2rhXACvyoVCaV1GF5ozeoNCXYdxcKAEWvBTpsnabo3moYwB.png"
     }
 
     assert App.Upload.upload(image) == {:ok, expected_response}
