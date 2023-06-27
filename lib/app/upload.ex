@@ -23,45 +23,69 @@ defmodule App.Upload do
     # Create `CID` from file contents so filenames are unique
     case File.read(image.path) do
       {:ok, file_binary} ->
-
         file_cid = Cid.cid(file_binary)
-        file_name = "#{file_cid}.#{Enum.at(MIME.extensions(image.content_type), 0)}"
 
-        # Upload to S3
-        {:ok, body} =
-          image.path
-          |> ExAws.S3.Upload.stream_file()
-          |> ExAws.S3.upload(Application.get_env(:ex_aws, :original_bucket), file_name, acl: :public_read, content_type: image.content_type )
-          |> ExAws.request(get_ex_aws_request_config_override())
+        file_extension =
+          image.content_type
+          |> MIME.extensions()
+          |> List.first()
 
-        # Sample response:
-        # %{
-        #   body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n
-        #    <CompleteMultipartUploadResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">
-        #    <Location>https://s3.eu-west-3.amazonaws.com/imgup-original/qvWtbC7WaT.jpg</Location>
-        #    <Bucket>imgup-original</Bucket><Key>qvWtbC7WaT.jpg</Key>
-        #    <ETag>\"4ecd62951576b7e5b4a3e869e5e98a0f-1\"</ETag></CompleteMultipartUploadResult>",
-        #   headers: [
-        #     {"x-amz-id-2",
-        #      "wNTNZKt82vgnOuT1o2Tz8z3gcRzd6wXofYxQmBUkGbBGTpmv1WbwjjGiRAUtOTYIm92bh/VJHhI="},
-        #     {"x-amz-request-id", "QRENBY1MJTQWD7CZ"},
-        #     {"Date", "Tue, 13 Jun 2023 10:22:44 GMT"},
-        #     {"x-amz-expiration",
-        #      "expiry-date=\"Thu, 15 Jun 2023 00:00:00 GMT\", rule-id=\"delete-after-1-day\""},
-        #     {"x-amz-server-side-encryption", "AES256"},
-        #     {"Content-Type", "application/xml"},
-        #     {"Transfer-Encoding", "chunked"},
-        #     {"Server", "AmazonS3"}
-        #   ],
-        #   status_code: 200
-        # }
+        # Check if file `cid` and extension are valid.
+        case {file_cid, file_extension} do
+          {"invalid data type", nil} ->
+            {:error, :invalid_extension_and_cid}
 
-        # Fetch the contents of the returned XML string from `ex_aws`.
-        # This XML is parsed with `sweet_xml`:
-        # github.com/kbrw/sweet_xml#the-x-sigil
-        url = body.body |> xpath(~x"//text()") |> List.to_string()
-        compressed_url = "#{@compressed_baseurl}#{file_name}"
-        {:ok, %{url: url, compressed_url: compressed_url}}
+          {"invalid data type", _extension} ->
+            {:error, :invalid_cid}
+
+          {cid, nil} ->
+            {:error, :invalid_extension}
+
+
+          # If the `cid` and extension are valid, we are safe to upload
+          {file_cid, file_extension} ->
+            # Creating filename with the retrieved extension
+            file_name = "#{file_cid}.#{file_extension}"
+
+            # Upload to S3
+            {:ok, body} =
+              image.path
+              |> ExAws.S3.Upload.stream_file()
+              |> ExAws.S3.upload(Application.get_env(:ex_aws, :original_bucket), file_name,
+                acl: :public_read,
+                content_type: image.content_type
+              )
+              |> ExAws.request(get_ex_aws_request_config_override())
+
+            # Sample response:
+            # %{
+            #   body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n
+            #    <CompleteMultipartUploadResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">
+            #    <Location>https://s3.eu-west-3.amazonaws.com/imgup-original/qvWtbC7WaT.jpg</Location>
+            #    <Bucket>imgup-original</Bucket><Key>qvWtbC7WaT.jpg</Key>
+            #    <ETag>\"4ecd62951576b7e5b4a3e869e5e98a0f-1\"</ETag></CompleteMultipartUploadResult>",
+            #   headers: [
+            #     {"x-amz-id-2",
+            #      "wNTNZKt82vgnOuT1o2Tz8z3gcRzd6wXofYxQmBUkGbBGTpmv1WbwjjGiRAUtOTYIm92bh/VJHhI="},
+            #     {"x-amz-request-id", "QRENBY1MJTQWD7CZ"},
+            #     {"Date", "Tue, 13 Jun 2023 10:22:44 GMT"},
+            #     {"x-amz-expiration",
+            #      "expiry-date=\"Thu, 15 Jun 2023 00:00:00 GMT\", rule-id=\"delete-after-1-day\""},
+            #     {"x-amz-server-side-encryption", "AES256"},
+            #     {"Content-Type", "application/xml"},
+            #     {"Transfer-Encoding", "chunked"},
+            #     {"Server", "AmazonS3"}
+            #   ],
+            #   status_code: 200
+            # }
+
+            # Fetch the contents of the returned XML string from `ex_aws`.
+            # This XML is parsed with `sweet_xml`:
+            # github.com/kbrw/sweet_xml#the-x-sigil
+            url = body.body |> xpath(~x"//text()") |> List.to_string()
+            compressed_url = "#{@compressed_baseurl}#{file_name}"
+            {:ok, %{url: url, compressed_url: compressed_url}}
+        end
 
       {:error, _reason} ->
         {:error, :failure_read}

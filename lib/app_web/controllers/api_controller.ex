@@ -7,15 +7,22 @@ defmodule AppWeb.ApiController do
     # check if content_type e.g: "image/png"
     if String.contains?(params.content_type, "image") do
       try do
-
         case App.Upload.upload(params) do
-          {:ok, body} -> render(conn, :success, body)
+          {:ok, body} ->
+            render(conn, :success, body)
+
           {:error, :failure_read} ->
             render(conn |> put_status(400), %{body: "Error uploading file. Failure reading file."})
+
+          {:error, :invalid_cid} ->
+            render(conn |> put_status(400), %{body: "Error uploading file. Failure creating the CID filename."})
+
+          {:error, :invalid_extension} ->
+            render(conn |> put_status(400), %{body: "Error uploading file. Failure parsing the file extension."})
+
           {:error, _reason} ->
             render(conn |> put_status(400), %{body: "Error uploading file #26"})
         end
-
       rescue
         e ->
           Logger.error(Exception.format(:error, e, __STACKTRACE__))
