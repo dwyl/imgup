@@ -23,22 +23,28 @@ defmodule App.Upload do
     # Create `CID` from file contents so filenames are unique
     case File.read(image.path) do
       {:ok, file_binary} ->
+        dbg(file_binary)
         file_cid = Cid.cid(file_binary)
+
+        dbg(file_cid)
 
         file_extension =
           image.content_type
           |> MIME.extensions()
           |> List.first()
 
+          dbg(file_extension)
+
         # Check if file `cid` and extension are valid.
         case {file_cid, file_extension} do
           {"invalid data type", nil} ->
+            dbg("ay")
             {:error, :invalid_extension_and_cid}
 
           {"invalid data type", _extension} ->
             {:error, :invalid_cid}
 
-          {cid, nil} ->
+          {_cid, nil} ->
             {:error, :invalid_extension}
 
 

@@ -1,6 +1,8 @@
 defmodule AppWeb.APITest do
   use AppWeb.ConnCase, async: true
 
+  import Mock
+
   # without image keyword:
   @create_attrs %{
     "" => %Plug.Upload{
@@ -34,6 +36,15 @@ defmodule AppWeb.APITest do
       content_type: "image/png",
       filename: "fail.png",
       path: [:code.priv_dir(:app), "static", "images", "fail.png"] |> Path.join()
+    }
+  }
+
+  # empty_file
+  @empty_file %{
+    "" => %Plug.Upload{
+      content_type: "image/something",
+      filename: "empty",
+      path: [:code.priv_dir(:app), "static", "images", "empty"] |> Path.join()
     }
   }
 
@@ -78,5 +89,35 @@ defmodule AppWeb.APITest do
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
              "detail" => "Error uploading file. Failure reading file."
            }
+  end
+
+  test "empty file should return appropriate error", %{conn: conn} do
+    conn = post(conn, ~p"/api/images", @empty_file)
+
+    assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+             "detail" => "Error uploading file. Failure parsing the file extension."
+           }
+  end
+
+  test "file with invalid binary data type and extension should return error.", %{conn: conn} do
+
+    with_mock Cid, [cid: fn(_input) -> "invalid data type" end] do
+      conn = post(conn, ~p"/api/images", @empty_file)
+
+      assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+               "detail" => "Error uploading file. The file extension and contents are invalid."
+             }
+    end
+  end
+
+  test "file with invalid binary data (cid) but valid content type should return error", %{conn: conn} do
+
+    with_mock Cid, [cid: fn(_input) -> "invalid data type" end] do
+      conn = post(conn, ~p"/api/images", @valid_image_attrs)
+
+      assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+               "detail" => "Error uploading file. Failure creating the CID filename."
+             }
+    end
   end
 end

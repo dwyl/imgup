@@ -71,6 +71,7 @@ defmodule App.MixProject do
 
       # Mocking tests
       {:mox, "~> 1.0", only: :test},
+      {:mock, "~> 0.3.0", only: :test},
 
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.11.1"},
