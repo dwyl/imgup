@@ -120,4 +120,15 @@ defmodule AppWeb.APITest do
              }
     end
   end
+
+  test "valid file but the upload to S3 failed. It should return an error.", %{conn: conn} do
+
+    with_mock ExAws, [request: fn(_input) -> {:error, :failure} end] do
+      conn = post(conn, ~p"/api/images", @valid_image_attrs)
+
+      assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+               "detail" => "Error uploading file. There was an error uploading the file to S3."
+             }
+    end
+  end
 end
