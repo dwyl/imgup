@@ -18,6 +18,7 @@ Learn how upload `images` via a `REST API` in a `Phoenix` App.
   - [2.3 _Use_ the `upload/1` function in `ApiController`](#23-use-the-upload1-function-in-apicontroller)
 - [3. Limiting filetype and size](#3-limiting-filetype-and-size)
 - [4. Testing the `API` from `Hoppscotch`](#4-testing-the-api-from-hoppscotch)
+- [5. Returning meaningful errors](#5-returning-meaningful-errors)
 
 
 
@@ -390,6 +391,258 @@ if you try to upload another file other than an image:
 Or an image size that's too large,
 you'll get an `413 Request Entity Too Large` error.
 
+# 5. Returning meaningful errors
+
+If something *fails*, the person using the API
+will have a `JSON` body stating 
+`"Error uploading file #26"` returned.
+This type of information is not particularly *useful*.
+We don't know exactly *why* it failed, 
+we just know it did.
+
+In order to fix this, 
+let's make some changes to tell the person
+a more meaningful message so they know *what went wrong*.
+We want the person to know whether any of these scenarios:
+- reading the `path` from the `image`.
+- creating the `CID` from the file contents.
+- getting the `file extension`.
+- uploading the file to `S3`.
+
+Before making any changes, let's add a few tests to cover these.
+First, let's create an empty file, which will be used in our tests.
+In `priv/static/images`, create an empty file called `empty`.
+
+After this,
+open `test/app_web/api_test.exs` and add this.
+
+```elixir
+  import Mock
+
+  @empty_file %{
+    "" => %Plug.Upload{
+      content_type: "image/something",
+      filename: "empty",
+      path: [:code.priv_dir(:app), "static", "images", "empty"] |> Path.join()
+    }
+  }
+
+  test "empty file should return appropriate error", %{conn: conn} do
+    conn = post(conn, ~p"/api/images", @empty_file)
+
+    assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+             "detail" => "Error uploading file. Failure parsing the file extension."
+           }
+  end
+
+  test "file with invalid binary data type and extension should return error.", %{conn: conn} do
+
+    with_mock Cid, [cid: fn(_input) -> "invalid data type" end] do
+      conn = post(conn, ~p"/api/images", @empty_file)
+
+      assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+               "detail" => "Error uploading file. The file extension and contents are invalid."
+             }
+    end
+  end
+
+  test "file with invalid binary data (cid) but valid content type should return error", %{conn: conn} do
+
+    with_mock Cid, [cid: fn(_input) -> "invalid data type" end] do
+      conn = post(conn, ~p"/api/images", @valid_image_attrs)
+
+      assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+               "detail" => "Error uploading file. Failure creating the CID filename."
+             }
+    end
+  end
+
+  test "valid file but the upload to S3 failed. It should return an error.", %{conn: conn} do
+
+    with_mock ExAws, [request: fn(_input) -> {:error, :failure} end] do
+      conn = post(conn, ~p"/api/images", @valid_image_attrs)
+
+      assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+               "detail" => "Error uploading file. There was an error uploading the file to S3."
+             }
+    end
+  end
+```
+
+> **Note** 
+>
+> We are using the [`mock` ](https://github.com/jjh42/mock)
+> library so we are able to correctly test 
+> whenever a content type is invalid,
+> or the upload to `S3` fails.
+> Simply install it to use it.
 
 
+We've added a test for each scenario 
+and what we expect the API to return to us.
+We are using the `empty` file
+to simulate an invalid binary file content,
+which will result in failing the `CID` creation.
 
+Now let's implement the features so our tests pass! ✅
+
+Open `lib/app/upload.ex`.
+We are going to refactor this function
+so it returns specific errors 
+as the image is read all the way until it is uploaded to `S3`.
+
+```elixir
+def upload(image) do
+    # Create `CID` from file contents so filenames are unique
+    case File.read(image.path) do
+      {:ok, file_binary} ->
+        file_cid = Cid.cid(file_binary)
+
+        file_extension =
+          image.content_type
+          |> MIME.extensions()
+          |> List.first()
+
+        # Check if file `cid` and extension are valid.
+        case {file_cid, file_extension} do
+          {"invalid data type", nil} ->
+            {:error, :invalid_extension_and_cid}
+
+          {"invalid data type", _extension} ->
+            {:error, :invalid_cid}
+
+          {_cid, nil} ->
+            {:error, :invalid_extension}
+
+          # If the `cid` and extension are valid, we are safe to upload
+          {file_cid, file_extension} ->
+            # Creating filename with the retrieved extension
+            file_name = "#{file_cid}.#{file_extension}"
+
+            # Upload to S3
+            request_response =
+              try do
+                image.path
+                |> ExAws.S3.Upload.stream_file()
+                |> ExAws.S3.upload(Application.get_env(:ex_aws, :original_bucket), file_name,
+                  acl: :public_read,
+                  content_type: image.content_type
+                )
+                |> ExAws.request(get_ex_aws_request_config_override())
+              rescue
+                _e ->
+                  {:error, :upload_fail}
+              end
+
+            # Check if the request was successful
+            case request_response do
+              # If the request was successful, we parse the result
+              {:ok, body} ->
+                # Sample response:
+                # %{
+                #   body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n
+                #    <CompleteMultipartUploadResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">
+                #    <Location>https://s3.eu-west-3.amazonaws.com/imgup-original/qvWtbC7WaT.jpg</Location>
+                #    <Bucket>imgup-original</Bucket><Key>qvWtbC7WaT.jpg</Key>
+                #    <ETag>\"4ecd62951576b7e5b4a3e869e5e98a0f-1\"</ETag></CompleteMultipartUploadResult>",
+                #   headers: [
+                #     {"x-amz-id-2",
+                #      "wNTNZKt82vgnOuT1o2Tz8z3gcRzd6wXofYxQmBUkGbBGTpmv1WbwjjGiRAUtOTYIm92bh/VJHhI="},
+                #     {"x-amz-request-id", "QRENBY1MJTQWD7CZ"},
+                #     {"Date", "Tue, 13 Jun 2023 10:22:44 GMT"},
+                #     {"x-amz-expiration",
+                #      "expiry-date=\"Thu, 15 Jun 2023 00:00:00 GMT\", rule-id=\"delete-after-1-day\""},
+                #     {"x-amz-server-side-encryption", "AES256"},
+                #     {"Content-Type", "application/xml"},
+                #     {"Transfer-Encoding", "chunked"},
+                #     {"Server", "AmazonS3"}
+                #   ],
+                #   status_code: 200
+                # }
+
+                # Fetch the contents of the returned XML string from `ex_aws`.
+                # This XML is parsed with `sweet_xml`:
+                # github.com/kbrw/sweet_xml#the-x-sigil
+                url = body.body |> xpath(~x"//text()") |> List.to_string()
+                compressed_url = "#{@compressed_baseurl}#{file_name}"
+                {:ok, %{url: url, compressed_url: compressed_url}}
+
+              # If the request was unsuccessful, throw an error
+              {:error, _reason} ->
+                {:error, :upload_fail}
+            end
+        end
+
+      {:error, _reason} ->
+        {:error, :failure_read}
+    end
+  end
+```
+
+We've added [`case`](https://elixir-lang.org/getting-started/case-cond-and-if.html)
+statements for the aforementioned scenarios:
+
+In each of these cases,
+we yield a tuple `{:error, reason}`.
+
+All we have to do now is to change the function that *uses*
+our refactored `upload/1` function!
+
+Head over to `lib/app_web/controllers/api_controller.ex`
+and change the following function so it pattern matches
+the possible returning value from `upload/1`.
+
+```elixir
+def create(conn, %{"" => params}) do
+
+    # Check if content_type e.g: "image/png"
+    if String.contains?(params.content_type, "image") do
+      case App.Upload.upload(params) do
+        {:ok, body} ->
+          render(conn, :success, body)
+
+        {:error, :failure_read} ->
+          render(conn |> put_status(400), %{body: "Error uploading file. Failure reading file."})
+
+        {:error, :invalid_cid} ->
+          render(conn |> put_status(400), %{
+            body: "Error uploading file. Failure creating the CID filename."
+          })
+
+        {:error, :invalid_extension} ->
+          render(conn |> put_status(400), %{
+            body: "Error uploading file. Failure parsing the file extension."
+          })
+
+        {:error, :invalid_extension_and_cid} ->
+          render(conn |> put_status(400), %{
+            body: "Error uploading file. The file extension and contents are invalid."
+          })
+
+        {:error, :upload_fail} ->
+          render(conn |> put_status(400), %{
+            body: "Error uploading file. There was an error uploading the file to S3."
+          })
+      end
+    else
+      render(conn |> put_status(400), %{body: "Uploaded file is not a valid image."})
+    end
+  end
+```
+
+As you can see, we're returning a `JSON` object
+to the person with a specific error
+depending on the outcome of the `upload/1` function.
+
+And that's it!
+Quite simple, right?
+
+If we run `mix test`,
+all tests should pass!
+
+
+```sh
+...........
+Finished in 1.1 seconds (1.0s async, 0.1s sync)
+15 tests, 0 failures
+```
