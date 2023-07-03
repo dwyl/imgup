@@ -19,6 +19,7 @@ defmodule AppWeb.Router do
 
     get "/", PageController, :home
     live "/liveview", ImgupLive
+    live "/liveview_clientless", ImgupNoClientLive
   end
 
   # Other scopes may use custom stacks.
