@@ -36,6 +36,14 @@ defmodule AppWeb.ImgupNoClientLive do
           entry =
             Map.put(
               entry,
+              :image_url,
+              AppWeb.Endpoint.url() <>
+                AppWeb.Endpoint.static_path("/image_uploads/#{entry.client_name}")
+            )
+
+          entry =
+            Map.put(
+              entry,
               :url_path,
               AppWeb.Endpoint.static_path("/image_uploads/#{entry.client_name}")
             )
@@ -59,6 +67,11 @@ defmodule AppWeb.ImgupNoClientLive do
   @impl true
   def handle_event("remove-selected", %{"ref" => ref}, socket) do
     {:noreply, cancel_upload(socket, :image_list, ref)}
+  end
+
+  @impl true
+  def handle_event("save", _params, socket) do
+    {:noreply, socket}
   end
 
   # View utilities -------

@@ -18,7 +18,8 @@
           <form
             class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8"
             phx-change="validate"
-            id="upload-form"
+            phx-submit="save"
+            id="upload-form-clientless"
           >
             <div class="col-span-full">
               <div
@@ -58,84 +59,6 @@
           </form>
         </div>
       </div>
-      <!-- Selected files preview section -->
-      <div class="mt-12">
-        <h2 class="text-base font-semibold leading-7 text-gray-900">Selected files</h2>
-        <ul role="list" class="divide-y divide-gray-100">
-          <%= for entry <- @uploads.image_list.entries do %>
-            <progress value={entry.progress} max="100" class="w-full h-1">
-              <%= entry.progress %>%
-            </progress>
-            <!-- Entry information -->
-            <li
-              class="pending-upload-item relative flex justify-between gap-x-6 py-5"
-              id={"entry-#{entry.ref}"}
-            >
-              <div class="flex gap-x-4">
-                <.live_img_preview entry={entry} class="h-auto w-12 flex-none bg-gray-50" />
-                <div class="min-w-0 flex-auto">
-                  <p class="text-sm font-semibold leading-6 break-all text-gray-900">
-                    <span class="absolute inset-x-0 -top-px bottom-0"></span>
-                    <%= entry.client_name %>
-                  </p>
-                </div>
-              </div>
-              <div
-                class="flex items-center gap-x-4 cursor-pointer z-10"
-                phx-click="remove-selected"
-                phx-value-ref={entry.ref}
-                id={"close_pic-#{entry.ref}"}
-              >
-                <svg
-                  fill="#cfcfcf"
-                  height="10"
-                  width="10"
-                  version="1.1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  xmlns:xlink="http://www.w3.org/1999/xlink"
-                  viewBox="0 0 460.775 460.775"
-                  xml:space="preserve"
-                >
-                  <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55
-                    c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55
-                    c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505
-                    c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55
-                    l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719
-                    c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z" />
-                </svg>
-              </div>
-            </li>
-            <!-- Entry errors -->
-            <div>
-              <%= for err <- upload_errors(@uploads.image_list, entry) do %>
-                <div class="rounded-md bg-red-50 p-4 mb-2">
-                  <div class="flex">
-                    <div class="flex-shrink-0">
-                      <svg
-                        class="h-5 w-5 text-red-400"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <div class="ml-3">
-                      <h3 class="text-sm font-medium text-red-800">
-                        <%= error_to_string(err) %>
-                      </h3>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
-        </ul>
-      </div>
     </div>
 
     <div class="flex flex-col flex-1 mt-10 md:mt-0 md:ml-4">
@@ -148,11 +71,11 @@
       </p>
 
       <ul role="list" class="divide-y divide-gray-100">
-        <%= for file <- @uploaded_files do %>
+        <%= for file <- @uploaded_files_locally do %>
           <!-- Entry information -->
           <li
             class="uploaded-item relative flex justify-between gap-x-6 py-5"
-            id={"uploaded-#{file.key}"}
+            id={"uploaded-#{file.uuid}"}
           >
             <div class="flex gap-x-4">
               <!--
@@ -161,34 +84,20 @@
                 -->
               <img
                 class="block max-w-12 max-h-12 w-auto h-auto flex-none bg-gray-50"
-                src={file.compressed_url}
-                onerror="imgError(this);"
+                src={file.image_url}
               />
               <div class="min-w-0 flex-auto">
                 <p>
                   <span class="text-sm font-semibold leading-6 break-all text-gray-900">
-                    Original URL:
+                    URL path:
                   </span>
                   <a
                     class="text-sm leading-6 break-all underline text-indigo-600"
-                    href={file.public_url}
+                    href={file.image_url}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <%= file.public_url %>
-                  </a>
-                </p>
-                <p>
-                  <span class="text-sm font-semibold leading-6 break-all text-gray-900">
-                    Compressed URL:
-                  </span>
-                  <a
-                    class="text-sm leading-6 break-all underline text-indigo-600"
-                    href={file.compressed_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <%= file.compressed_url %>
+                    <%= file.url_path %>
                   </a>
                 </p>
               </div>

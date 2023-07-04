@@ -61,6 +61,10 @@ let liveSocket = new LiveSocket("/live", Socket, {
     params: {_csrf_token: csrfToken}
 })
 
+let bruh = document.getElementById("upload-form-clientless")
+bruh.addEventListener('submit', (e) => e.preventDefault());
+
+console.log(bruh)
 
 // Show progress bar on live navigation and form submits
 topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
