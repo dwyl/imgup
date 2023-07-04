@@ -6,46 +6,47 @@ defmodule AppWeb.ImgupNoClientLive do
     {:ok,
      socket
      |> assign(:uploaded_files, [])
+     |> assign(:uploaded_files_locally, [])
      |> allow_upload(:image_list,
        accept: ~w(image/*),
        max_entries: 6,
        chunk_size: 64_000,
+       auto_upload: true,
        max_file_size: 5_000_000,
-       external: &presign_upload/2
+       progress: &handle_progress/3
+       # Do not defined presign_upload. This will create a local photo in /vars
      )}
   end
 
-  # Adding presign for each entry for S3 upload --------
+  # With `auto_upload: true`, we can consume files here
+  defp handle_progress(:image_list, entry, socket) do
+    if entry.done? do
+      uploaded_file =
+        consume_uploaded_entry(socket, entry, fn %{path: path} = meta ->
+          # Uploading the files to local directory
+          upload_dir = Application.app_dir(:app, ["priv", "static", "image_uploads"])
 
-  defp presign_upload(entry, socket) do
-    uploads = socket.assigns.uploads
-    bucket_original = Application.get_env(:ex_aws, :original_bucket)
-    bucket_compressed = Application.get_env(:ex_aws, :compressed_bucket)
-    key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
+          base = Path.basename(path)
+          dest = Path.join(upload_dir, entry.client_name)
 
-    config = %{
-      region: System.get_env("AWS_REGION"),
-      access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
-      secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY")
-    }
+          # Copying the file from temporary folder to static folder
+          File.mkdir_p(upload_dir)
+          File.cp!(path, dest)
 
-    {:ok, fields} =
-      SimpleS3Upload.sign_form_upload(config, bucket_original,
-        key: key,
-        content_type: entry.client_type,
-        max_file_size: uploads[entry.upload_config].max_file_size,
-        expires_in: :timer.hours(1)
-      )
+          entry =
+            Map.put(
+              entry,
+              :url_path,
+              AppWeb.Endpoint.static_path("/image_uploads/#{entry.client_name}")
+            )
 
-    meta = %{
-      uploader: "S3",
-      key: key,
-      url: "https://#{bucket_original}.s3-#{config.region}.amazonaws.com",
-      compressed_url: "https://#{bucket_compressed}.s3-#{config.region}.amazonaws.com",
-      fields: fields
-    }
+          {:ok, entry}
+        end)
 
-    {:ok, meta, socket}
+      {:noreply, update(socket, :uploaded_files_locally, &(&1 ++ [uploaded_file]))}
+    else
+      {:noreply, socket}
+    end
   end
 
   # Event handlers -------
@@ -58,22 +59,6 @@ defmodule AppWeb.ImgupNoClientLive do
   @impl true
   def handle_event("remove-selected", %{"ref" => ref}, socket) do
     {:noreply, cancel_upload(socket, :image_list, ref)}
-  end
-
-  @impl true
-  def handle_event("save", _params, socket) do
-    uploaded_files =
-      consume_uploaded_entries(socket, :image_list, fn %{uploader: _} = meta, _entry ->
-        public_url = meta.url <> "/#{meta.key}"
-        compressed_url = meta.compressed_url <> "/#{meta.key}"
-
-        meta = Map.put(meta, :public_url, public_url)
-        meta = Map.put(meta, :compressed_url, compressed_url)
-
-        {:ok, meta}
-      end)
-
-    {:noreply, update(socket, :uploaded_files, &(&1 ++ uploaded_files))}
   end
 
   # View utilities -------
