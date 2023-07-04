@@ -161,11 +161,11 @@
       </p>
 
       <ul role="list" class="divide-y divide-gray-100">
-        <%= for file <- @uploaded_files_locally do %>
+        <%= for file <- @uploaded_files do %>
           <!-- Entry information -->
           <li
             class="uploaded-item relative flex justify-between gap-x-6 py-5"
-            id={"uploaded-#{file.uuid}"}
+            id={"uploaded-#{file.key}"}
           >
             <div class="flex gap-x-4">
               <!--
@@ -175,11 +175,25 @@
               <img
                 class="block max-w-12 max-h-12 w-auto h-auto flex-none bg-gray-50"
                 src={file.compressed_url}
+                onerror="imgError(this);"
               />
               <div class="min-w-0 flex-auto">
                 <p>
                   <span class="text-sm font-semibold leading-6 break-all text-gray-900">
-                    URL path:
+                    Original URL:
+                  </span>
+                  <a
+                    class="text-sm leading-6 break-all underline text-indigo-600"
+                    href={file.public_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <%= file.public_url %>
+                  </a>
+                </p>
+                <p>
+                  <span class="text-sm font-semibold leading-6 break-all text-gray-900">
+                    Compressed URL:
                   </span>
                   <a
                     class="text-sm leading-6 break-all underline text-indigo-600"
@@ -187,7 +201,7 @@
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <%= file.url_path %>
+                    <%= file.compressed_url %>
                   </a>
                 </p>
               </div>
