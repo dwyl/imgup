@@ -33,19 +33,22 @@ defmodule AppWeb.ImgupNoClientLive do
           File.mkdir_p(@upload_dir)
           File.cp!(path, dest)
 
+          # Adding properties to the entry.
+          # It should look like %{image_url: url, url_path: path, errors: []}
           entry =
-            Map.put(
-              entry,
+            entry
+            |> Map.put(
               :image_url,
               AppWeb.Endpoint.url() <>
                 AppWeb.Endpoint.static_path("/image_uploads/#{entry.client_name}")
             )
-
-          entry =
-            Map.put(
-              entry,
+            |> Map.put(
               :url_path,
               AppWeb.Endpoint.static_path("/image_uploads/#{entry.client_name}")
+            )
+            |> Map.put(
+              :errors,
+              []
             )
 
           {:ok, entry}
@@ -71,7 +74,6 @@ defmodule AppWeb.ImgupNoClientLive do
 
   @impl true
   def handle_event("upload_to_s3", params, socket) do
-
     # Get file element from the local files array
     file_element =
       Enum.find(socket.assigns.uploaded_files_locally, fn %{uuid: uuid} ->
@@ -87,10 +89,8 @@ defmodule AppWeb.ImgupNoClientLive do
 
     # Upload file
     case App.Upload.upload(file) do
-
       # If the upload succeeds...
       {:ok, body} ->
-
         # We add the `uuid` to the object to display on the view template.
         body = Map.put(body, :uuid, file_element.uuid)
 
@@ -105,9 +105,15 @@ defmodule AppWeb.ImgupNoClientLive do
 
         {:noreply, socket}
 
+      # If the upload fails...
       {:error, reason} ->
-        dbg(:error, reason)
-        {:noreply, socket}
+
+        # Update the failed local file element to show an error message
+        index = Enum.find_index(socket.assigns.uploaded_files_locally, &(&1 == file_element))
+        updated_file_element = Map.put(file_element, :errors, ["#{reason}"])
+        updated_local_array = List.replace_at(socket.assigns.uploaded_files_locally, index, updated_file_element)
+
+        {:noreply, assign(socket, :uploaded_files_locally, updated_local_array)}
     end
   end
 
