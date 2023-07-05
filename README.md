@@ -149,6 +149,8 @@ and add your credentials to it:
 export AWS_ACCESS_KEY_ID='YOUR_KEY'
 export AWS_SECRET_ACCESS_KEY='YOUR_KEY'
 export AWS_REGION='eu-west-3'
+export AWS_S3_BUCKET_ORIGINAL=imgup-original
+export AWS_S3_BUCKET_COMPRESSED=imgup-compressed
 ```
 
 In your terminal, run `source .env` to export the keys.
