@@ -1,12 +1,15 @@
 defmodule AppWeb.ImgupNoClientLive do
   use AppWeb, :live_view
 
+  @upload_dir Application.app_dir(:app, ["priv", "static", "image_uploads"])
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
      |> assign(:uploaded_files, [])
      |> assign(:uploaded_files_locally, [])
+     |> assign(:uploaded_files_to_S3, [])
      |> allow_upload(:image_list,
        accept: ~w(image/*),
        max_entries: 6,
@@ -23,14 +26,11 @@ defmodule AppWeb.ImgupNoClientLive do
     if entry.done? do
       uploaded_file =
         consume_uploaded_entry(socket, entry, fn %{path: path} = meta ->
-          # Uploading the files to local directory
-          upload_dir = Application.app_dir(:app, ["priv", "static", "image_uploads"])
-
           base = Path.basename(path)
-          dest = Path.join(upload_dir, entry.client_name)
+          dest = Path.join(@upload_dir, entry.client_name)
 
           # Copying the file from temporary folder to static folder
-          File.mkdir_p(upload_dir)
+          File.mkdir_p(@upload_dir)
           File.cp!(path, dest)
 
           entry =
@@ -70,15 +70,51 @@ defmodule AppWeb.ImgupNoClientLive do
   end
 
   @impl true
-  def handle_event("save", _params, socket) do
-    {:noreply, socket}
+  def handle_event("upload_to_s3", params, socket) do
+
+    # Get file element from the local files array
+    file_element =
+      Enum.find(socket.assigns.uploaded_files_locally, fn %{uuid: uuid} ->
+        uuid == Map.get(params, "uuid")
+      end)
+
+    # Create file object to upload
+    file = %{
+      path: @upload_dir <> "/" <> Map.get(file_element, :client_name),
+      content_type: file_element.client_type,
+      filename: file_element.client_name
+    }
+
+    # Upload file
+    case App.Upload.upload(file) do
+
+      # If the upload succeeds...
+      {:ok, body} ->
+
+        # We add the `uuid` to the object to display on the view template.
+        body = Map.put(body, :uuid, file_element.uuid)
+
+        # Delete the file locally
+        File.rm!(file.path)
+
+        # Update the socket accordingly
+        updated_local_array = List.delete(socket.assigns.uploaded_files_locally, file_element)
+
+        socket = update(socket, :uploaded_files_to_S3, &(&1 ++ [body]))
+        socket = assign(socket, :uploaded_files_locally, updated_local_array)
+
+        {:noreply, socket}
+
+      {:error, reason} ->
+        dbg(:error, reason)
+        {:noreply, socket}
+    end
   end
 
   # View utilities -------
 
-  def are_files_uploadable?(image_list) do
-    error_list = Map.get(image_list, :errors)
-    Enum.empty?(error_list) and length(image_list.entries) > 0
+  def are_files_uploadable?(local_files_list) do
+    not Enum.empty?(local_files_list)
   end
 
   def error_to_string(:too_large), do: "Too large."
