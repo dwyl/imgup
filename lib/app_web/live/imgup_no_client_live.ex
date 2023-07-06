@@ -25,8 +25,7 @@ defmodule AppWeb.ImgupNoClientLive do
   defp handle_progress(:image_list, entry, socket) do
     if entry.done? do
       uploaded_file =
-        consume_uploaded_entry(socket, entry, fn %{path: path} = meta ->
-          base = Path.basename(path)
+        consume_uploaded_entry(socket, entry, fn %{path: path} ->
           dest = Path.join(@upload_dir, entry.client_name)
 
           # Copying the file from temporary folder to static folder
