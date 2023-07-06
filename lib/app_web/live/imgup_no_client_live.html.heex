@@ -81,7 +81,7 @@
             <%= for file <- @uploaded_files_locally do %>
               <!-- Entry information -->
               <li
-                class="uploaded-item relative flex justify-between gap-x-6 py-5"
+                class="uploaded-local-item relative flex justify-between gap-x-6 py-5"
                 id={"uploaded-locally-#{file.uuid}"}
               >
                 <div class="flex gap-x-4">
@@ -172,7 +172,7 @@
             <%= for file <- @uploaded_files_to_S3 do %>
               <!-- Entry information -->
               <li
-                class="uploaded-item relative flex justify-between gap-x-6 py-5"
+                class="uploaded-s3-item relative flex justify-between gap-x-6 py-5"
                 id={"uploaded-s3-#{file.uuid}"}
               >
                 <div class="flex gap-x-4">

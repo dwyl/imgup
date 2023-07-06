@@ -110,10 +110,4 @@ defmodule AppWeb.ImgupNoClientLive do
         {:noreply, assign(socket, :uploaded_files_locally, updated_local_array)}
     end
   end
-
-  # View utilities -------
-
-  def are_files_uploadable?(local_files_list) do
-    not Enum.empty?(local_files_list)
-  end
 end
