@@ -68,11 +68,6 @@ defmodule AppWeb.ImgupNoClientLive do
   end
 
   @impl true
-  def handle_event("remove-selected", %{"ref" => ref}, socket) do
-    {:noreply, cancel_upload(socket, :image_list, ref)}
-  end
-
-  @impl true
   def handle_event("upload_to_s3", params, socket) do
     # Get file element from the local files array
     file_element =
@@ -122,12 +117,4 @@ defmodule AppWeb.ImgupNoClientLive do
   def are_files_uploadable?(local_files_list) do
     not Enum.empty?(local_files_list)
   end
-
-  def error_to_string(:too_large), do: "Too large."
-  def error_to_string(:not_accepted), do: "You have selected an unacceptable file type."
-  # coveralls-ignore-start
-  def error_to_string(:external_client_failure),
-    do: "Couldn't upload files to S3. Open an issue on Github and contact the repo owner."
-
-  # coveralls-ignore-stop
 end
