@@ -37,3 +37,6 @@ npm-debug.log
 
 .env
 .vscode/launch.json
+
+# Mac Noise
+.DS_Store
