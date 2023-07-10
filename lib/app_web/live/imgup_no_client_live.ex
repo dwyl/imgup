@@ -101,11 +101,12 @@ defmodule AppWeb.ImgupNoClientLive do
 
       # If the upload fails...
       {:error, reason} ->
-
         # Update the failed local file element to show an error message
         index = Enum.find_index(socket.assigns.uploaded_files_locally, &(&1 == file_element))
         updated_file_element = Map.put(file_element, :errors, ["#{reason}"])
-        updated_local_array = List.replace_at(socket.assigns.uploaded_files_locally, index, updated_file_element)
+
+        updated_local_array =
+          List.replace_at(socket.assigns.uploaded_files_locally, index, updated_file_element)
 
         {:noreply, assign(socket, :uploaded_files_locally, updated_local_array)}
     end

@@ -77,7 +77,7 @@ defmodule App.MixProject do
       {:useful, "~> 1.11.1"},
 
       # Check/get Environment Variables: github.com/dwyl/envar
-      {:envar, "~> 1.1.0"},
+      {:envar, "~> 1.1.0"}
     ]
   end
 
