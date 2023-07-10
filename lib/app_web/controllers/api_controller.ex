@@ -3,7 +3,6 @@ defmodule AppWeb.ApiController do
   require Logger
 
   def create(conn, %{"" => params}) do
-
     # Check if content_type e.g: "image/png"
     if String.contains?(params.content_type, "image") do
       case App.Upload.upload(params) do
