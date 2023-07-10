@@ -7,7 +7,6 @@ defmodule AppWeb.ImgupNoClientLive do
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:uploaded_files, [])
      |> assign(:uploaded_files_locally, [])
      |> assign(:uploaded_files_to_S3, [])
      |> allow_upload(:image_list,
@@ -17,7 +16,7 @@ defmodule AppWeb.ImgupNoClientLive do
        auto_upload: true,
        max_file_size: 5_000_000,
        progress: &handle_progress/3
-       # Do not defined presign_upload. This will create a local photo in /vars
+       # Do not define presign_upload. This will create a local photo in /vars
      )}
   end
 
