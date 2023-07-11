@@ -50,13 +50,6 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :ex_aws,
-  access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
-  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
-  region: System.get_env("AWS_REGION"),
-  original_bucket: System.get_env("AWS_S3_BUCKET_ORIGINAL"),
-  compressed_bucket: System.get_env("AWS_S3_BUCKET_COMPRESSED"),
-  request_config_override: %{}
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
