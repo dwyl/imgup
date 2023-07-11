@@ -19,8 +19,8 @@ defmodule AppWeb.ImgupLive do
 
   defp presign_upload(entry, socket) do
     uploads = socket.assigns.uploads
-    bucket_original = Application.get_env(:ex_aws, :original_bucket)
-    bucket_compressed = Application.get_env(:ex_aws, :compressed_bucket)
+    bucket_original = Application.compile_env(:ex_aws, :original_bucket)
+    bucket_compressed = Application.compile_env(:ex_aws, :compressed_bucket)
     key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
 
     config = %{
