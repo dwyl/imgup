@@ -37,11 +37,11 @@ defmodule App.UploadTest do
     assert App.Upload.upload(image) == {:ok, expected_response}
   end
 
-  test "upload/1 fail.jpg corrupted jpeg to test failure" do
+  test "upload/1 corrupted.jpg CORRPUTED jpeg to test failure" do
     image = %Plug.Upload{
       content_type: "image/jpeg",
-      filename: "ginger.jpg",
-      path: [:code.priv_dir(:app), "static", "images", "fail.jpg"] |> Path.join()
+      filename: "corrupted.jpg",
+      path: [:code.priv_dir(:app), "static", "images", "corrupted.jpg"] |> Path.join()
     }
     # Even though the jpeg is *deliberately* corrupted the upload & CID still works!!
     expected_response =  %{
@@ -49,5 +49,16 @@ defmodule App.UploadTest do
       url: "https://s3.eu-west-3.amazonaws.com/#{@original_bucket}/zb2rhngHXWi8mR5YHX3Go4xDYpZqqcAtGefn8sktQMM7YzKEz.jpg"
     }
     assert App.Upload.upload(image) == {:ok, expected_response}
+  end
+
+
+  test "upload/1 an EMPTY file to test failure" do
+    image = %Plug.Upload{
+      content_type: "",
+      filename: "empty",
+      path: [:code.priv_dir(:app), "static", "images", "empty"] |> Path.join()
+    }
+
+    assert App.Upload.upload(image) == {:error, :invalid_extension}
   end
 end
