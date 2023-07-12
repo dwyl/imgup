@@ -57,12 +57,8 @@ defmodule App.UploadTest do
       filename: "empty.jpg",
       path: [:code.priv_dir(:app), "static", "images", "empty.jpg"] |> Path.join()
     }
-    # Even though the jpeg is *deliberately* empty the upload & CID still works!!
-    expected_response =  %{
-      compressed_url: "https://s3.eu-west-3.amazonaws.com/imgup-compressed/zb2rhngHXWi8mR5YHX3Go4xDYpZqqcAtGefn8sktQMM7YzKEz.jpg",
-      url: "https://s3.eu-west-3.amazonaws.com/imgup-original/zb2rhngHXWi8mR5YHX3Go4xDYpZqqcAtGefn8sktQMM7YzKEz.jpg"
-    }
-    assert App.Upload.upload(image) == {:ok, expected_response}
+
+    assert App.Upload.upload(image) == {:error, :invalid_cid}
   end
 
   test "upload/1 an EMPTY file with no extension to test failure" do
@@ -70,6 +66,16 @@ defmodule App.UploadTest do
       content_type: "",
       filename: "empty",
       path: [:code.priv_dir(:app), "static", "images", "empty"] |> Path.join()
+    }
+
+    assert App.Upload.upload(image) == {:error, :invalid_extension_and_cid}
+  end
+
+  test "upload/1 a file with an invalid extension to test failure" do
+    image = %Plug.Upload{
+      content_type: "xyz",
+      filename: "phoenix.xyz",
+      path: [:code.priv_dir(:app), "static", "images", "phoenix.xyz"] |> Path.join()
     }
 
     assert App.Upload.upload(image) == {:error, :invalid_extension}

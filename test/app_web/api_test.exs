@@ -51,9 +51,18 @@ defmodule AppWeb.APITest do
   # empty_file
   @empty_file %{
     "" => %Plug.Upload{
-      content_type: "image/something",
+      content_type: "image_something",
       filename: "empty",
       path: [:code.priv_dir(:app), "static", "images", "empty"] |> Path.join()
+    }
+  }
+
+  # empty image
+  @empty_image %{
+    "" => %Plug.Upload{
+      content_type: "image/jpeg",
+      filename: "empty.jpg",
+      path: [:code.priv_dir(:app), "static", "images", "empty.jpg"] |> Path.join()
     }
   }
 
@@ -111,30 +120,16 @@ defmodule AppWeb.APITest do
     conn = post(conn, ~p"/api/images", @empty_file)
 
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-             "detail" => "Error uploading file. Failure parsing the file extension."
+             "detail" => "Error uploading file. The file extension and contents are invalid."
            }
   end
 
-  test "file with invalid binary data type and extension should return error.", %{conn: conn} do
+  test "empty image (meaning it has a valid content type) should return an error", %{conn: conn} do
+    conn = post(conn, ~p"/api/images", @empty_image)
 
-    with_mock Cid, [cid: fn(_input) -> "invalid data type" end] do
-      conn = post(conn, ~p"/api/images", @empty_file)
-
-      assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-               "detail" => "Error uploading file. The file extension and contents are invalid."
-             }
-    end
-  end
-
-  test "file with invalid binary data (cid) but valid content type should return error", %{conn: conn} do
-
-    with_mock Cid, [cid: fn(_input) -> "invalid data type" end] do
-      conn = post(conn, ~p"/api/images", @valid_image_attrs)
-
-      assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-               "detail" => "Error uploading file. Failure creating the CID filename."
-             }
-    end
+    assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+             "detail" => "Error uploading file. Failure creating the CID filename."
+           }
   end
 
   test "valid file but the upload to S3 failed. It should return an error.", %{conn: conn} do

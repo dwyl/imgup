@@ -86,12 +86,14 @@ defmodule App.Upload do
     case File.read(image.path) do
       # Create `CID` from file contents so filenames are unique
       {:ok, file_binary} ->
-        file_cid = Cid.cid(file_binary)
+        contents = if byte_size(file_binary) == 0, do: [], else: file_binary
+        file_cid = Cid.cid(contents)
 
         file_extension =
           image.content_type
           |> MIME.extensions()
           |> List.first()
+
 
         # Return the file's content CID and its MIME extension if valid.
         # Otherwise, return error.

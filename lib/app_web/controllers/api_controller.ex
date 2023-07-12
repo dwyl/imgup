@@ -18,11 +18,6 @@ defmodule AppWeb.ApiController do
             body: "Error uploading file. Failure creating the CID filename."
           })
 
-        {:error, :invalid_extension} ->
-          render(conn |> put_status(400), %{
-            body: "Error uploading file. Failure parsing the file extension."
-          })
-
         {:error, :invalid_extension_and_cid} ->
           render(conn |> put_status(400), %{
             body: "Error uploading file. The file extension and contents are invalid."
