@@ -431,30 +431,16 @@ open `test/app_web/api_test.exs` and add this.
     conn = post(conn, ~p"/api/images", @empty_file)
 
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-             "detail" => "Error uploading file. Failure parsing the file extension."
+             "detail" => "Error uploading file. The file extension and contents are invalid."
            }
   end
 
-  test "file with invalid binary data type and extension should return error.", %{conn: conn} do
+  test "empty image (meaning it has a valid content type) should return an error", %{conn: conn} do
+    conn = post(conn, ~p"/api/images", @empty_image)
 
-    with_mock Cid, [cid: fn(_input) -> "invalid data type" end] do
-      conn = post(conn, ~p"/api/images", @empty_file)
-
-      assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-               "detail" => "Error uploading file. The file extension and contents are invalid."
-             }
-    end
-  end
-
-  test "file with invalid binary data (cid) but valid content type should return error", %{conn: conn} do
-
-    with_mock Cid, [cid: fn(_input) -> "invalid data type" end] do
-      conn = post(conn, ~p"/api/images", @valid_image_attrs)
-
-      assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-               "detail" => "Error uploading file. Failure creating the CID filename."
-             }
-    end
+    assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+             "detail" => "Error uploading file. Failure creating the CID filename."
+           }
   end
 
   test "valid file but the upload to S3 failed. It should return an error.", %{conn: conn} do
@@ -473,9 +459,9 @@ open `test/app_web/api_test.exs` and add this.
 >
 > We are using the [`mock` ](https://github.com/jjh42/mock)
 > library so we are able to correctly test 
-> whenever a content type is invalid,
-> or the upload to `S3` fails.
-> Simply install it to use it.
+> whenever `S3` is down.
+> Although using mocks *can lead to false positives*,
+> here's acceptable because we're simulating a third-party service to be down.
 
 
 We've added a test for each scenario 
@@ -483,6 +469,8 @@ and what we expect the API to return to us.
 We are using the `empty` file
 to simulate an invalid binary file content,
 which will result in failing the `CID` creation.
+Check the files needed for these test to pass inside
+[`priv/static/images`](./priv/static/images/).
 
 Now let's implement the features so our tests pass! ✅
 
@@ -496,7 +484,8 @@ def upload(image) do
     # Create `CID` from file contents so filenames are unique
     case File.read(image.path) do
       {:ok, file_binary} ->
-        file_cid = Cid.cid(file_binary)
+        contents = if byte_size(file_binary) == 0, do: [], else: file_binary
+        file_cid = Cid.cid(contents)
 
         file_extension =
           image.content_type
@@ -607,11 +596,6 @@ def create(conn, %{"" => params}) do
         {:error, :invalid_cid} ->
           render(conn |> put_status(400), %{
             body: "Error uploading file. Failure creating the CID filename."
-          })
-
-        {:error, :invalid_extension} ->
-          render(conn |> put_status(400), %{
-            body: "Error uploading file. Failure parsing the file extension."
           })
 
         {:error, :invalid_extension_and_cid} ->
