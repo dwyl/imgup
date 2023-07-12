@@ -21,6 +21,15 @@ defmodule AppWeb.APITest do
     }
   }
 
+  # Valid PDF
+  @valid_pdf_attrs %{
+    "image" => %Plug.Upload{
+      content_type: "application/pdf",
+      filename: "ginger.pdf",
+      path: [:code.priv_dir(:app), "static", "images", "ginger.pdf"] |> Path.join()
+    }
+  }
+
   # random non-existent pdf
   @invalid_attrs %{
     "" => %Plug.Upload{
@@ -72,6 +81,13 @@ defmodule AppWeb.APITest do
     }
 
     assert Jason.decode!(response(conn, 200)) == expected
+  end
+
+  test "upload pdf", %{conn: conn} do
+    conn = post(conn, ~p"/api/images", @valid_pdf_attrs)
+    assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+      "detail" => "Uploaded file is not a valid image."
+    }
   end
 
   test "wrong file extension", %{conn: conn} do
