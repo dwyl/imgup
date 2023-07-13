@@ -84,7 +84,7 @@ defmodule App.UploadTest do
   test "check_file_binary_and_extension/1 with empty.pdf returns :invalid_cid" do
     filename = "empty.pdf"
     image = %Plug.Upload{
-      content_type: "application/pdf",s
+      content_type: "application/pdf",
       filename: filename,
       path: [:code.priv_dir(:app), "static", "images", filename] |> Path.join()
     }
