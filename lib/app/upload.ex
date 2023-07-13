@@ -82,7 +82,7 @@ defmodule App.Upload do
     end
   end
 
-  defp check_file_binary_and_extension(image) do
+  def check_file_binary_and_extension(image) do
     case File.read(image.path) do
       # Create `CID` from file contents so filenames are unique
       {:ok, file_binary} ->

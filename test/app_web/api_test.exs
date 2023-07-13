@@ -124,7 +124,7 @@ defmodule AppWeb.APITest do
            }
   end
 
-  test "empty image (meaning it has a valid content type) should return an error", %{conn: conn} do
+  test "file with invalid binary data type and extension should return error. ", %{conn: conn} do
     conn = post(conn, ~p"/api/images", @empty_image)
 
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
