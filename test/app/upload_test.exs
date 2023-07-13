@@ -81,15 +81,14 @@ defmodule App.UploadTest do
     assert App.Upload.upload(image) == {:error, :invalid_extension}
   end
 
-  test "check_file_binary_and_extension/1 with empty.pdf should be invalid but is not ..." do
+  test "check_file_binary_and_extension/1 with empty.pdf returns :invalid_cid" do
     filename = "empty.pdf"
     image = %Plug.Upload{
-      content_type: "application/pdf",
+      content_type: "application/pdf",s
       filename: filename,
       path: [:code.priv_dir(:app), "static", "images", filename] |> Path.join()
     }
 
-    assert App.Upload.check_file_binary_and_extension(image) ==
-      {:ok, {"zb2rhmy65F3REf8SZp7De11gxtECBGgUKaLdiDj7MCGCHxbDW", "pdf"}}
+    assert App.Upload.check_file_binary_and_extension(image) == {:error, :invalid_cid}
   end
 end
