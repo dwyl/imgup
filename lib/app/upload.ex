@@ -76,6 +76,7 @@ defmodule App.Upload do
       {:ok, {file_name, upload_response_body}}
     rescue
       e ->
+        Logger.error("There was a problem uploading the file to S3.")
         Logger.error(Exception.format(:error, e, __STACKTRACE__))
         {:error, :upload_fail}
     end
@@ -97,12 +98,15 @@ defmodule App.Upload do
         # Otherwise, return error.
         case {file_cid, file_extension} do
           {"invalid data type", nil} ->
+            Logger.error("File extension is invalid and the CID derived from the file contents is also invalid: #{inspect(image)}")
             {:error, :invalid_extension_and_cid}
 
           {"invalid data type", _extension} ->
+            Logger.error("The CID derived from the file contents is invalid: #{inspect(image)}")
             {:error, :invalid_cid}
 
           {_cid, nil} ->
+            Logger.error("File extension is invalid: #{inspect(image)}")
             {:error, :invalid_extension}
 
           {file_cid, file_extension} ->
@@ -110,7 +114,8 @@ defmodule App.Upload do
         end
 
       # If image can't be opened, return error
-      {:error, _reason} ->
+      {:error, reason} ->
+        Logger.error("Problem reading file: #{inspect(reason)}")
         {:error, :failure_read}
     end
   end

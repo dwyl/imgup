@@ -120,7 +120,7 @@ defmodule AppWeb.APITest do
     conn = post(conn, ~p"/api/images", @empty_file)
 
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-             "detail" => "Error uploading file. The file extension and contents are invalid."
+             "detail" => "There was an error uploading the file. Please try again later."
            }
   end
 
@@ -128,7 +128,7 @@ defmodule AppWeb.APITest do
     conn = post(conn, ~p"/api/images", @empty_image)
 
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-             "detail" => "Error uploading file. Failure creating the CID filename."
+             "detail" => "Error uploading file. The contents of the uploaded file may be empty or invalid."
            }
   end
 
@@ -138,7 +138,7 @@ defmodule AppWeb.APITest do
       conn = post(conn, ~p"/api/images", @valid_image_attrs)
 
       assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-               "detail" => "Error uploading file. There was an error uploading the file to S3."
+               "detail" => "Uploads are not working right now, please try again later."
              }
     end
   end
