@@ -23,10 +23,11 @@ defmodule AppWeb.ApiController do
             body: "Error uploading file. The file extension and contents are invalid."
           })
 
-        {:error, :upload_fail} ->
-          render(conn |> put_status(400), %{
-            body: "Error uploading file. There was an error uploading the file to S3."
-          })
+        #
+        # {:error, :upload_fail} ->
+        #   render(conn |> put_status(400), %{
+        #     body: "Error uploading file. There was an error uploading the file to S3."
+        #   })
       end
     else
       render(conn |> put_status(400), %{body: "Uploaded file is not a valid image."})
