@@ -12,24 +12,21 @@ defmodule AppWeb.ApiController do
         {:error, :failure_read} ->
           render(conn |> put_status(400), %{body: "Error uploading file. Failure reading file."})
 
-        {:error, :invalid_cid} ->
-          render(conn |> put_status(400), %{
-            body: "Error uploading file. Failure creating the CID filename."
-          })
-
         {:error, :invalid_extension} ->
           render(conn |> put_status(400), %{
-            body: "Error uploading file. Failure parsing the file extension."
+            body:
+              "Error uploading file. The content type of the uploaded file is not valid."
           })
 
-        {:error, :invalid_extension_and_cid} ->
+        {:error, :invalid_cid} ->
           render(conn |> put_status(400), %{
-            body: "Error uploading file. The file extension and contents are invalid."
+            body:
+              "Error uploading file. The contents of the uploaded file may be empty or invalid."
           })
 
-        {:error, :upload_fail} ->
+        _ ->
           render(conn |> put_status(400), %{
-            body: "Error uploading file. There was an error uploading the file to S3."
+            body: "There was an error uploading the file. Please try again later."
           })
       end
     else
@@ -39,7 +36,6 @@ defmodule AppWeb.ApiController do
 
   # Preserve backward compatibility with "image" keyword:
   def create(conn, %{"image" => image}) do
-    # dbg(image)
     create(conn, %{"" => image})
   end
 end

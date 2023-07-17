@@ -3,8 +3,11 @@ defmodule App.Upload do
   Handles uploading to S3 in a convenient reusable (DRY) function.
   """
   import SweetXml
+  require Logger
 
-  @compressed_baseurl "https://s3.eu-west-3.amazonaws.com/#{Application.compile_env(:ex_aws, :compressed_bucket)}/"
+  @original_bucket Application.compile_env(:ex_aws, :original_bucket)
+  @compressed_bucket Application.compile_env(:ex_aws, :compressed_bucket)
+  @compressed_baseurl "https://s3.eu-west-3.amazonaws.com/#{@compressed_bucket}/"
 
   @doc """
   `upload/1` receives an `image` with the format
@@ -21,7 +24,7 @@ defmodule App.Upload do
     with {:ok, {file_cid, file_extension}} <- check_file_binary_and_extension(image),
          {:ok, {file_name, upload_response_body}} <-
            upload_file_to_s3(file_cid, file_extension, image) do
-      # Sample response:
+      # Sample AWS S3 XML response:
       # %{
       #   body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n
       #    <CompleteMultipartUploadResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">
@@ -42,7 +45,6 @@ defmodule App.Upload do
       #   ],
       #   status_code: 200
       # }
-
       # Fetch the contents of the returned XML string from `ex_aws`.
       # This XML is parsed with `sweet_xml`:
       # github.com/kbrw/sweet_xml#the-x-sigil
@@ -50,26 +52,22 @@ defmodule App.Upload do
       compressed_url = "#{@compressed_baseurl}#{file_name}"
       {:ok, %{url: url, compressed_url: compressed_url}}
     else
-      {:error, :failure_read} -> {:error, :failure_read}
-      {:error, :invalid_extension_and_cid} -> {:error, :invalid_extension_and_cid}
-      {:error, :invalid_cid} -> {:error, :invalid_cid}
-      {:error, :invalid_extension} -> {:error, :invalid_extension}
-      {:error, :upload_fail} -> {:error, :upload_fail}
+      {:error, reason} -> {:error, reason}
     end
   end
 
-  defp upload_file_to_s3(file_cid, file_extension, image) do
+  def upload_file_to_s3(file_cid, file_extension, image) do
     # Creating filename with the retrieved extension
     file_name = "#{file_cid}.#{file_extension}"
 
     # Make request.
     # Return the body of the response if successful.
-    # Otherwise, raise error.
+    # Otherwise, error.
     try do
       {:ok, upload_response_body} =
         image.path
         |> ExAws.S3.Upload.stream_file()
-        |> ExAws.S3.upload(Application.get_env(:ex_aws, :original_bucket), file_name,
+        |> ExAws.S3.upload(@original_bucket, file_name,
           acl: :public_read,
           content_type: image.content_type
         )
@@ -77,16 +75,19 @@ defmodule App.Upload do
 
       {:ok, {file_name, upload_response_body}}
     rescue
-      _e ->
+      e ->
+        Logger.error("There was a problem uploading the file to S3.")
+        Logger.error(Exception.format(:error, e, __STACKTRACE__))
         {:error, :upload_fail}
     end
   end
 
-  defp check_file_binary_and_extension(image) do
+  def check_file_binary_and_extension(image) do
     case File.read(image.path) do
       # Create `CID` from file contents so filenames are unique
       {:ok, file_binary} ->
-        file_cid = Cid.cid(file_binary)
+        contents = if byte_size(file_binary) == 0, do: [], else: file_binary
+        file_cid = Cid.cid(contents)
 
         file_extension =
           image.content_type
@@ -97,12 +98,15 @@ defmodule App.Upload do
         # Otherwise, return error.
         case {file_cid, file_extension} do
           {"invalid data type", nil} ->
+            Logger.error("File extension is invalid and the CID derived from the file contents is also invalid: #{inspect(image)}")
             {:error, :invalid_extension_and_cid}
 
           {"invalid data type", _extension} ->
+            Logger.error("The CID derived from the file contents is invalid: #{inspect(image)}")
             {:error, :invalid_cid}
 
           {_cid, nil} ->
+            Logger.error("File extension is invalid: #{inspect(image)}")
             {:error, :invalid_extension}
 
           {file_cid, file_extension} ->
@@ -110,7 +114,8 @@ defmodule App.Upload do
         end
 
       # If image can't be opened, return error
-      {:error, _reason} ->
+      {:error, reason} ->
+        Logger.error("Problem reading file: #{inspect(reason)}")
         {:error, :failure_read}
     end
   end
