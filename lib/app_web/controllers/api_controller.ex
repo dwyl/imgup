@@ -30,7 +30,6 @@ defmodule AppWeb.ApiController do
 
   # Preserve backward compatibility with "image" keyword:
   def create(conn, %{"image" => image}) do
-    # dbg(image)
     create(conn, %{"" => image})
   end
 end
