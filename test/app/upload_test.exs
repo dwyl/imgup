@@ -81,6 +81,18 @@ defmodule App.UploadTest do
     assert App.Upload.upload(image) == {:error, :invalid_extension}
   end
 
+  test "upload_file_to_s3/3 with invalid image data (no image.path) should error" do
+    image = %Plug.Upload{
+      content_type: "image/png",
+      filename: "phoenix.png"
+    }
+
+    file_cid = "anything"
+    file_extension = ".png"
+    assert App.Upload.upload_file_to_s3(file_cid, file_extension, image) == {:error, :upload_fail}
+
+  end
+
   test "check_file_binary_and_extension/1 with empty.pdf returns :invalid_cid" do
     filename = "empty.pdf"
     image = %Plug.Upload{

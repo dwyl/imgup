@@ -475,16 +475,16 @@ Check the files needed for these test to pass inside
 Now let's implement the features so our tests pass! ✅
 
 Open `lib/app/upload.ex`.
-We are going to refactor this function
-so it returns specific errors 
-as the image is read all the way until it is uploaded to `S3`.
+
+Add the following function definition:
 
 ```elixir
-def upload(image) do
-    # Create `CID` from file contents so filenames are unique
+  def check_file_binary_and_extension(image) do
     case File.read(image.path) do
+      # Read file contents
       {:ok, file_binary} ->
         contents = if byte_size(file_binary) == 0, do: [], else: file_binary
+        # Create `CID` from file contents so filenames are unique
         file_cid = Cid.cid(contents)
 
         file_extension =
@@ -492,7 +492,8 @@ def upload(image) do
           |> MIME.extensions()
           |> List.first()
 
-        # Check if file `cid` and extension are valid.
+        # Return the file's content CID and its MIME extension if valid.
+        # Otherwise, return error.
         case {file_cid, file_extension} do
           {"invalid data type", nil} ->
             {:error, :invalid_extension_and_cid}
@@ -503,67 +504,59 @@ def upload(image) do
           {_cid, nil} ->
             {:error, :invalid_extension}
 
-          # If the `cid` and extension are valid, we are safe to upload
           {file_cid, file_extension} ->
-            # Creating filename with the retrieved extension
-            file_name = "#{file_cid}.#{file_extension}"
-
-            # Upload to S3
-            request_response =
-              try do
-                image.path
-                |> ExAws.S3.Upload.stream_file()
-                |> ExAws.S3.upload(Application.get_env(:ex_aws, :original_bucket), file_name,
-                  acl: :public_read,
-                  content_type: image.content_type
-                )
-                |> ExAws.request(get_ex_aws_request_config_override())
-              rescue
-                _e ->
-                  {:error, :upload_fail}
-              end
-
-            # Check if the request was successful
-            case request_response do
-              # If the request was successful, we parse the result
-              {:ok, body} ->
-                # Sample response:
-                # %{
-                #   body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n
-                #    <CompleteMultipartUploadResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">
-                #    <Location>https://s3.eu-west-3.amazonaws.com/imgup-original/qvWtbC7WaT.jpg</Location>
-                #    <Bucket>imgup-original</Bucket><Key>qvWtbC7WaT.jpg</Key>
-                #    <ETag>\"4ecd62951576b7e5b4a3e869e5e98a0f-1\"</ETag></CompleteMultipartUploadResult>",
-                #   headers: [
-                #     {"x-amz-id-2",
-                #      "wNTNZKt82vgnOuT1o2Tz8z3gcRzd6wXofYxQmBUkGbBGTpmv1WbwjjGiRAUtOTYIm92bh/VJHhI="},
-                #     {"x-amz-request-id", "QRENBY1MJTQWD7CZ"},
-                #     {"Date", "Tue, 13 Jun 2023 10:22:44 GMT"},
-                #     {"x-amz-expiration",
-                #      "expiry-date=\"Thu, 15 Jun 2023 00:00:00 GMT\", rule-id=\"delete-after-1-day\""},
-                #     {"x-amz-server-side-encryption", "AES256"},
-                #     {"Content-Type", "application/xml"},
-                #     {"Transfer-Encoding", "chunked"},
-                #     {"Server", "AmazonS3"}
-                #   ],
-                #   status_code: 200
-                # }
-
-                # Fetch the contents of the returned XML string from `ex_aws`.
-                # This XML is parsed with `sweet_xml`:
-                # github.com/kbrw/sweet_xml#the-x-sigil
-                url = body.body |> xpath(~x"//text()") |> List.to_string()
-                compressed_url = "#{@compressed_baseurl}#{file_name}"
-                {:ok, %{url: url, compressed_url: compressed_url}}
-
-              # If the request was unsuccessful, throw an error
-              {:error, _reason} ->
-                {:error, :upload_fail}
-            end
+            {:ok, {file_cid, file_extension}}
         end
 
+      # If image can't be opened, return error
       {:error, _reason} ->
         {:error, :failure_read}
+    end
+  end
+```
+
+`check_file_binary_and_extension/1` 
+
+
+We are going to refactor this function
+so it returns specific errors 
+as the image is read all the way until it is uploaded to `S3`.
+
+```elixir
+  def upload(image) do
+    with {:ok, {file_cid, file_extension}} <- check_file_binary_and_extension(image),
+         {:ok, {file_name, upload_response_body}} <-
+           upload_file_to_s3(file_cid, file_extension, image) do
+      # Sample AWS S3 XML response:
+      # %{
+      #   body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n
+      #    <CompleteMultipartUploadResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">
+      #    <Location>https://s3.eu-west-3.amazonaws.com/imgup-original/qvWtbC7WaT.jpg</Location>
+      #    <Bucket>imgup-original</Bucket><Key>qvWtbC7WaT.jpg</Key>
+      #    <ETag>\"4ecd62951576b7e5b4a3e869e5e98a0f-1\"</ETag></CompleteMultipartUploadResult>",
+      #   headers: [
+      #     {"x-amz-id-2",
+      #      "wNTNZKt82vgnOuT1o2Tz8z3gcRzd6wXofYxQmBUkGbBGTpmv1WbwjjGiRAUtOTYIm92bh/VJHhI="},
+      #     {"x-amz-request-id", "QRENBY1MJTQWD7CZ"},
+      #     {"Date", "Tue, 13 Jun 2023 10:22:44 GMT"},
+      #     {"x-amz-expiration",
+      #      "expiry-date=\"Thu, 15 Jun 2023 00:00:00 GMT\", rule-id=\"delete-after-1-day\""},
+      #     {"x-amz-server-side-encryption", "AES256"},
+      #     {"Content-Type", "application/xml"},
+      #     {"Transfer-Encoding", "chunked"},
+      #     {"Server", "AmazonS3"}
+      #   ],
+      #   status_code: 200
+      # }
+
+      # Fetch the contents of the returned XML string from `ex_aws`.
+      # This XML is parsed with `sweet_xml`:
+      # github.com/kbrw/sweet_xml#the-x-sigil
+      url = upload_response_body.body |> xpath(~x"//text()") |> List.to_string()
+      compressed_url = "#{@compressed_baseurl}#{file_name}"
+      {:ok, %{url: url, compressed_url: compressed_url}}
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 ```

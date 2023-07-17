@@ -9,11 +9,6 @@ defmodule AppWeb.ApiController do
         {:ok, body} ->
           render(conn, :success, body)
 
-        {:error, :upload_fail} ->
-          render(conn |> put_status(400), %{
-            body: "Uploads are not working right now, please try again later."
-          })
-
         {:error, :failure_read} ->
           render(conn |> put_status(400), %{body: "Error uploading file. Failure reading file."})
 
