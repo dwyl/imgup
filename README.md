@@ -3,7 +3,7 @@
 # `image uploads`
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/imgup/ci.yml?label=build&style=flat-square&branch=main)
-[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/imgup/main.svg?style=flat-square)](http://codecov.io/github/dwyl/imgup?branch=main)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/imgup/main.svg?style=flat-square)](https://codecov.io/github/dwyl/imgup?branch=main)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/imgup/issues)
 [![HitCount](https://hits.dwyl.com/dwyl/imgup.svg?style=flat-square&show=unique)](https://hits.dwyl.com/dwyl/imgup)
 
@@ -2523,7 +2523,7 @@ we are using `Javascript`
 (in `assets/js/app.js`) to upload the file 
 to a given `Uploader` (in our case, an `S3` bucket).
 Although doing this in the client code is handy,
-it's useful to show a completely **server-sided option**,
+it's useful to showcase a completely **server-sided option**,
 in which the file is uploaded in our `LiveView` Elixir server.
 
 For this,
