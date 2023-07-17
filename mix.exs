@@ -69,8 +69,9 @@ defmodule App.MixProject do
       {:sweet_xml, "~> 0.7"},
       {:hackney, "~> 1.9"},
 
-      # Mocking tests
-      {:mox, "~> 1.0", only: :test},
+      # Mocking tests - Not currently used.
+      # {:mox, "~> 1.0", only: :test},
+      # {:mock, "~> 0.3.0", only: :test},
 
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.11.1"},

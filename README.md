@@ -3,7 +3,7 @@
 # `image uploads`
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/imgup/ci.yml?label=build&style=flat-square&branch=main)
-[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/imgup/main.svg?style=flat-square)](https://codecov.io/github/dwyl/imgup?branch=main)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/imgup/main.svg?style=flat-square)](http://codecov.io/github/dwyl/imgup?branch=main)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/imgup/issues)
 [![HitCount](https://hits.dwyl.com/dwyl/imgup.svg?style=flat-square&show=unique)](https://hits.dwyl.com/dwyl/imgup)
 
@@ -149,6 +149,8 @@ and add your credentials to it:
 export AWS_ACCESS_KEY_ID='YOUR_KEY'
 export AWS_SECRET_ACCESS_KEY='YOUR_KEY'
 export AWS_REGION='eu-west-3'
+export AWS_S3_BUCKET_ORIGINAL=imgup-original
+export AWS_S3_BUCKET_COMPRESSED=imgup-compressed
 ```
 
 In your terminal, run `source .env` to export the keys.

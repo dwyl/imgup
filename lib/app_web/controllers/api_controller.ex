@@ -3,25 +3,39 @@ defmodule AppWeb.ApiController do
   require Logger
 
   def create(conn, %{"" => params}) do
-    # dbg(params)
-    # check if content_type e.g: "image/png"
+    # Check if content_type e.g: "image/png"
     if String.contains?(params.content_type, "image") do
-      try do
-        {:ok, body} = App.Upload.upload(params)
-        render(conn, :success, body)
-      rescue
-        e ->
-          Logger.error(Exception.format(:error, e, __STACKTRACE__))
-          render(conn |> put_status(400), %{body: "Error uploading file #26"})
+      case App.Upload.upload(params) do
+        {:ok, body} ->
+          render(conn, :success, body)
+
+        {:error, :failure_read} ->
+          render(conn |> put_status(400), %{body: "Error uploading file. Failure reading file."})
+
+        {:error, :invalid_extension} ->
+          render(conn |> put_status(400), %{
+            body:
+              "Error uploading file. The content type of the uploaded file is not valid."
+          })
+
+        {:error, :invalid_cid} ->
+          render(conn |> put_status(400), %{
+            body:
+              "Error uploading file. The contents of the uploaded file may be empty or invalid."
+          })
+
+        _ ->
+          render(conn |> put_status(400), %{
+            body: "There was an error uploading the file. Please try again later."
+          })
       end
     else
       render(conn |> put_status(400), %{body: "Uploaded file is not a valid image."})
     end
   end
 
-  # preserve backward compatibility with "image" keyword:
+  # Preserve backward compatibility with "image" keyword:
   def create(conn, %{"image" => image}) do
-    # dbg(image)
     create(conn, %{"" => image})
   end
 end
