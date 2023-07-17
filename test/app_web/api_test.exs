@@ -66,6 +66,15 @@ defmodule AppWeb.APITest do
     }
   }
 
+  # image with invalid content type
+  @invalid_content_type_image %{
+    "" => %Plug.Upload{
+      content_type: "image/xyz",
+      filename: "phoenix.xyz",
+      path: [:code.priv_dir(:app), "static", "images", "phoenix.xyz"] |> Path.join()
+    }
+  }
+
   test "upload succeeds (happy path)", %{conn: conn} do
     conn = post(conn, ~p"/api/images", @create_attrs)
 
@@ -121,6 +130,14 @@ defmodule AppWeb.APITest do
 
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
              "detail" => "There was an error uploading the file. Please try again later."
+           }
+  end
+
+  test "image file with invalid content type should return appropriate error", %{conn: conn} do
+    conn = post(conn, ~p"/api/images", @invalid_content_type_image)
+
+    assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
+             "detail" => "Error uploading file. The content type of the uploaded file is not valid."
            }
   end
 

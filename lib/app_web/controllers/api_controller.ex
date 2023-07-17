@@ -12,6 +12,12 @@ defmodule AppWeb.ApiController do
         {:error, :failure_read} ->
           render(conn |> put_status(400), %{body: "Error uploading file. Failure reading file."})
 
+        {:error, :invalid_extension} ->
+          render(conn |> put_status(400), %{
+            body:
+              "Error uploading file. The content type of the uploaded file is not valid."
+          })
+
         {:error, :invalid_cid} ->
           render(conn |> put_status(400), %{
             body:
