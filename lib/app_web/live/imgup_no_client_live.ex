@@ -22,7 +22,6 @@ defmodule AppWeb.ImgupNoClientLive do
 
   # With `auto_upload: true`, we can consume files here
   defp handle_progress(:image_list, entry, socket) do
-    dbg('brudda')
     if entry.done? do
       uploaded_file =
         consume_uploaded_entry(socket, entry, fn %{path: path} ->
