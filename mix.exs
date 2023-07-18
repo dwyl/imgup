@@ -63,6 +63,9 @@ defmodule App.MixProject do
       # Cid
       {:excid, "~> 0.1.0"},
 
+      # Cors
+      {:cors_plug, "~> 3.0"},
+
       # AWS-related packages
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},

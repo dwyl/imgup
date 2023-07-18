@@ -32,6 +32,8 @@ defmodule AppWeb.Endpoint do
     plug Phoenix.Ecto.CheckRepoStatus, otp_app: :app
   end
 
+  plug CORSPlug
+
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
