@@ -21,6 +21,32 @@ Learn how upload `images` via a `REST API` in a `Phoenix` App.
 - [5. Returning meaningful errors](#5-returning-meaningful-errors)
 
 
+0. Add `cors_plug` 
+
+We are going to be adding 
+[`cors_plug`](https://hexdocs.pm/cors_plug/readme.html)
+to add [`Cross-Origin Resource Sharing`](https://fetch.spec.whatwg.org/)
+capabilities to our API.
+
+This will be particularly useful for when web browsers make calls to the API.
+
+Firstly,
+add `{:cors_plug, "~> 3.0"},` to the `deps` section
+inside `mix.exs`
+and run `mix deps.get`.
+
+After fetching this dependency,
+head over to `lib/app_web/endpoint.ex`
+and add the plug!
+
+```elixir
+  plug CORSPlug # add this line
+
+  plug Plug.RequestId
+  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+```
+
+And you're done!
 
 # 1. Add `/api` scope and pipeline and setting up controller
 
