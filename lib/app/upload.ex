@@ -5,9 +5,11 @@ defmodule App.Upload do
   import SweetXml
   require Logger
 
-  @original_bucket Application.compile_env(:ex_aws, :original_bucket)
-  @compressed_bucket Application.compile_env(:ex_aws, :compressed_bucket)
-  @compressed_baseurl "https://s3.eu-west-3.amazonaws.com/#{@compressed_bucket}/"
+  # function gets cached
+  defp compressed_baseurl() do
+    compressed_bucket = Application.get_env(:ex_aws, :compressed_bucket)
+    "https://s3.eu-west-3.amazonaws.com/#{compressed_bucket}/"
+  end
 
   @doc """
   `upload/1` receives an `image` with the format
@@ -48,8 +50,12 @@ defmodule App.Upload do
       # Fetch the contents of the returned XML string from `ex_aws`.
       # This XML is parsed with `sweet_xml`:
       # github.com/kbrw/sweet_xml#the-x-sigil
+      #
+      # Fetching the URL of the returned file.
       url = upload_response_body.body |> xpath(~x"//text()") |> List.to_string()
-      compressed_url = "#{@compressed_baseurl}#{file_name}"
+
+      # Creating the compressed URL to return as well
+      compressed_url = "#{compressed_baseurl()}#{file_name}"
       {:ok, %{url: url, compressed_url: compressed_url}}
     else
       {:error, reason} -> {:error, reason}
@@ -59,6 +65,7 @@ defmodule App.Upload do
   def upload_file_to_s3(file_cid, file_extension, image) do
     # Creating filename with the retrieved extension
     file_name = "#{file_cid}.#{file_extension}"
+    s3_bucket = Application.get_env(:ex_aws, :original_bucket)
 
     # Make request.
     # Return the body of the response if successful.
@@ -67,7 +74,7 @@ defmodule App.Upload do
       {:ok, upload_response_body} =
         image.path
         |> ExAws.S3.Upload.stream_file()
-        |> ExAws.S3.upload(@original_bucket, file_name,
+        |> ExAws.S3.upload(s3_bucket, file_name,
           acl: :public_read,
           content_type: image.content_type
         )
@@ -98,7 +105,10 @@ defmodule App.Upload do
         # Otherwise, return error.
         case {file_cid, file_extension} do
           {"invalid data type", nil} ->
-            Logger.error("File extension is invalid and the CID derived from the file contents is also invalid: #{inspect(image)}")
+            Logger.error(
+              "File extension is invalid and the CID derived from the file contents is also invalid: #{inspect(image)}"
+            )
+
             {:error, :invalid_extension_and_cid}
 
           {"invalid data type", _extension} ->

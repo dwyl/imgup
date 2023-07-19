@@ -676,7 +676,7 @@ add:
       {:ok, upload_response_body} =
         image.path
         |> ExAws.S3.Upload.stream_file()
-        |> ExAws.S3.upload(@original_bucket, file_name,
+        |> ExAws.S3.upload(Application.get_env(:ex_aws, :original_bucket), file_name,
           acl: :public_read,
           content_type: image.content_type
         )
@@ -736,8 +736,13 @@ making it simpler!
       # Fetch the contents of the returned XML string from `ex_aws`.
       # This XML is parsed with `sweet_xml`:
       # github.com/kbrw/sweet_xml#the-x-sigil
+      #
+      # Fetching the URL of the returned file.
       url = upload_response_body.body |> xpath(~x"//text()") |> List.to_string()
-      compressed_url = "#{@compressed_baseurl}#{file_name}"
+
+      # Creating the compressed URL to return as well
+      compressed_bucket_baseurl = "https://s3.eu-west-3.amazonaws.com/#{Application.get_env(:ex_aws, :compressed_bucket)}/"
+      compressed_url = "#{compressed_bucket_baseurl}#{file_name}"
       {:ok, %{url: url, compressed_url: compressed_url}}
     else
       {:error, reason} -> {:error, reason}
