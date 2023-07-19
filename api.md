@@ -681,6 +681,11 @@ making it simpler!
 
 
 ```elixir
+
+  @original_bucket Application.get_env(:ex_aws, :original_bucket)
+  @compressed_bucket Application.get_env(:ex_aws, :compressed_bucket)
+  @compressed_baseurl "https://s3.eu-west-3.amazonaws.com/#{@compressed_bucket}/"
+
   def upload(image) do
     with {:ok, {file_cid, file_extension}} <- check_file_binary_and_extension(image),
          {:ok, {file_name, upload_response_body}} <-

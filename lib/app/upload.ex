@@ -5,8 +5,8 @@ defmodule App.Upload do
   import SweetXml
   require Logger
 
-  @original_bucket Application.compile_env(:ex_aws, :original_bucket)
-  @compressed_bucket Application.compile_env(:ex_aws, :compressed_bucket)
+  @original_bucket Application.get_env(:ex_aws, :original_bucket)
+  @compressed_bucket Application.get_env(:ex_aws, :compressed_bucket)
   @compressed_baseurl "https://s3.eu-west-3.amazonaws.com/#{@compressed_bucket}/"
 
   @doc """
