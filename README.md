@@ -3,7 +3,7 @@
 # `image uploads`
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/imgup/ci.yml?label=build&style=flat-square&branch=main)
-[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/imgup/main.svg?style=flat-square)](http://codecov.io/github/dwyl/imgup?branch=main)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/imgup/main.svg?style=flat-square)](https://codecov.io/github/dwyl/imgup?branch=main)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/imgup/issues)
 [![HitCount](https://hits.dwyl.com/dwyl/imgup.svg?style=flat-square&show=unique)](https://hits.dwyl.com/dwyl/imgup)
 
@@ -49,7 +49,10 @@ using `Phoenix + LiveView`.
       - [7.5.1 What if I want to make changes to the function?](#751-what-if-i-want-to-make-changes-to-the-function)
     - [7.6 Refactoring the `Phoenix` app to use image compression](#76-refactoring-the-phoenix-app-to-use-image-compression)
     - [7.7 Run it!](#77-run-it)
-  - [8 A note when deploying online](#8-a-note-when-deploying-online)
+  - [8. A note when deploying online](#8-a-note-when-deploying-online)
+  - [9. Uploading files without `Javascript`](#9-uploading-files-without-javascript)
+    - [9.1 Creating a new LiveView](#91-creating-a-new-liveview)
+    - [9.2 Adding our view](#92-adding-our-view)
 - [_Please_ Star the repo! ⭐️](#please-star-the-repo-️)
 
 
@@ -2486,7 +2489,7 @@ Awesome job!
 You've just added image compression to your web app! 🎉
 
 
-## 8 A note when deploying online
+## 8. A note when deploying online
 
 If you want people
 to access your bucket publicly,
@@ -2501,6 +2504,592 @@ please follow
 https://repost.aws/knowledge-center/s3-empty-bucket-lifecycle-rule
 to **set lifecycle rules on both of your buckets**.
 This will *delete all the files of the bucket every X days*.
+
+
+## 9. Uploading files without `Javascript`
+
+> **Note**:
+> 
+> This section assumes you've implemented
+> the `API`, as described in [`api.md`](./api.md).
+> We are going to be using an `upload/1` function
+> to directly upload a given file to an `S3` bucket 
+> in our `LiveView` server.
+>
+> Give the document a read first so you're up to par! 😄
+
+As you might have noticed,
+we are using `Javascript` 
+(in `assets/js/app.js`) to upload the file 
+to a given `Uploader` (in our case, an `S3` bucket).
+Although doing this in the client code is handy,
+it's useful to showcase a completely **server-sided option**,
+in which the file is uploaded in our `LiveView` Elixir server.
+
+For this,
+we are going to be a **clientless file upload page** (to demonstrate this other scenario).
+This page will be similar to the previously developed `LiveView` page,
+albeit with some differences.
+
+Here is the flow of what the person using the page
+will expect to upload a file.
+
+- choose a file to input.
+- upon successful selection, the image will be automatically uploaded
+**locally in the server**.
+- to upload the file to the `S3` bucket, 
+the person will have to manually click the `Upload` button to upload
+the locally-saved file in the server to the bucket.
+- after a successful upload,
+the person will be shown both the original and compressed URLs,
+just like before!
+
+This is our flow.
+So let's add our tests to represent this!
+
+In `test/app_web/live`,
+create a file called `imgup_clientless_live_test.exs`.
+
+```elixir
+defmodule AppWeb.ImgupClientlessLiveTest do
+  use AppWeb.ConnCase
+  import Phoenix.LiveViewTest
+
+  test "connected mount", %{conn: conn} do
+    conn = get(conn, "/liveview_clientless")
+    assert html_response(conn, 200) =~ "(without file upload from client-side code)"
+
+    {:ok, _view, _html} = live(conn)
+  end
+
+  import AppWeb.UploadSupport
+
+  test "uploading a file", %{conn: conn} do
+    {:ok, lv, html} = live(conn, ~p"/liveview_clientless")
+    assert html =~ "Image Upload"
+
+    # Get file and add it to the form
+    file =
+      [:code.priv_dir(:app), "static", "images", "phoenix.png"]
+      |> Path.join()
+      |> build_upload("image/png")
+
+    image = file_input(lv, "#upload-form", :image_list, [file])
+
+    # Should show an uploaded local file
+    assert render_upload(image, file.name)
+           |> Floki.parse_document!()
+           |> Floki.find(".uploaded-local-item")
+           |> length() == 1
+
+    # Click on the upload button
+    lv |> element(".submit_button") |> render_click()
+
+    # Should show an uploaded S3 file
+    assert lv
+           |> render()
+           |> Floki.parse_document!()
+           |> Floki.find(".uploaded-s3-item")
+           |> length() == 1
+  end
+
+  test "uploading an image file with invalid extension fails and should show error", %{conn: conn} do
+    {:ok, lv, html} = live(conn, ~p"/liveview_clientless")
+    assert html =~ "Image Upload"
+
+    # Get empty file and add it to the form
+    file =
+      [:code.priv_dir(:app), "static", "images", "phoenix.xyz"]
+      |> Path.join()
+      |> build_upload("image/invalid")
+
+    image = file_input(lv, "#upload-form", :image_list, [file])
+
+    # Upload locally
+    assert render_upload(image, file.name)
+
+    # Click on the upload button
+    lv |> element(".submit_button") |> render_click()
+
+    # Should show an error
+    assert lv |> render() =~ "invalid_extension"
+  end
+
+  test "validate function should reply `no_reply`", %{conn: conn} do
+    assert AppWeb.ImgupNoClientLive.handle_event("validate", %{}, conn) == {:noreply, conn}
+  end
+end
+```
+
+As you can see,
+we're simply testing a success scenario 
+(when a file is uploaded successfully to `S3`)
+and another if the upload
+(for whatever reason)
+*fails* when uploading a file.
+In the latter, an error should be shown.
+
+Now that we've our tests,
+let's start implementing!
+
+
+### 9.1 Creating a new LiveView
+
+Let's create a new file called `imgup_no_client_live.ex`
+inside `lib/app_web/controllers/live`.
+Use the following code:
+
+```elixir
+defmodule AppWeb.ImgupNoClientLive do
+  use AppWeb, :live_view
+
+  @upload_dir Application.app_dir(:app, ["priv", "static", "image_uploads"])
+
+  @impl true
+  def mount(_params, _session, socket) do
+    {:ok,
+     socket
+     |> assign(:uploaded_files_locally, [])
+     |> assign(:uploaded_files_to_S3, [])
+     |> allow_upload(:image_list,
+       accept: ~w(image/*),
+       max_entries: 6,
+       chunk_size: 64_000,
+       auto_upload: true,
+       max_file_size: 5_000_000,
+       progress: &handle_progress/3
+       # Do not define presign_upload. This will create a local photo in /vars
+     )}
+  end
+
+  # With `auto_upload: true`, we can consume files here
+  defp handle_progress(:image_list, entry, socket) do
+    if entry.done? do
+      uploaded_file =
+        consume_uploaded_entry(socket, entry, fn %{path: path} ->
+          dest = Path.join(@upload_dir, entry.client_name)
+
+          # Copying the file from temporary folder to static folder
+          File.mkdir_p(@upload_dir)
+          File.cp!(path, dest)
+
+          # Adding properties to the entry.
+          # It should look like %{image_url: url, url_path: path, errors: []}
+          entry =
+            entry
+            |> Map.put(
+              :image_url,
+              AppWeb.Endpoint.url() <>
+                AppWeb.Endpoint.static_path("/image_uploads/#{entry.client_name}")
+            )
+            |> Map.put(
+              :url_path,
+              AppWeb.Endpoint.static_path("/image_uploads/#{entry.client_name}")
+            )
+            |> Map.put(
+              :errors,
+              []
+            )
+
+          {:ok, entry}
+        end)
+
+      {:noreply, update(socket, :uploaded_files_locally, &(&1 ++ [uploaded_file]))}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  # Event handlers -------
+
+  @impl true
+  def handle_event("validate", _params, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("upload_to_s3", params, socket) do
+    # Get file element from the local files array
+    file_element =
+      Enum.find(socket.assigns.uploaded_files_locally, fn %{uuid: uuid} ->
+        uuid == Map.get(params, "uuid")
+      end)
+
+    # Create file object to upload
+    file = %{
+      path: @upload_dir <> "/" <> Map.get(file_element, :client_name),
+      content_type: file_element.client_type,
+      filename: file_element.client_name
+    }
+
+    # Upload file
+    case App.Upload.upload(file) do
+      # If the upload succeeds...
+      {:ok, body} ->
+        # We add the `uuid` to the object to display on the view template.
+        body = Map.put(body, :uuid, file_element.uuid)
+
+        # Delete the file locally
+        File.rm!(file.path)
+
+        # Update the socket accordingly
+        updated_local_array = List.delete(socket.assigns.uploaded_files_locally, file_element)
+
+        socket = update(socket, :uploaded_files_to_S3, &(&1 ++ [body]))
+        socket = assign(socket, :uploaded_files_locally, updated_local_array)
+
+        {:noreply, socket}
+
+      # If the upload fails...
+      {:error, reason} ->
+
+        # Update the failed local file element to show an error message
+        index = Enum.find_index(socket.assigns.uploaded_files_locally, &(&1 == file_element))
+        updated_file_element = Map.put(file_element, :errors, ["#{reason}"])
+        updated_local_array = List.replace_at(socket.assigns.uploaded_files_locally, index, updated_file_element)
+
+        {:noreply, assign(socket, :uploaded_files_locally, updated_local_array)}
+    end
+  end
+end
+```
+
+Let's break down what we've just implemented.
+
+- in `mount/3`, 
+we've used [`allow_upload/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#allow_upload/3)
+with the `auto_upload` setting turned on.
+This instructs the client to upload the file automatically 
+on file selection instead of waiting for form submits.
+So, whenever the person uploads a file,
+it will be uploaded locally automatically.
+**Do note we are *not using `presign_upload`**.
+This is because we don't want to upload the files externally *yet*.
+So this option needs to not be defined in order to upload the files locally.
+- in `mount/3`, 
+we are also defining two arrays.
+`uploaded_files_locally` tracks the files uploaded locally by the person.
+`uploaded_files_to_S3` tracks the files uploaded to the `S3` bucket.
+
+- `handle_progress/3` is automatically invoked
+after a file is selected by the person - 
+this is because `auto_upload` is set to `true`.
+We [`consume_uploaded_entry`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#consume_uploaded_entry/3)
+to get the file locally and so `LiveView` knows it's been uploaded.
+Inside the callback of this function,
+we create the file locally
+and create the object
+to be added to the `uploaded_files_locally` array in the socket assigns.
+Each object follows the structure `%{image_url: url, url_path: path, errors: []}`.
+The files are being saved inside `priv/static/image_uploads`.
+
+- `handle_event("upload_to_s3, params, socket)` will be invoked
+when the person clicks on the `Upload` button to upload
+a given locally uploaded file.
+It will call the `App.Upload.upload/1` function
+implemented in [`api.md`](./api.md).
+If the file is correctly uploaded,
+it is added to the `uploaded_files_to_s3` socket assigns.
+If not, an error is added to the file object inside the 
+`uploaded_files_locally` socket assigns
+so it can be shown to the person.
+
+Now that we have our `LiveView`, 
+we ought to add a view.
+Let's do that!
+
+
+### 9.2 Adding our view
+
+Inside `lib/app_web/controllers/live`, 
+create a file called `imgup_no_client_live.html.heex`.
+
+```html
+<div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
+  <div class="flex flex-col justify-around md:flex-row">
+    <div class="flex flex-col flex-1 md:mr-4">
+      <!-- Drag and drop -->
+      <div class="space-y-12">
+        <div class="border-gray-900/10 pb-12">
+          <h2 class="text-base font-semibold leading-7 text-gray-900">
+            Image Upload <b>(without file upload from client-side code)</b>
+          </h2>
+          <p class="mt-1 text-sm leading-6 text-gray-400">
+            The files uploaded in this page are not routed from the client. Meaning all file uploads are made in the LiveView code.
+          </p>
+          <p class="mt-1 text-sm leading-6 text-gray-600">
+            Drag your images and they'll be uploaded to the cloud! ☁️
+          </p>
+          <p class="mt-1 text-sm leading-6 text-gray-600">
+            You may add up to <%= @uploads.image_list.max_entries %> exhibits at a time.
+          </p>
+          <!-- File upload section -->
+          <form
+            class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8"
+            phx-change="validate"
+            phx-submit="save"
+            id="upload-form"
+          >
+            <div class="col-span-full">
+              <div
+                class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+                phx-drop-target={@uploads.image_list.ref}
+              >
+                <div class="text-center">
+                  <svg
+                    class="mx-auto h-12 w-12 text-gray-300"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  <div class="mt-4 flex text-sm leading-6 text-gray-600">
+                    <label
+                      for="file-upload"
+                      class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                    >
+                      <div>
+                        <label class="cursor-pointer">
+                          <.live_file_input upload={@uploads.image_list} class="hidden" /> Upload
+                        </label>
+                      </div>
+                    </label>
+                    <p class="pl-1">or drag and drop</p>
+                  </div>
+                  <p class="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col flex-1 mt-10 md:mt-0 md:ml-4">
+      <div>
+        <h2 class="text-base font-semibold leading-7 text-gray-900">Uploaded files locally</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-600">
+          Before uploading the images to S3, the files will be available locally.
+        </p>
+        <p class="mt-1 text-sm leading-6 text-gray-600">
+          So these are the images that can be found locally!
+        </p>
+
+        <p class={"
+            #{if length(@uploaded_files_locally) == 0 do "block" else "hidden" end}
+            text-xs leading-7 text-gray-400 text-center my-10"}>
+          No files uploaded.
+        </p>
+
+        <ul role="list" class="divide-y divide-gray-100">
+          <%= for file <- @uploaded_files_locally do %>
+            <!-- Entry information -->
+            <li
+              class="uploaded-local-item relative flex justify-between gap-x-6 py-5"
+              id={"uploaded-locally-#{file.uuid}"}
+            >
+              <div class="flex gap-x-4">
+                <!--
+                    Try to load the compressed image from S3. This is because the compression might take some time, so we retry until it's available
+                    See https://stackoverflow.com/questions/19673254/js-jquery-retry-img-load-after-1-second.
+                    -->
+                <img
+                  class="block max-w-12 max-h-12 w-auto h-auto flex-none bg-gray-50"
+                  src={file.image_url}
+                />
+                <div class="min-w-0 flex-auto">
+                  <p>
+                    <span class="text-sm font-semibold leading-6 break-all text-gray-900">
+                      URL path:
+                    </span>
+                    <a
+                      class="text-sm leading-6 break-all underline text-indigo-600"
+                      href={file.image_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <%= file.url_path %>
+                    </a>
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center justify-end gap-x-6">
+                <button
+                  id={"#submit_button-#{file.uuid}"}
+                  phx-click={JS.push("upload_to_s3", value: %{uuid: file.uuid})}
+                  class="
+                            submit_button
+                            rounded-md
+                            bg-indigo-600
+                            px-3 py-2 text-sm font-semibold text-white shadow-sm
+                            hover:bg-indigo-500
+                            focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  Upload
+                </button>
+              </div>
+            </li>
+            <!-- Entry errors -->
+            <div>
+              <%= for err <- file.errors do %>
+                <div class="rounded-md bg-red-50 p-4 mb-2">
+                  <div class="flex">
+                    <div class="flex-shrink-0">
+                      <svg
+                        class="h-5 w-5 text-red-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div class="ml-3">
+                      <h3 class="text-sm font-medium text-red-800">
+                        <%= err %>
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </ul>
+      </div>
+
+      <div class="flex flex-col flex-1 mt-10">
+        <h2 class="text-base font-semibold leading-7 text-gray-900">Uploaded files to S3</h2>
+        <p class="mt-1 text-sm leading-6 text-gray-600">
+          Here is the list of uploaded files in S3. 🪣
+        </p>
+
+        <p class={"
+          #{if length(@uploaded_files_to_S3) == 0 do "block" else "hidden" end}
+          text-xs leading-7 text-gray-400 text-center my-10"}>
+          No files uploaded.
+        </p>
+
+        <ul role="list" class="divide-y divide-gray-100">
+          <%= for file <- @uploaded_files_to_S3 do %>
+            <!-- Entry information -->
+            <li
+              class="uploaded-s3-item relative flex justify-between gap-x-6 py-5"
+              id={"uploaded-s3-#{file.uuid}"}
+            >
+              <div class="flex gap-x-4">
+                <!--
+                    Try to load the compressed image from S3. This is because the compression might take some time, so we retry until it's available
+                    See https://stackoverflow.com/questions/19673254/js-jquery-retry-img-load-after-1-second.
+                    -->
+                <img
+                  class="block max-w-12 max-h-12 w-auto h-auto flex-none bg-gray-50"
+                  src={file.compressed_url}
+                  onerror="imgError(this);"
+                />
+                <div class="min-w-0 flex-auto">
+                  <p>
+                    <span class="text-sm font-semibold leading-6 break-all text-gray-900">
+                      Original URL:
+                    </span>
+                    <a
+                      class="text-sm leading-6 break-all underline text-indigo-600"
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <%= file.url %>
+                    </a>
+                  </p>
+                  <p>
+                    <span class="text-sm font-semibold leading-6 break-all text-gray-900">
+                      Compressed URL:
+                    </span>
+                    <a
+                      class="text-sm leading-6 break-all underline text-indigo-600"
+                      href={file.compressed_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <%= file.compressed_url %>
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+As you can see,
+the layout is fairly similar to the client version of the LiveView
+we've created earlier,
+albeit with a few differences.
+
+Let's add a new route in the
+`lib/app_web/controllers/router.ex` file.
+
+```elixir
+scope "/", AppWeb do
+    pipe_through :browser
+
+    get "/", PageController, :home
+    live "/liveview", ImgupLive
+    live "/liveview_clientless", ImgupNoClientLive # add this line
+  end
+```
+
+Now, if we run `mix phx.server`
+and navigate to `http://localhost:4000/liveview_clientless`,
+you'll be prompted with the following screen.
+
+<p align="center">
+  <img src="https://github.com/dwyl/imgup/assets/17494745/fdf7a8cd-c981-47a6-b1d6-f262daac072e">
+</p>
+
+Before being able to do anything,
+we have to make a small change.
+Go to `config/dev.exs` 
+and change the `live_reload` parameter
+to this:
+
+```elixir
+live_reload: [
+  patterns: [
+    ~r"priv/static/assets/.*(js|css|png|jpeg|jpg|gif|svg)$",
+    ~r"priv/static/images/.*(js|css|png|jpeg|jpg|gif|svg)$",
+    ~r"lib/app_web/(controllers|live|components)/.*(ex|heex)$"
+  ]
+]
+```
+
+When we run things locally,
+Phoenix uses a package called `LiveReload`.
+In this config we've just changed,
+`LiveReload` forces the app to refresh 
+whenever there's a change detected in them.
+(check https://shankardevy.com/code/phoenix-live-reload/ for more information).
+Because we don't want our app to refresh every time
+a file is created locally,
+we've changed these paths accordingly.
+
+And we're done!
+We have ourselves a fancy `LiveView` app
+that uploads files to `S3` without any code on the client!
+
+Awesome job! 🎉
 
 
 # _Please_ Star the repo! ⭐️

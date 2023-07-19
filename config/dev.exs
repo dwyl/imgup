@@ -56,7 +56,8 @@ config :app, AppWeb.Endpoint,
 config :app, AppWeb.Endpoint,
   live_reload: [
     patterns: [
-      ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"priv/static/assets/.*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"priv/static/images/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"lib/app_web/(controllers|live|components)/.*(ex|heex)$"
     ]
   ]
@@ -73,3 +74,12 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# https://github.com/dwyl/imgup/issues/68
+config :ex_aws,
+  access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+  region: System.get_env("AWS_REGION"),
+  original_bucket: System.get_env("AWS_S3_BUCKET_ORIGINAL"),
+  compressed_bucket: System.get_env("AWS_S3_BUCKET_COMPRESSED"),
+  request_config_override: %{}

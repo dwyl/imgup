@@ -1,8 +1,6 @@
 defmodule AppWeb.APITest do
   use AppWeb.ConnCase, async: true
 
-  # import Mock
-
   # without image keyword:
   @create_attrs %{
     "" => %Plug.Upload{
