@@ -61,7 +61,7 @@ defmodule App.MixProject do
       {:excoveralls, "~> 0.15", only: [:test, :dev]},
 
       # Cid
-      {:excid, "~> 0.1.0"},
+      {:excid, "~> 1.0.0"},
 
       # Cors
       {:cors_plug, "~> 3.0"},
