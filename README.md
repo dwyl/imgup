@@ -7,9 +7,9 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/imgup/issues)
 [![HitCount](https://hits.dwyl.com/dwyl/imgup.svg?style=flat-square&show=unique)](https://hits.dwyl.com/dwyl/imgup)
 
-Effortlessly **upload `images`** 
+Effortlessly **upload `images`**
 to **`AWS S3`**
-using `Phoenix + LiveView`. 
+using `Phoenix + LiveView`.
 
 </div>
 
@@ -55,20 +55,19 @@ using `Phoenix + LiveView`.
     - [9.2 Adding our view](#92-adding-our-view)
 - [_Please_ Star the repo! ⭐️](#please-star-the-repo-️)
 
-
 <br />
 
 # Why? 🤷
 
-Building our 
+Building our
 [app](https://github.com/dwyl/app),
-we consider `images` an _essential_ 
+we consider `images` an _essential_
 medium of communication.
 
 > "_An Image is Worth 16x16 Words ..._" 😉
 
 By adding support for interactive file uploads,
-we can leverage this feature and easily apply it 
+we can leverage this feature and easily apply it
 any client app that wishes to upload their `images`
 to a reliable & secure place.
 
@@ -77,15 +76,14 @@ to a reliable & secure place.
 This run-through will create a simple
 `Phoenix LiveView` web application
 that will allow you to choose/drag an image
-and upload it to your own 
-[`AWS S3`](https://aws.amazon.com/s3/) 
+and upload it to your own
+[`AWS S3`](https://aws.amazon.com/s3/)
 bucket.
-
 
 # Who? 👤
 
-This tutorial is aimed at `LiveView` beginners 
-that want to grasp how to do a simple file upload. 
+This tutorial is aimed at `LiveView` beginners
+that want to grasp how to do a simple file upload.
 
 But it's also for us,
 for future reference on how to implement image (and file)
@@ -95,45 +93,44 @@ If you are completely new to `Phoenix` and `LiveView`,
 we recommend you follow the **`LiveView` _Counter_ Tutorial**:
 [dwyl/phoenix-liveview-counter-tutorial](https://github.com/dwyl/phoenix-liveview-counter-tutorial)
 
-
 # How? 💻
 
-## Prerequisites 
+## Prerequisites
 
 This tutorial requires you have `Elixir` and `Phoenix` installed.
-If you you don't, please see 
+If you you don't, please see
 [how to install Elixir](https://github.com/dwyl/learn-elixir#installation)
-and 
+and
 [Phoenix](https://hexdocs.pm/phoenix/installation.html#phoenix).
 
-We assume you know the basics of `Phoenix` 
-and have *some* knowledge of how it works.
-If you don't, 
-we *highly suggest* you follow our other tutorials first.
-e.g: 
+We assume you know the basics of `Phoenix`
+and have _some_ knowledge of how it works.
+If you don't,
+we _highly suggest_ you follow our other tutorials first.
+e.g:
 [github.com/dwyl/**phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example)
 
 In addition to this,
-**_some_ knowledge of `AWS`** - 
+**_some_ knowledge of `AWS`** -
 what it is, what an `S3` bucket is/does -
-**is assumed**. 
+**is assumed**.
 
 > **Note**: if you have questions or get stuck,
-> please open an issue! 
+> please open an issue!
 > [/dwyl/imgup/issues](https://github.com/dwyl/imgup/issues)
-
 
 ## Run the App!
 
-You can easily see the App in action on Fly.io: 
+You can easily see the App in action on Fly.io:
 [imgup.fly.dev](https://imgup.fly.dev/)
 
-But if you want to _run_ it on your `localhost`, 
+But if you want to _run_ it on your `localhost`,
 follow these 3 easy steps:
 
 ### 1. Clone the Repo
 
 Clone the latest code:
+
 ```sh
 git clone git@github.com:dwyl/imgup.git && cd imgup
 ```
@@ -160,9 +157,9 @@ In your terminal, run `source .env` to export the keys.
 We are assuming all of the resources created in your application
 will be on the same reason.
 This env variable will be used on two different occasions:
+
 - on our LiveView.
 - on our API (check [`api.md`](api.md)) with a package called `ex_aws`.
-
 
 ### 3. Download the Dependencies and Run the App!
 
@@ -172,9 +169,9 @@ Run the commands:
 mix setup && mix s
 ```
 
-Then open your web browser to: 
+Then open your web browser to:
 [localhost:4000](http://localhost:4000)
-and start uploading! 
+and start uploading!
 
 # Build It! 👩‍💻
 
@@ -202,7 +199,6 @@ you should be able to see the following page.
 
 We're ready to start implementing!
 
-
 ## 1. Adding `LiveView` capabilities to our project
 
 As it stands,
@@ -225,9 +221,9 @@ we are going to be creating `ImgupLive`,
 a `LiveView` file.
 
 Let's create our `LiveView` files.
-Inside `lib/app_web`, 
+Inside `lib/app_web`,
 create a folder called `live`
-and create the following file 
+and create the following file
 `imgup_live.ex`.
 
 ```elixir
@@ -246,7 +242,7 @@ end
 
 This is a simple `LiveView` controller
 with the `mount/3` function
-where we use the 
+where we use the
 [`allow_upload/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#allow_upload/3)
 function,
 which is needed to allow file uploads in `LiveView`.
@@ -257,30 +253,56 @@ and use the following code.
 
 ```html
 <.flash_group flash={@flash} />
-<div class="px-4 py-10 flex justify-center sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
+<div
+  class="px-4 py-10 flex justify-center sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32"
+>
   <div class="mx-auto max-w-xl w-[50vw] lg:mx-0">
     <form>
       <div class="space-y-12">
         <div class="border-b border-gray-900/10 pb-12">
-          <h2 class="text-base font-semibold leading-7 text-gray-900">Image Upload</h2>
-          <p class="mt-1 text-sm leading-6 text-gray-600">Drag your images and they'll be uploaded to the cloud! ☁️</p>
+          <h2 class="text-base font-semibold leading-7 text-gray-900">
+            Image Upload
+          </h2>
+          <p class="mt-1 text-sm leading-6 text-gray-600">
+            Drag your images and they'll be uploaded to the cloud! ☁️
+          </p>
 
           <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-
             <div class="col-span-full">
-              <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+              <div
+                class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+              >
                 <div class="text-center">
-                  <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                  <svg
+                    class="mx-auto h-12 w-12 text-gray-300"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                   <div class="mt-4 flex text-sm leading-6 text-gray-600">
-                    <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
+                    <label
+                      for="file-upload"
+                      class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                    >
                       <span>Upload a file</span>
-                      <input id="file-upload" name="file-upload" type="file" class="sr-only">
+                      <input
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        class="sr-only"
+                      />
                     </label>
                     <p class="pl-1">or drag and drop</p>
                   </div>
-                  <p class="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                  <p class="text-xs leading-5 text-gray-600">
+                    PNG, JPG, GIF up to 10MB
+                  </p>
                 </div>
               </div>
             </div>
@@ -289,17 +311,27 @@ and use the following code.
       </div>
 
       <div class="mt-6 flex items-center justify-end gap-x-6">
-        <button type="button" class="text-sm font-semibold leading-6 text-gray-900">Cancel</button>
-        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
+        <button
+          type="button"
+          class="text-sm font-semibold leading-6 text-gray-900"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          Save
+        </button>
       </div>
     </form>
   </div>
 </div>
 ```
 
-This is a simple HTML form that uses 
+This is a simple HTML form that uses
 [`Tailwind CSS`](https://github.com/dwyl/learn-tailwind)
-to enhance the presentation of the upload form. 
+to enhance the presentation of the upload form.
 We'll also remove the unused header of the page layout,
 while we're at it.
 
@@ -310,8 +342,7 @@ The file should only have the following code:
 ```html
 <main class="px-4 py-20 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-2xl">
-    <.flash_group flash={@flash} />
-    <%= @inner_content %>
+    <.flash_group flash={@flash} /> <%= @inner_content %>
   </div>
 </main>
 ```
@@ -333,14 +364,13 @@ We can now start implementing file uploads! 🗳️
 > If you want to see the changes made to the project,
 > check [b414b11](https://github.com/dwyl/imgup/pull/55/commits).
 
-
 ## 2. Local file upload and preview
 
 Let's add the ability for people to upload their images
-in our `LiveView` app and preview them 
-*before* uploading to `AWS S3`.
+in our `LiveView` app and preview them
+_before_ uploading to `AWS S3`.
 
-Change `lib/app_web/live/imgup_live.html.heex` 
+Change `lib/app_web/live/imgup_live.html.heex`
 to the following piece of code:
 
 ```html
@@ -433,34 +463,34 @@ to the following piece of code:
 We've added a few features:
 
 - used [`<.live_file_input/>`](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#live_file_input/1)
-for `LiveView` file upload.
-We've wrapped this component
-with an element that is annotated with the `phx-drop-target` attribute
-pointing to the DOM `id` of the file input.
-This allows people to click on the `Upload` text 
-or drag and drop files into the container
-to upload an image.
+  for `LiveView` file upload.
+  We've wrapped this component
+  with an element that is annotated with the `phx-drop-target` attribute
+  pointing to the DOM `id` of the file input.
+  This allows people to click on the `Upload` text
+  or drag and drop files into the container
+  to upload an image.
 - iterated over `@uploads.image_list.entries` socket assign
-to list and preview the uploaded images.
-For this,
-we're using 
-[`live_img_preview/1`](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#live_img_preview/1)
-to generate an image preview on the client.
+  to list and preview the uploaded images.
+  For this,
+  we're using
+  [`live_img_preview/1`](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#live_img_preview/1)
+  to generate an image preview on the client.
 - the person using the app can remove entries that they've uploaded
-to the web app.
-We are adding an `X` icon that, once clicked,
-creates a `remove-selected` event,
-which passes the entry reference to the event handler.
-The latter makes use of the 
-[`cancel_upload/3`](https://hexdocs.pm/phoenix_live_view/0.18.16/Phoenix.LiveView.html#cancel_upload/3) function.
+  to the web app.
+  We are adding an `X` icon that, once clicked,
+  creates a `remove-selected` event,
+  which passes the entry reference to the event handler.
+  The latter makes use of the
+  [`cancel_upload/3`](https://hexdocs.pm/phoenix_live_view/0.18.16/Phoenix.LiveView.html#cancel_upload/3) function.
 
 Because `<.live_file_input/>` is being used,
 we need to annotate its wrapping element
-with `phx-submit` and `phx-change`, 
+with `phx-submit` and `phx-change`,
 as per https://hexdocs.pm/phoenix_live_view/uploads.html#render-reactive-elements.
 
 Because we've added these bindings,
-we need to add the event handlers in 
+we need to add the event handlers in
 `lib/app_web/live/imgup_live.ex`.
 Open it and update it to:
 
@@ -503,7 +533,6 @@ you should see the following screen.
   <img src="https://github.com/dwyl/imgup/assets/17494745/ca60e4c5-1e6e-4179-ad39-5fd9f63b244a">
 </p>
 
-
 ## 3. File validation
 
 Let's block the person to upload invalid files.
@@ -511,7 +540,7 @@ Validation occurs automatically based on the conditions
 that we specified in `allow_upload/3` in the `mount/3` function.
 
 Entries for files that do not match the `allow_upload/3` spec
-*will* contain errors.
+_will_ contain errors.
 Luckily, we can leverage
 [`upload_errors/2`](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#upload_errors/2)
 helper function to render an error message pertaining to each entry.
@@ -519,10 +548,11 @@ helper function to render an error message pertaining to each entry.
 By defining `allow_upload/3`,
 the object is defined in the socket assigns.
 We can find an array of errors pertaining to all of the entries/files that were selected
-inside the `@uploads` socket assigns 
+inside the `@uploads` socket assigns
 under the `:errors` key.
 
 With this, we can block the person to upload the files if:
+
 - there aren't any.
 - any of the files/entries have errors.
 
@@ -659,34 +689,33 @@ and change it to:
 ```
 
 We've made two modifications:
-- the "Upload" button now calls `are_files_uploadable/0`
-to check if it should be disabled or not.
-- for each file, 
-we are rendering an error using `error_to_string/1`
-if it's invalid.
 
-If you run `mix phx.server` 
+- the "Upload" button now calls `are_files_uploadable/0`
+  to check if it should be disabled or not.
+- for each file,
+  we are rendering an error using `error_to_string/1`
+  if it's invalid.
+
+If you run `mix phx.server`
 and try to upload invalid files,
 you will see an error on the entry.
-
 
 <p align="center">
   <img src="https://github.com/dwyl/imgup/assets/17494745/f36d49c6-1744-4615-9380-72c657204ee0">
 </p>
-
 
 ## 4. Uploading image to `AWS S3` bucket
 
 Now that the person is loading the images to our app,
 let's allow them to upload it to the cloud! ☁️
 
-The first thing we need to do is to 
+The first thing we need to do is to
 add an anonymous function that will generate the needed
 metadata for each local file
-for external client uploaders - 
-which is the case of `AWS S3`. 
+for external client uploaders -
+which is the case of `AWS S3`.
 We can set the 2-arity function
-in the 
+in the
 [`:external`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#allow_upload/3)
 parameter of `allow_upload/3`.
 
@@ -726,7 +755,7 @@ parameter of `allow_upload/3`.
 
 This function will be called
 every time the person wants to
-*upload the selected files to `AWS S3` bucket, 
+\*upload the selected files to `AWS S3` bucket,
 i.e. presses the "Upload" button.
 
 In the `presign_upload/2` function,
@@ -735,11 +764,11 @@ This field `uploads` refers to the list of selected images
 prior to being uploaded.
 
 In this function,
-we are setting up the 
+we are setting up the
 [multipart form data](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
 for the POST request that will be posted
 to `AWS S3`.
-We *generate a pre-signed URL for the upload*,
+We _generate a pre-signed URL for the upload_,
 and lastly we return the `:ok` result,
 with a payload of metadata for the client.
 
@@ -750,7 +779,6 @@ In our case, it's called `S3`.
 (we'll be implementing this in the section after the next one).
 
 All of this is needed to correctly upload the images to our `S3` bucket.
-
 
 ### 4.1 Adding multipart form data for images to be uploaded to the bucket
 
@@ -901,7 +929,6 @@ We now have the module correctly implemented within our app
 and actively being used in our `presign_upload/2` function
 within our LiveView.
 
-
 ### 4.2 Implementing the `S3` `JavaScript` client uploader
 
 As previously mentioned,
@@ -910,47 +937,50 @@ in our `JavaScript` client.
 
 So, let's complete the flow!
 Open `assets/js/app.js`,
-and change the `liveSocket` variable 
+and change the `liveSocket` variable
 with these changes:
 
 ```js
-let Uploaders = {}
+let Uploaders = {};
 
-Uploaders.S3 = function(entries, onViewError){
-  entries.forEach(entry => {
-
+Uploaders.S3 = function (entries, onViewError) {
+  entries.forEach((entry) => {
     // Creating the form data and getting metadata
-    let formData = new FormData()
-    let {url, fields} = entry.meta
+    let formData = new FormData();
+    let { url, fields } = entry.meta;
 
     // Getting each image entry and appending it to the form data
-    Object.entries(fields).forEach(([key, val]) => formData.append(key, val))
-    formData.append("file", entry.file)
+    Object.entries(fields).forEach(([key, val]) => formData.append(key, val));
+    formData.append("file", entry.file);
 
     // Creating an AJAX request for each entry
     // using progress functions to report the upload events back to the LiveView.
-    let xhr = new XMLHttpRequest()
-    onViewError(() => xhr.abort())
-    xhr.onload = () => xhr.status === 204 ? entry.progress(100) : entry.error()
-    xhr.onerror = () => entry.error()
+    let xhr = new XMLHttpRequest();
+    onViewError(() => xhr.abort());
+    xhr.onload = () =>
+      xhr.status === 204 ? entry.progress(100) : entry.error();
+    xhr.onerror = () => entry.error();
     xhr.upload.addEventListener("progress", (event) => {
-      if(event.lengthComputable){
-        let percent = Math.round((event.loaded / event.total) * 100)
-        if(percent < 100){ entry.progress(percent) }
+      if (event.lengthComputable) {
+        let percent = Math.round((event.loaded / event.total) * 100);
+        if (percent < 100) {
+          entry.progress(percent);
+        }
       }
-    })
+    });
 
-    xhr.open("POST", url, true)
-    xhr.send(formData)
-  })
-}
+    xhr.open("POST", url, true);
+    xhr.send(formData);
+  });
+};
 
-
-let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+let csrfToken = document
+  .querySelector("meta[name='csrf-token']")
+  .getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, {
-    uploaders: Uploaders,
-    params: {_csrf_token: csrfToken}
-})
+  uploaders: Uploaders,
+  params: { _csrf_token: csrfToken },
+});
 ```
 
 We are creating our `S3` uploader,
@@ -963,10 +993,9 @@ on the progress of the image upload to the `AWS S3` bucket.
 We then use this uploader in the `:uploaders` field
 in the `liveSocket` variable declaration.
 
+### 4.3 Creating the `AWS S3` bucket
 
-### 4.3 Creating the `AWS S3` bucket 
-
-You might have noticed that in the 
+You might have noticed that in the
 `presign_upload/2` we are using
 configurations from a `S3` bucket.
 We've set the `region`,
@@ -978,9 +1007,9 @@ so our images can have a place to sleep at night! 🛏️
 
 > If you've never dealt with `AWS` before,
 > we recommend you getting acquainted with `S3` buckets.
-> Find more information about `AWS` 
+> Find more information about `AWS`
 > in https://github.com/dwyl/learn-amazon-web-services
-> and about `S3` in 
+> and about `S3` in
 > https://www.youtube.com/watch?v=77lMCiiMilo&ab_channel=AmazonWebServices.
 
 Let's create an `S3` bucket!
@@ -993,7 +1022,7 @@ and click on `Create bucket`.
 
 You will be prompted with a wizard to create the bucket.
 Name the bucket whatever you want.
-In *our case*,
+In _our case_,
 we've named it `dwyl-imgup`,
 which is **the same name that must be declared in the `presign_upload/2` function**
 in `lib/app_web/live/imgup_live.ex`.
@@ -1001,7 +1030,7 @@ In the same section,
 choose a specific region.
 Similarly,
 **this region is also declared in the `presign_upload/2` function**,
-so make sure they match. 
+so make sure they match.
 
 Next, in `Object Ownership`,
 click on **`ACLs Enabled`**.
@@ -1013,13 +1042,12 @@ in `Block Public Access settings for this bucket`,
 **un-toggle `Block all public access`**.
 We need to do this because our app needs to be able to upload images to our file.
 
-After this, 
+After this,
 click on `Create bucket`.
 
 <p align="center">
   <img src="https://github.com/dwyl/imgup/assets/17494745/0ca112ef-a1f1-4e93-a588-c1d7722e0c5a">
 </p>
-
 
 #### 4.3.1 Changing the bucket permissions
 
@@ -1033,7 +1061,7 @@ In the page, click on the `Permissions` tab.
   <img src="https://github.com/dwyl/imgup/assets/17494745/42894e81-cd24-469f-9112-ff3ce707f175">
 </p>
 
-Scroll down to `Access control list (ACL)` 
+Scroll down to `Access control list (ACL)`
 and click on the `Edit` button.
 
 <p align="center">
@@ -1048,13 +1076,13 @@ This will make our images accessible.
   <img src="https://github.com/dwyl/imgup/assets/17494745/ce8e7874-e7de-411a-8a6c-efdada442aa7">
 </p>
 
-At last, 
+At last,
 we need to change the `CORS` settings
 at the bottom of the page.
-We are going to open the bucket to the public, 
+We are going to open the bucket to the public,
 so anyone can check it.
 **However**, once deployed,
-you should change the `AllowedOrigins` 
+you should change the `AllowedOrigins`
 to restrict what domains can view the bucket contents.
 
 Paste the following and save.
@@ -1084,8 +1112,8 @@ Paste the following and save.
 >
 > Again, don't forget to change the `AllowedOrigins`
 > to the domain of your site.
-> If you don't, all the contents of the bucket 
-> is **publicly accessible to *anyone***.
+> If you don't, all the contents of the bucket
+> is **publicly accessible to _anyone_**.
 > Unless you want anyone to see them,
 > you should change this setting.
 
@@ -1093,7 +1121,6 @@ And those are all the changes we need!
 If you're lost with these,
 please visit https://stackoverflow.com/questions/71080354/getting-the-bucket-does-not-allow-acls-error.
 It details the steps you need to make to get your bucket ready!
-
 
 ### 4.4 Getting our credentials
 
@@ -1118,7 +1145,7 @@ click on `Create access key`.
   <img src="https://github.com/dwyl/imgup/assets/17494745/e0333062-f537-4255-be45-0bb61114c156">
 </p>
 
-After this, click on the 
+After this, click on the
 `Application running outside AWS` option.
 
 <p align="center">
@@ -1134,7 +1161,7 @@ Click on `Next` and give the keys a descriptive tag.
 After this, click on `Create access key`.
 You will be shown the credentials, like so.
 
-> These keys are invalid. 
+> These keys are invalid.
 > **Don't ever share yours, they give access to your `AWS` resource.**
 
 <p align="center">
@@ -1143,7 +1170,7 @@ You will be shown the credentials, like so.
 
 Both of these credentials will need to be
 the env variables that `presign_upload/2` will use.
-For this, simply create an `.env` file 
+For this, simply create an `.env` file
 and add your credentials to it.
 
 ```
@@ -1152,9 +1179,9 @@ export AWS_SECRET_ACCESS_KEY='YOUR_KEY'
 ```
 
 When running the app,
-in your terminal window, 
-you need to run `source .env` 
-to *load* these env variables
+in your terminal window,
+you need to run `source .env`
+to _load_ these env variables
 so our app has access to them.
 Remember: if you close the terminal window,
 you'll have to run `source .env` again.
@@ -1164,9 +1191,8 @@ you'll have to run `source .env` again.
 They give people access to the `AWS` resource.
 Keep this in your computer/server
 and don't expose it to the world!
-If it does, you can always deactivate 
+If it does, you can always deactivate
 and delete the keys in the same page you've created them.
-
 
 ### 4.5 Changing view to upload files
 
@@ -1294,14 +1320,14 @@ We've made an important change.
 
 For `live_file_input` to work and upload the images
 when clicking the `Upload` button,
-the event created in `phx-submit` 
-will **only work** 
+the event created in `phx-submit`
+will **only work**
 if the `Upload` button
 (of `type="submit"`)
 is within the `<form>` element.
 
 Therefore,
-we've put the "Upload" button 
+we've put the "Upload" button
 inside the form,
 which has the `phx-submit="save"` annotation.
 This means that, once the person wants to upload the images,
@@ -1324,7 +1350,7 @@ Let's add the handler in `lib/app_web/live/imgup_live.ex`:
   def error_to_string(:external_client_failure), do: "Couldn't upload files to S3. Open an issue on Github and contact the repo owner."
 ```
 
-The `:external_client_failure` is created 
+The `:external_client_failure` is created
 when the uploader files.
 This is our way to handle it in case something happens.
 
@@ -1339,7 +1365,6 @@ it should show in your bucket on `AWS S3`!
 </p>
 
 Awesome job! 🎉
-
 
 ## 5. Feedback on progress of upload
 
@@ -1356,8 +1381,7 @@ and change it.
 ```html
 <main class="px-4 sm:px-6 lg:px-8">
   <div class="mx-auto">
-    <.flash_group flash={@flash} />
-    <%= @inner_content %>
+    <.flash_group flash={@flash} /> <%= @inner_content %>
   </div>
 </main>
 ```
@@ -1522,21 +1546,21 @@ and change it to the following piece of code:
 Let's go over the changes we've made:
 
 - the app now has two responsive columns:
-one for **selected image files**
-and another one for the **uploaded image files**.
-The latter will have a list of the uploaded files,
-with the image preview
-and the public URL they're currently being stored - 
-our `S3` instance.
-The list of uploaded files pertain to the `:uploaded_files` socket assign
-we've defined on the `mount/3` function in our LiveView
-`lib/a--Web/live/imgup_live.ex` file.
+  one for **selected image files**
+  and another one for the **uploaded image files**.
+  The latter will have a list of the uploaded files,
+  with the image preview
+  and the public URL they're currently being stored -
+  our `S3` instance.
+  The list of uploaded files pertain to the `:uploaded_files` socket assign
+  we've defined on the `mount/3` function in our LiveView
+  `lib/a--Web/live/imgup_live.ex` file.
 - removed the "Cancel" button.
 - added a `<progress>` HTML element
-that uses the `entry.progress` value.
-This value is updated in real-time 
-because of the uploader hook we've implemented in 
-`assets/js/app.js`.
+  that uses the `entry.progress` value.
+  This value is updated in real-time
+  because of the uploader hook we've implemented in
+  `assets/js/app.js`.
 
 If you run `mix phx.server`,
 you should see the following screen.
@@ -1546,12 +1570,12 @@ you should see the following screen.
 </p>
 
 If we click the "Upload" button,
-we can see the progress bar progress, 
+we can see the progress bar progress,
 indicating that the file is being uploaded.
 
-> If your image is small in size, 
+> If your image is small in size,
 > this might not be discernable.
-> Try to upload a `5 Mb` file 
+> Try to upload a `5 Mb` file
 > and you should see it more clearly.
 
 However, nothing else changes.
@@ -1581,15 +1605,15 @@ for this goal.
 This function **consumes the selected file entries**.
 For form submissions (which is our case),
 we are guaranteed that all entries have been "completed"
-before the submit event is invoked, 
-meaning they are *ready to be uploaded*.
-Once file entries are consumed, 
+before the submit event is invoked,
+meaning they are _ready to be uploaded_.
+Once file entries are consumed,
 they are **removed from the selected files list**.
 
 In the third parameter,
 we pass a function that iterates over the files.
-We use this function to attach a `public_url` metadata 
-to the file that is used in our view, 
+We use this function to attach a `public_url` metadata
+to the file that is used in our view,
 more specifically the "Uploaded files" column.
 
 Each list item of this "Uploaded files" column
@@ -1606,27 +1630,26 @@ Awesome! 🥳
 Now the person has proper feedback to what is going on!
 Great job!
 
-
 ## 6. Unique file names
 
-Currently, we are uploading the file images 
+Currently, we are uploading the file images
 to the `S3` bucket with the original file name.
 To have more control over our resources
-and avoid overriding images 
-(when we upload images with the same name to our bucket, 
+and avoid overriding images
+(when we upload images with the same name to our bucket,
 it gets overridden),
-we are going to assign a 
+we are going to assign a
 **unique `content ID` to each file**.
 
 Luckily for us, this is fairly simple!
 
-We first need to install the 
+We first need to install the
 [`cid`](https://github.com/dwyl/cid) package.
 Open `mix.exs`
 and add the following line to the `deps` section.
 
 ```elixir
- {:excid, "~> 0.1.0"}
+ {:excid, "~> 1.0.1"}
 ```
 
 And then run `mix deps.get` to install this new dependency.
@@ -1640,16 +1663,16 @@ Change the `key` variable to the following:
     key = Cid.cid("#{DateTime.utc_now() |> DateTime.to_iso8601()}_#{entry.client_name}")
 ```
 
-We are creating a 
+We are creating a
 [`CID`](https://docs.ipfs.tech/concepts/content-addressing/)
-from a string with the format 
+from a string with the format
 `currentdate_filename`.
-This is the new filename. 
+This is the new filename.
 
 If you run `mix phx.server`
 and upload a file,
 you will see that this new `CID`
-is present in the `URL` 
+is present in the `URL`
 and in the uploaded file in the `S3` bucket.
 
 <p align="center">
@@ -1664,7 +1687,6 @@ And here's the bucket!
 
 Now we don't have conflicts between the files each person uploads!
 
-
 ## 7. Resizing/compressing files
 
 We've set a hard limit on the image file size
@@ -1673,20 +1695,19 @@ Because we're using cloud storage and doing so at a reduced scale,
 it's easy to dismiss any concerns about hosting data and their size.
 But if we think at scale,
 we ought to be careful when estimating our cloud storage budget.
-Those megabytes can stack up easily *and quite fast*.
+Those megabytes can stack up easily _and quite fast_.
 
-So, it's good practice to implement 
+So, it's good practice to implement
 **image resizing/compression**.
 Every time a person uploads an image,
-we want to save the *original image in a bucket*,
-compress it and 
-*save the compressed version in another bucket*.
+we want to save the _original image in a bucket_,
+compress it and
+_save the compressed version in another bucket_.
 The latter is what what will serve the client.
 
 <p align="center">
   <img src="https://github.com/dwyl/imgup/assets/17494745/bd61d716-8a4e-445f-a643-8f5d13a00510">
 </p>
-
 
 You may be wondering:
 why do we need two buckets?
@@ -1694,28 +1715,27 @@ Besides decoupling resources,
 we want to mitigate the possibility of recursive event loops.
 For example,
 if we had everything in the same bucket,
-when a person uploads an *original image*,
-the lambda function *would compress it and send it to the bucket*.
-This new upload *would trigger another compression*,
+when a person uploads an _original image_,
+the lambda function _would compress it and send it to the bucket_.
+This new upload _would trigger another compression_,
 and so on.
 
 This, of course,
 is not desirable and can become **quite costly**!
-This is why we'll create *two buckets*.
+This is why we'll create _two buckets_.
 
 Now let's
 **build our image compression pipeline**
 following the architecture we've just detailed.
 
-
-### 7.1 Installing `AWS CLI` and `AWS SAM CLI` 
+### 7.1 Installing `AWS CLI` and `AWS SAM CLI`
 
 To make the setup and tear down of our pipeline easier,
-we'll be using 
+we'll be using
 [`AWS SAM`](https://aws.amazon.com/serverless/sam/).
 This will allow us to create serverless applications,
 combining multiple resources.
-Our `SAM` project will create the needed resources 
+Our `SAM` project will create the needed resources
 ([`S3`](https://aws.amazon.com/s3/) buckets
 and [`Lambda Function`](https://aws.amazon.com/lambda/))
 and `IAM` roles necessary to execute image compression
@@ -1727,9 +1747,10 @@ our `AWS` resources with a easy-to-read `YAML` template.
 To create a `SAM` project,
 you need to install the **`SAM CLI`**.
 But, before this,
-you need to fulfil the prerequisites named in 
+you need to fulfil the prerequisites named in
 https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/prerequisites.html.
 Essentially, you need:
+
 - a **`IAM` user account**.
 - an **access key ID** and **secret access key**.
 - **`AWS CLI`**.
@@ -1738,11 +1759,11 @@ Because you've already created your credentials
 to upload files to the buckets earlier,
 you probably only need to install the `AWS CLI`.
 
-Therefore, follow https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html 
+Therefore, follow https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 to install `AWS CLI`
 **and then**
 https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/prerequisites.html#prerequisites-configure-credentials
-to *configure it with your `AWS` credentials*.
+to _configure it with your `AWS` credentials_.
 
 After this,
 simply follow https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html
@@ -1750,7 +1771,6 @@ to install the `AWS SAM CLI`.
 
 After following these guides,
 you should be all set to create a new project!
-
 
 ### 7.2 Creating a new `AWS SAM` project
 
@@ -1760,11 +1780,11 @@ Now we're ready to create our `AWS SAM` project!
 > you can just use the `an_aws_sam_imgup-compressor`
 > folder and run the commands needed to deploy there.
 > We'll deploy the pipeline in the next section,
-> so feel free to skip this one 
+> so feel free to skip this one
 > if you want to skip creating the project folder,
 > and go to [7.4 Deploying our `AWS SAM` project](#74-deploying-our-aws-sam-project).
 
-Open a terminal window 
+Open a terminal window
 and navigate to your project's directory.
 This process will create a folder within it.
 Type:
@@ -1804,7 +1824,6 @@ Project name: your_project_name
 Give your project name whatever you like.
 We gave ours `imgup-compressor`.
 
-
 ### 7.3 Changing the `AWS SAM` project files
 
 Now it's time to define
@@ -1815,7 +1834,7 @@ and locate the `template.yaml` file.
 Change it to the following:
 
 ```yaml
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: DWYL-Imgup image compression pipeline
 
@@ -1852,7 +1871,7 @@ Resources:
           COMPRESSED_BUCKET: !Ref CompressedBucketName
       Policies:
         - S3ReadPolicy:
-           BucketName: !Ref UncompressedBucketName
+            BucketName: !Ref UncompressedBucketName
         - S3WritePolicy:
             BucketName: !Ref CompressedBucketName
       Events:
@@ -1864,30 +1883,30 @@ Resources:
 ```
 
 Let's walk through the template:
-- the `Parameters` block will allow us to pass in some names for our `S3` buckets
-when deploying our `SAM` template.
-- the `Resources` block has all the resources needed.
-In our case, we have the `UncompressedBucket` and
-`CompressedBucket`, which are both self-explanatory.
-Both buckets then have their respective bucket names set from the parameters
-we previously defined.
-The `ImageCompressorLambda` is the Lambda Function,
-which uses the `Node.js` runtime 
-and points to `src/index.handler` location.
-Under the `Policies` section,
-we give the Lambda function the appropriate permissions
-to read data from the `UncompressedBucket`
-and write to `CompressedBucket`.
-And lastly, we configure the event trigger for the Lambda function.
-The event is fired any time an object is created in the
-`UncompressedBucket`.
 
+- the `Parameters` block will allow us to pass in some names for our `S3` buckets
+  when deploying our `SAM` template.
+- the `Resources` block has all the resources needed.
+  In our case, we have the `UncompressedBucket` and
+  `CompressedBucket`, which are both self-explanatory.
+  Both buckets then have their respective bucket names set from the parameters
+  we previously defined.
+  The `ImageCompressorLambda` is the Lambda Function,
+  which uses the `Node.js` runtime
+  and points to `src/index.handler` location.
+  Under the `Policies` section,
+  we give the Lambda function the appropriate permissions
+  to read data from the `UncompressedBucket`
+  and write to `CompressedBucket`.
+  And lastly, we configure the event trigger for the Lambda function.
+  The event is fired any time an object is created in the
+  `UncompressedBucket`.
 
 #### 7.3.1 Implementing the `src/index.js` handler
 
-We are going to be using 
+We are going to be using
 [`sharp`](https://github.com/lovell/sharp)
-to do the image compression and manipulation. 
+to do the image compression and manipulation.
 Although we'll only shrink our images,
 you can do much more with this library,
 so we encourage you to peruse through the documentation.
@@ -1916,67 +1935,65 @@ which is best suited for Lambda Functions.
 Now, we're ready to setup the Lambda Function logic!
 So, clear the `src` directory (you may delete the `__tests__` directory as well),
 and add `index.js` within it.
-Then add the following code 
+Then add the following code
 to `src/index.js`.
 
 ```js
-const AWS = require('aws-sdk');
+const AWS = require("aws-sdk");
 const S3 = new AWS.S3();
-const sharp = require('sharp');
+const sharp = require("sharp");
 
 exports.handler = async (event) => {
+  // Collect the object key from the S3 event record
+  const { key } = event.Records[0].s3.object;
 
-    // Collect the object key from the S3 event record
-    const { key } = event.Records[0].s3.object;
+  console.log({ triggerObject: key });
 
-    console.log({ triggerObject: key });
+  // Collect the full resolution image from s3 using the object key
+  const uncompressedImage = await S3.getObject({
+    Bucket: process.env.UNCOMPRESSED_BUCKET,
+    Key: key,
+  }).promise();
 
-    // Collect the full resolution image from s3 using the object key
-    const uncompressedImage = await S3.getObject({
-        Bucket: process.env.UNCOMPRESSED_BUCKET,
-        Key: key,
-    }).promise();
-
-    // Compress the image to a 200x200 avatar square as a buffer, without stretching
-    const compressedImageBuffer = await sharp(uncompressedImage.Body)
-    .resize({ 
-        height: 200, 
-        fit: 'contain'
+  // Compress the image to a 200x200 avatar square as a buffer, without stretching
+  const compressedImageBuffer = await sharp(uncompressedImage.Body)
+    .resize({
+      height: 200,
+      fit: "contain",
     })
     .png()
     .toBuffer();
 
-    // Upload the compressed image buffer to the Compressed Images bucket
-    await S3.putObject({
-        Bucket: process.env.COMPRESSED_BUCKET,
-        Key: key,
-        Body: compressedImageBuffer,
-        ContentType: "image/png",
-        ACL: 'public-read'
-    }).promise();
+  // Upload the compressed image buffer to the Compressed Images bucket
+  await S3.putObject({
+    Bucket: process.env.COMPRESSED_BUCKET,
+    Key: key,
+    Body: compressedImageBuffer,
+    ContentType: "image/png",
+    ACL: "public-read",
+  }).promise();
 
-    console.log(`Compressing ${key} complete!`)
-
-}
+  console.log(`Compressing ${key} complete!`);
+};
 ```
 
 In this code, we are:
-- **extracting the image object key from the event that triggered**
-the Lambda Function's execution.
-- using the `aws sdk` to **download the image to our lambda function**.
-Because we've defined the env variables in `template.yaml`,
-we can use them in our function.
-(e.g. `process.env.UNCOMPRESSED_BUCKET`).
-- with the downloaded image,
-**we use `sharp` to resize it**.
-We're resizing it to `200x200` 
-and containing it so the aspect ratio remains intact.
-You can add more steps here if you want bigger compression,
-or just want to compress the image and not resize it.
-- with the response from the `sharp` object,
-we **save it in the `CompressedBucket`**
-with the same key as the original.
 
+- **extracting the image object key from the event that triggered**
+  the Lambda Function's execution.
+- using the `aws sdk` to **download the image to our lambda function**.
+  Because we've defined the env variables in `template.yaml`,
+  we can use them in our function.
+  (e.g. `process.env.UNCOMPRESSED_BUCKET`).
+- with the downloaded image,
+  **we use `sharp` to resize it**.
+  We're resizing it to `200x200`
+  and containing it so the aspect ratio remains intact.
+  You can add more steps here if you want bigger compression,
+  or just want to compress the image and not resize it.
+- with the response from the `sharp` object,
+  we **save it in the `CompressedBucket`**
+  with the same key as the original.
 
 ### 7.4 Deploying our `AWS SAM` project
 
@@ -2003,7 +2020,7 @@ sam build --use-container
 > or else it will err.
 
 Once that's complete,
-we can push our build 
+we can push our build
 (located in `.aws-sam` folder that was generated with the previous command)
 by running this command:
 
@@ -2013,8 +2030,8 @@ sam deploy --guided
 
 Stepping through the guided deployment options,
 you will be given some options
-to specify the application stack name, region, 
-the parameters we've defined 
+to specify the application stack name, region,
+the parameters we've defined
 and other questions.
 Here's how it might look like.
 
@@ -2127,7 +2144,6 @@ If everything has gone according to plan,
 you should be able to see this new deployment
 in your `AWS` console!
 
-
 ### 7.5 Testing the deployed `SAM` project in `AWS Console`
 
 If you visit https://console.aws.amazon.com/cloudformation/home,
@@ -2135,13 +2151,12 @@ you will see a `CloudFormation Stack` has been created.
 
 > From https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacks.html:
 >
-> A stack is a collection of AWS resources that you can manage as a single unit. 
-> In other words, you can create, update, or delete a collection of resources by creating, updating, or deleting stacks. 
-> All the resources in a stack are defined by the stack's AWS CloudFormation template. 
-> A stack, for instance, can include all the resources required to run a web application, such as a web server, a database, and networking rules. 
-> If you no longer require that web application, 
+> A stack is a collection of AWS resources that you can manage as a single unit.
+> In other words, you can create, update, or delete a collection of resources by creating, updating, or deleting stacks.
+> All the resources in a stack are defined by the stack's AWS CloudFormation template.
+> A stack, for instance, can include all the resources required to run a web application, such as a web server, a database, and networking rules.
+> If you no longer require that web application,
 > you can simply delete the stack, and all of its related resources are deleted.
-
 
 <p align="center">
   <img src="https://github.com/dwyl/imgup/assets/17494745/58c7789b-b463-4804-9854-6330ddff59d2">
@@ -2152,15 +2167,14 @@ you will see that the two buckets have been created as well.
 **It is important that you follow the steps in**
 [4.3.1 Changing the bucket permissions](#431-changing-the-bucket-permissions).
 We need the buckets to be public so they are accessible.
-***Again***, make sure the `CORS` definition points
-to the domain of the deployed web app. 
+**_Again_**, make sure the `CORS` definition points
+to the domain of the deployed web app.
 Or else anyone can read your bucket directly.
 
-Additionally, 
+Additionally,
 a Lamdda Function should also have been created.
 Check https://console.aws.amazon.com/lambda/home
 and you should see it!
-
 
 #### 7.5.1 What if I want to make changes to the function?
 
@@ -2168,7 +2182,7 @@ If you want to make changes to the Lambda Function,
 you will have to **rollback the deployment of the resources**
 and **re-build and re-deploy**.
 
-You can rollback by going to the `CloudFormation Stack` 
+You can rollback by going to the `CloudFormation Stack`
 in https://console.aws.amazon.com/cloudformation/home
 with the name of the project we've created.
 Click on it and click on "Delete".
@@ -2177,15 +2191,13 @@ that will delete the created resources.
 
 > **Warning**
 >
-> Make sure the `S3` buckets **are empty** 
+> Make sure the `S3` buckets **are empty**
 > before trying to rollback.
-> If they aren't empty, the rollback process *will fail*. 
-
+> If they aren't empty, the rollback process _will fail_.
 
 <p align="center">
   <img src="https://github.com/dwyl/imgup/assets/17494745/b7f5ec06-ba6a-4387-8453-1eb95c637586">
 </p>
-
 
 ### 7.6 Refactoring the `Phoenix` app to use image compression
 
@@ -2230,13 +2242,13 @@ Change it like so:
 
 We are now detailing `bucket_original` and `bucket_compressed`,
 pertaining to the bucket where original files are stored
-and compressed ones are stored, respectively. 
-These buckets are used to *create the public URLs*,
+and compressed ones are stored, respectively.
+These buckets are used to _create the public URLs_,
 one for the original bucket and another one for the compressed one.
 This will be used to show to the person both URLs.
 
 In the same file,
-we also need to change the `"save"` handler 
+we also need to change the `"save"` handler
 to contain the `compressed_url` as well.
 
 ```elixir
@@ -2431,7 +2443,7 @@ and change it to the following:
 ```
 
 Now the uploaded image's item shows both URLs.
-Additionally, 
+Additionally,
 we have defined an `onerror` callback
 on the thumbnail.
 This is mainly because the compressed image might not be available
@@ -2471,7 +2483,7 @@ and add the function to the script.
 </html>
 ```
 
-### 7.7 Run it! 
+### 7.7 Run it!
 
 Now let's run it!
 If you run `mix phx.server`
@@ -2482,12 +2494,11 @@ you'll see the following screen.
   <img src="https://github.com/dwyl/imgup/assets/17494745/74f27733-402d-4597-bd33-f6f6663eb802">
 </p>
 
-Both buckets now have the file with the same key 
+Both buckets now have the file with the same key
 and are publicly accessible!
 
-Awesome job! 
+Awesome job!
 You've just added image compression to your web app! 🎉
-
 
 ## 8. A note when deploying online
 
@@ -2496,31 +2507,30 @@ to access your bucket publicly,
 it is wise to not let it be abused
 (it can be quite costly for you!).
 
-We recommend *deleting files after X days*
+We recommend _deleting files after X days_
 so you don't pay high amounts of storage.
 
-For this, 
-please follow 
+For this,
+please follow
 https://repost.aws/knowledge-center/s3-empty-bucket-lifecycle-rule
 to **set lifecycle rules on both of your buckets**.
-This will *delete all the files of the bucket every X days*.
-
+This will _delete all the files of the bucket every X days_.
 
 ## 9. Uploading files without `Javascript`
 
 > **Note**:
-> 
+>
 > This section assumes you've implemented
 > the `API`, as described in [`api.md`](./api.md).
 > We are going to be using an `upload/1` function
-> to directly upload a given file to an `S3` bucket 
+> to directly upload a given file to an `S3` bucket
 > in our `LiveView` server.
 >
 > Give the document a read first so you're up to par! 😄
 
 As you might have noticed,
-we are using `Javascript` 
-(in `assets/js/app.js`) to upload the file 
+we are using `Javascript`
+(in `assets/js/app.js`) to upload the file
 to a given `Uploader` (in our case, an `S3` bucket).
 Although doing this in the client code is handy,
 it's useful to showcase a completely **server-sided option**,
@@ -2536,13 +2546,13 @@ will expect to upload a file.
 
 - choose a file to input.
 - upon successful selection, the image will be automatically uploaded
-**locally in the server**.
-- to upload the file to the `S3` bucket, 
-the person will have to manually click the `Upload` button to upload
-the locally-saved file in the server to the bucket.
+  **locally in the server**.
+- to upload the file to the `S3` bucket,
+  the person will have to manually click the `Upload` button to upload
+  the locally-saved file in the server to the bucket.
 - after a successful upload,
-the person will be shown both the original and compressed URLs,
-just like before!
+  the person will be shown both the original and compressed URLs,
+  just like before!
 
 This is our flow.
 So let's add our tests to represent this!
@@ -2622,16 +2632,15 @@ end
 ```
 
 As you can see,
-we're simply testing a success scenario 
+we're simply testing a success scenario
 (when a file is uploaded successfully to `S3`)
 and another if the upload
 (for whatever reason)
-*fails* when uploading a file.
+_fails_ when uploading a file.
 In the latter, an error should be shown.
 
 Now that we've our tests,
 let's start implementing!
-
 
 ### 9.1 Creating a new LiveView
 
@@ -2756,52 +2765,51 @@ end
 
 Let's break down what we've just implemented.
 
-- in `mount/3`, 
-we've used [`allow_upload/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#allow_upload/3)
-with the `auto_upload` setting turned on.
-This instructs the client to upload the file automatically 
-on file selection instead of waiting for form submits.
-So, whenever the person uploads a file,
-it will be uploaded locally automatically.
-**Do note we are *not using `presign_upload`**.
-This is because we don't want to upload the files externally *yet*.
-So this option needs to not be defined in order to upload the files locally.
-- in `mount/3`, 
-we are also defining two arrays.
-`uploaded_files_locally` tracks the files uploaded locally by the person.
-`uploaded_files_to_S3` tracks the files uploaded to the `S3` bucket.
+- in `mount/3`,
+  we've used [`allow_upload/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#allow_upload/3)
+  with the `auto_upload` setting turned on.
+  This instructs the client to upload the file automatically
+  on file selection instead of waiting for form submits.
+  So, whenever the person uploads a file,
+  it will be uploaded locally automatically.
+  **Do note we are \*not using `presign_upload`**.
+  This is because we don't want to upload the files externally _yet_.
+  So this option needs to not be defined in order to upload the files locally.
+- in `mount/3`,
+  we are also defining two arrays.
+  `uploaded_files_locally` tracks the files uploaded locally by the person.
+  `uploaded_files_to_S3` tracks the files uploaded to the `S3` bucket.
 
 - `handle_progress/3` is automatically invoked
-after a file is selected by the person - 
-this is because `auto_upload` is set to `true`.
-We [`consume_uploaded_entry`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#consume_uploaded_entry/3)
-to get the file locally and so `LiveView` knows it's been uploaded.
-Inside the callback of this function,
-we create the file locally
-and create the object
-to be added to the `uploaded_files_locally` array in the socket assigns.
-Each object follows the structure `%{image_url: url, url_path: path, errors: []}`.
-The files are being saved inside `priv/static/image_uploads`.
+  after a file is selected by the person -
+  this is because `auto_upload` is set to `true`.
+  We [`consume_uploaded_entry`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#consume_uploaded_entry/3)
+  to get the file locally and so `LiveView` knows it's been uploaded.
+  Inside the callback of this function,
+  we create the file locally
+  and create the object
+  to be added to the `uploaded_files_locally` array in the socket assigns.
+  Each object follows the structure `%{image_url: url, url_path: path, errors: []}`.
+  The files are being saved inside `priv/static/image_uploads`.
 
 - `handle_event("upload_to_s3, params, socket)` will be invoked
-when the person clicks on the `Upload` button to upload
-a given locally uploaded file.
-It will call the `App.Upload.upload/1` function
-implemented in [`api.md`](./api.md).
-If the file is correctly uploaded,
-it is added to the `uploaded_files_to_s3` socket assigns.
-If not, an error is added to the file object inside the 
-`uploaded_files_locally` socket assigns
-so it can be shown to the person.
+  when the person clicks on the `Upload` button to upload
+  a given locally uploaded file.
+  It will call the `App.Upload.upload/1` function
+  implemented in [`api.md`](./api.md).
+  If the file is correctly uploaded,
+  it is added to the `uploaded_files_to_s3` socket assigns.
+  If not, an error is added to the file object inside the
+  `uploaded_files_locally` socket assigns
+  so it can be shown to the person.
 
-Now that we have our `LiveView`, 
+Now that we have our `LiveView`,
 we ought to add a view.
 Let's do that!
 
-
 ### 9.2 Adding our view
 
-Inside `lib/app_web/controllers/live`, 
+Inside `lib/app_web/controllers/live`,
 create a file called `imgup_no_client_live.html.heex`.
 
 ```html
@@ -3061,7 +3069,7 @@ you'll be prompted with the following screen.
 
 Before being able to do anything,
 we have to make a small change.
-Go to `config/dev.exs` 
+Go to `config/dev.exs`
 and change the `live_reload` parameter
 to this:
 
@@ -3078,7 +3086,7 @@ live_reload: [
 When we run things locally,
 Phoenix uses a package called `LiveReload`.
 In this config we've just changed,
-`LiveReload` forces the app to refresh 
+`LiveReload` forces the app to refresh
 whenever there's a change detected in them.
 (check https://shankardevy.com/code/phoenix-live-reload/ for more information).
 Because we don't want our app to refresh every time
@@ -3091,10 +3099,9 @@ that uploads files to `S3` without any code on the client!
 
 Awesome job! 🎉
 
-
 # _Please_ Star the repo! ⭐️
 
-If you find this package/repo useful, 
+If you find this package/repo useful,
 please star on GitHub, so that we know! ⭐
 
 Thank you! 🙏
