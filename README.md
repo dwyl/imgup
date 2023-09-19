@@ -1631,6 +1631,17 @@ and add the following line to the `deps` section.
 
 And then run `mix deps.get` to install this new dependency.
 
+Head over to `config/config.exs` 
+and add these lines:
+
+```elixir
+# https://github.com/dwyl/cid#how
+config :excid, base: :base58
+```
+
+We are going to be using `base58` as our default base
+because it yields less characters.
+
 To change the name of the file,
 open `lib/app_web/live/imgup_live.ex`
 and locate the `presign_upload/2`.
