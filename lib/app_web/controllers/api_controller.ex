@@ -14,8 +14,7 @@ defmodule AppWeb.ApiController do
 
         {:error, :invalid_extension} ->
           render(conn |> put_status(400), %{
-            body:
-              "Error uploading file. The content type of the uploaded file is not valid."
+            body: "Error uploading file. The content type of the uploaded file is not valid."
           })
 
         {:error, :invalid_cid} ->

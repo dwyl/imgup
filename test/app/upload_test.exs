@@ -34,6 +34,7 @@ defmodule App.UploadTest do
       url:
         "https://s3.eu-west-3.amazonaws.com/#{@original_bucket}/zb2rhe5aFXPKonoWchLRYo9yJDqWyUdUeTQ6MQQJsTWnzzNum.jpg"
     }
+
     assert App.Upload.upload(image) == {:ok, expected_response}
   end
 
@@ -43,11 +44,15 @@ defmodule App.UploadTest do
       filename: "corrupted.jpg",
       path: [:code.priv_dir(:app), "static", "images", "corrupted.jpg"] |> Path.join()
     }
+
     # Even though the jpeg is *deliberately* corrupted the upload & CID still works!!
-    expected_response =  %{
-      compressed_url: "https://s3.eu-west-3.amazonaws.com/#{@compressed_bucket}/zb2rhngHXWi8mR5YHX3Go4xDYpZqqcAtGefn8sktQMM7YzKEz.jpg",
-      url: "https://s3.eu-west-3.amazonaws.com/#{@original_bucket}/zb2rhngHXWi8mR5YHX3Go4xDYpZqqcAtGefn8sktQMM7YzKEz.jpg"
+    expected_response = %{
+      compressed_url:
+        "https://s3.eu-west-3.amazonaws.com/#{@compressed_bucket}/zb2rhngHXWi8mR5YHX3Go4xDYpZqqcAtGefn8sktQMM7YzKEz.jpg",
+      url:
+        "https://s3.eu-west-3.amazonaws.com/#{@original_bucket}/zb2rhngHXWi8mR5YHX3Go4xDYpZqqcAtGefn8sktQMM7YzKEz.jpg"
     }
+
     assert App.Upload.upload(image) == {:ok, expected_response}
   end
 
@@ -90,11 +95,11 @@ defmodule App.UploadTest do
     file_cid = "anything"
     file_extension = ".png"
     assert App.Upload.upload_file_to_s3(file_cid, file_extension, image) == {:error, :upload_fail}
-
   end
 
   test "check_file_binary_and_extension/1 with empty.pdf returns :invalid_cid" do
     filename = "empty.pdf"
+
     image = %Plug.Upload{
       content_type: "application/pdf",
       filename: filename,

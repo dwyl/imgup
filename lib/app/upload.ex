@@ -2,7 +2,6 @@ defmodule App.Upload do
   @moduledoc """
   Handles uploading to S3 in a convenient reusable (DRY) function.
   """
-  import SweetXml
   require Logger
 
   # function gets cached
@@ -26,7 +25,6 @@ defmodule App.Upload do
     with {:ok, {file_cid, file_extension}} <- check_file_binary_and_extension(image),
          {:ok, {file_name, upload_response_body}} <-
            upload_file_to_s3(file_cid, file_extension, image) do
-
       # Fetching the URL of the returned file.
       url = upload_response_body.body.location
 

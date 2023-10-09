@@ -101,9 +101,10 @@ defmodule AppWeb.APITest do
 
   test "upload pdf", %{conn: conn} do
     conn = post(conn, ~p"/api/images", @valid_pdf_attrs)
+
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-      "detail" => "Uploaded file is not a valid image."
-    }
+             "detail" => "Uploaded file is not a valid image."
+           }
   end
 
   test "wrong file extension", %{conn: conn} do
@@ -135,7 +136,8 @@ defmodule AppWeb.APITest do
     conn = post(conn, ~p"/api/images", @invalid_content_type_image)
 
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-             "detail" => "Error uploading file. The content type of the uploaded file is not valid."
+             "detail" =>
+               "Error uploading file. The content type of the uploaded file is not valid."
            }
   end
 
@@ -143,7 +145,8 @@ defmodule AppWeb.APITest do
     conn = post(conn, ~p"/api/images", @empty_image)
 
     assert Map.get(Jason.decode!(response(conn, 400)), "errors") == %{
-             "detail" => "Error uploading file. The contents of the uploaded file may be empty or invalid."
+             "detail" =>
+               "Error uploading file. The contents of the uploaded file may be empty or invalid."
            }
   end
 
