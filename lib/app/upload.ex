@@ -2,7 +2,6 @@ defmodule App.Upload do
   @moduledoc """
   Handles uploading to S3 in a convenient reusable (DRY) function.
   """
-  import SweetXml
   require Logger
 
   # function gets cached
@@ -26,33 +25,8 @@ defmodule App.Upload do
     with {:ok, {file_cid, file_extension}} <- check_file_binary_and_extension(image),
          {:ok, {file_name, upload_response_body}} <-
            upload_file_to_s3(file_cid, file_extension, image) do
-      # Sample AWS S3 XML response:
-      # %{
-      #   body: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n
-      #    <CompleteMultipartUploadResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">
-      #    <Location>https://s3.eu-west-3.amazonaws.com/imgup-original/qvWtbC7WaT.jpg</Location>
-      #    <Bucket>imgup-original</Bucket><Key>qvWtbC7WaT.jpg</Key>
-      #    <ETag>\"4ecd62951576b7e5b4a3e869e5e98a0f-1\"</ETag></CompleteMultipartUploadResult>",
-      #   headers: [
-      #     {"x-amz-id-2",
-      #      "wNTNZKt82vgnOuT1o2Tz8z3gcRzd6wXofYxQmBUkGbBGTpmv1WbwjjGiRAUtOTYIm92bh/VJHhI="},
-      #     {"x-amz-request-id", "QRENBY1MJTQWD7CZ"},
-      #     {"Date", "Tue, 13 Jun 2023 10:22:44 GMT"},
-      #     {"x-amz-expiration",
-      #      "expiry-date=\"Thu, 15 Jun 2023 00:00:00 GMT\", rule-id=\"delete-after-1-day\""},
-      #     {"x-amz-server-side-encryption", "AES256"},
-      #     {"Content-Type", "application/xml"},
-      #     {"Transfer-Encoding", "chunked"},
-      #     {"Server", "AmazonS3"}
-      #   ],
-      #   status_code: 200
-      # }
-      # Fetch the contents of the returned XML string from `ex_aws`.
-      # This XML is parsed with `sweet_xml`:
-      # github.com/kbrw/sweet_xml#the-x-sigil
-      #
       # Fetching the URL of the returned file.
-      url = upload_response_body.body |> xpath(~x"//text()") |> List.to_string()
+      url = upload_response_body.body.location
 
       # Creating the compressed URL to return as well
       compressed_url = "#{compressed_baseurl()}#{file_name}"
