@@ -1,6 +1,7 @@
 defmodule AppWeb.ImgupLiveTest do
   use AppWeb.ConnCase
   import Phoenix.LiveViewTest
+  import AppWeb.UploadSupport
 
   test "connected mount", %{conn: conn} do
     conn = get(conn, "/liveview")
@@ -38,19 +39,20 @@ defmodule AppWeb.ImgupLiveTest do
 
   test "file input errors - file too large", %{conn: conn} do
     # Connect to LiveView
-    {:ok, live_view, _html} = live(conn, ~p"/liveview")
+    {:ok, lv, _html} = live(conn, ~p"/liveview")
 
-    # Build the upload input
-    upload =
-      file_input(live_view, "#upload-form", :image_list, [
-        %{name: "photo.png", content: "ok", size: 20_000_000}
-      ])
+    # Get file and add it to the form
+    file =
+      [:code.priv_dir(:app), "static", "images", "10mb.jpeg"]
+      |> Path.join()
+      |> build_upload("image/jpeg")
 
-    # Render the form change from the input
-    view = live_view |> form("#upload-form") |> render_change(upload)
+    image = file_input(lv, "#upload-form", :image_list, [file])
 
-    # Assert there's a File Too Large error
-    assert view =~ "Too large."
+    {code, [[_, description]]}  = render_upload(image, file.name)
+
+    assert code == :error
+    assert description == :too_large
   end
 
   test "file input errors - unnaceptable file type", %{conn: conn} do
@@ -60,7 +62,7 @@ defmodule AppWeb.ImgupLiveTest do
     # Build the upload input
     upload =
       file_input(live_view, "#upload-form", :image_list, [
-        %{name: "photo.pdf", content: "ok", size: 100_000}
+        %{name: "photo.pdf", content: "ok"}
       ])
 
     # Render the form change from the input
@@ -69,8 +71,6 @@ defmodule AppWeb.ImgupLiveTest do
     # Assert there's a File Too Large error
     assert view =~ "You have selected an unacceptable file type."
   end
-
-  import AppWeb.UploadSupport
 
   test "uploading a file", %{conn: conn} do
     {:ok, lv, html} = live(conn, ~p"/liveview")
