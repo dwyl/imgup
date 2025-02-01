@@ -73,7 +73,7 @@ defmodule App.MixProject do
       {:hackney, "~> 1.9"},
 
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.14.0"},
+      {:useful, "~> 1.15.0"},
 
       # Check/get Environment Variables: github.com/dwyl/envar
       {:envar, "~> 1.1.0"}
