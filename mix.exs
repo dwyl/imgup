@@ -56,6 +56,7 @@ defmodule App.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
+      {:lazy_html, ">= 0.1.0", only: :test},
 
       # Track test coverage: github.com/parroty/excoveralls
       {:excoveralls, "~> 0.15", only: [:test, :dev]},
